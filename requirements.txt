@@ -1,0 +1,2 @@
+sqlalchemy>=1.2.11
+py-meta-utils>=0.0.1
