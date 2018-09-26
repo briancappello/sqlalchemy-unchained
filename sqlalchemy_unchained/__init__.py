@@ -9,7 +9,7 @@ from .base_model import BaseModel, _QueryProperty
 from .base_model_metaclass import DeclarativeMeta
 from .base_query import BaseQuery, QueryMixin
 from .foreign_key import foreign_key
-from .model_meta_options import ModelMetaOptionsFactory
+from .model_meta_options import ColumnMetaOption, ModelMetaOptionsFactory
 from .model_registry import ModelRegistry
 from .validation import (BaseValidator, Required, ValidationError, ValidationErrors,
                          validates)
