@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.2.0 (unreleased)
+## v0.2.0 (2018/09/26)
 
 - implement validation for models
 - wrap `sqlalchemy.orm.relationship` with the configured `Query` class
