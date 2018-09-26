@@ -1,37 +1,19 @@
-from sqlalchemy import *
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import (declarative_base as _declarative_base,
-                                        declared_attr)
-from sqlalchemy.ext.declarative.base import _declarative_constructor
-from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
-from sqlalchemy.orm import Query, Session, scoped_session, sessionmaker
-from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import (declarative_base as _declarative_base)
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 from .base_model import BaseModel, _QueryProperty
+from .base_model_metaclass import DeclarativeMeta
+from .base_query import BaseQuery, QueryMixin
 from .foreign_key import foreign_key
-from .meta.base_model_metaclass import DeclarativeMeta
-from .meta.model_meta_options import (
-    _TestingMetaOption,
-    ColumnMetaOption,
-    CreatedAtColumnMetaOption,
-    LazyMappedMetaOption,
-    MetaOption,
-    PolymorphicBaseTablenameMetaOption,
-    PolymorphicIdentityMetaOption,
-    PolymorphicJoinedPkColumnMetaOption,
-    PolymorphicMetaOption,
-    PolymorphicOnColumnMetaOption,
-    PrimaryKeyColumnMetaOption,
-    ReprMetaOption,
-    TableMetaOption,
-    UpdatedAtColumnMetaOption,
-)
-from .meta.model_meta_options_factory import ModelMetaOptionsFactory
-from .meta.model_registry import ModelRegistry
+from .model_meta_options import ModelMetaOptionsFactory
+from .model_registry import ModelRegistry
+from .validation import (BaseValidator, Required, ValidationError, ValidationErrors,
+                         validates)
 
 
 def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
-                     model=BaseModel, name='Model', constructor=_declarative_constructor,
-                     query_class=Query, class_registry=None, metaclass=DeclarativeMeta):
+                     model=BaseModel, name='Model', query_class=BaseQuery,
+                     class_registry=None, metaclass=DeclarativeMeta):
     if not isinstance(model, DeclarativeMeta):
         def make_model_metaclass(name, bases, clsdict):
             clsdict['__abstract__'] = True
@@ -50,7 +32,7 @@ def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
             mapper=mapper,
             metadata=metadata,
             metaclass=make_model_metaclass,
-            constructor=constructor,
+            constructor=None,  # use BaseModel's explicitly declared constructor
         )
 
     # if user passed in a declarative base and a metaclass for some reason,

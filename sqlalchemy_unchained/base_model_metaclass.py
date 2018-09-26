@@ -1,12 +1,19 @@
+import re
 import sqlalchemy as sa
 
+from collections import defaultdict
 from py_meta_utils import McsArgs, McsInitArgs, deep_getattr
+from sqlalchemy import Column
 from sqlalchemy.ext.declarative import (
     DeclarativeMeta as BaseDeclarativeMeta, declared_attr)
 from sqlalchemy.schema import _get_table_key
+from sqlalchemy_unchained.utils import snake_case
 
-from .model_meta_options_factory import ModelMetaOptionsFactory
-from ..utils import snake_case
+from .model_meta_options import ModelMetaOptionsFactory
+
+
+VALIDATOR_RE = re.compile(r'^validates?_(?P<column>\w+)')
+
 
 # the `should_set_tablename` function, and the `NameMetaMixin` and `BindMetaMixin`
 # classes are copied from the `flask_sqlalchemy.model` module source (3-clause BSD)
@@ -129,7 +136,32 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
         if options_factory.abstract:
             return super().__new__(*mcs_args)
 
-        mcs._pre_mcs_new(mcs, mcs_args)
+        validators = deep_getattr(clsdict, bases, '__validators__', defaultdict(list))
+        columns = {col_name: col for col_name, col in clsdict.items()
+                   if isinstance(col, Column)}
+        for col_name, col in columns.items():
+            if not col.name:
+                col.name = col_name
+            if col.info:
+                for v in col.info.get('validators', []):
+                    if v not in validators[col_name]:
+                        validators[col_name].append(v)
+
+        for attr_name, attr in clsdict.items():
+            validates = getattr(attr, '__validates__', None)
+            if validates and deep_getattr(clsdict, mcs_args.bases, validates):
+                if attr_name not in validators[attr.__validates__]:
+                    validators[attr.__validates__].append(attr_name)
+                continue
+
+            m = VALIDATOR_RE.match(attr_name)
+            column = m.groupdict()['column'] if m else None
+            if m and deep_getattr(clsdict, mcs_args.bases, column, None) is not None:
+                attr.__validates__ = column
+                if attr_name not in validators[column]:
+                    validators[column].append(attr_name)
+        clsdict['__validators__'] = validators
+
         ModelRegistry().register_new(mcs_args)
         return super().__new__(*mcs_args)
 
@@ -163,9 +195,6 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
 
         if not cls._meta.abstract:
             ModelRegistry().register(McsInitArgs(cls, name, bases, clsdict))
-
-    def _pre_mcs_new(cls, mcs_args: McsArgs):
-        pass
 
     def _pre_mcs_init(cls):
         """

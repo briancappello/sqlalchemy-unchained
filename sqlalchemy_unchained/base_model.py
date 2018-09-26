@@ -1,7 +1,11 @@
+import inspect
+
+from collections import defaultdict
 from sqlalchemy import orm
 from sqlalchemy.orm.exc import UnmappedClassError
 
-from .meta import ModelMetaOptionsFactory
+from .model_meta_options import ModelMetaOptionsFactory
+from .validation import Required, ValidationError, ValidationErrors
 
 
 class _QueryProperty(object):
@@ -15,6 +19,14 @@ class _QueryProperty(object):
                 return type.query_class(mapper, session=self.session_factory())
         except UnmappedClassError:
             return None
+
+
+class GettextDescriptor:
+    def __get__(self, instance, cls):
+        return getattr(instance, '_gettext_fn', lambda x: x)
+
+    def __set__(self, instance, value):
+        instance._gettext_fn = value
 
 
 class BaseModel(object):
@@ -39,25 +51,89 @@ class BaseModel(object):
     # :class:`SQLAlchemy.Query`, which defaults to :class:`BaseQuery`.
     query_class = None
 
+    gettext_fn = GettextDescriptor()
+
     #: Convenience property to query the database for instances of this model
     # using the current session. Equivalent to ``db.session.query(Model)``
     # unless :attr:`query_class` has been changed.
     query = None
 
-    def update(self, **kwargs):
+    def __init__(self, **kwargs):
+        super().__init__()
+        if self._meta.validation:
+            self.update(partial_validation=False, **kwargs)
+
+    def update(self, partial_validation=True, **kwargs):
         """
         Update fields on the model.
-
-        :param kwargs: The model attribute values to update the instance with.
         """
+        if self._meta.validation:
+            self.validate(partial=partial_validation, **kwargs)
         for attr, value in kwargs.items():
             setattr(self, attr, value)
         return self
 
+    @classmethod
+    def validate(cls, partial=True, **kwargs):
+        """
+        Validate kwargs before setting attributes on the model
+        """
+        data = kwargs
+        if not partial:
+            data = dict(**kwargs, **{col.name: None for col in cls.__table__.c
+                                     if col.name not in kwargs})
+
+        errors = defaultdict(list)
+        for name, value in data.items():
+            for validator in cls._get_validators(name):
+                try:
+                    validator(value)
+                except ValidationError as e:
+                    e.model = cls
+                    e.column = name
+                    errors[name].append(str(e))
+
+        if errors:
+            raise ValidationErrors(errors)
+
+    @classmethod
+    def _get_validators(cls, column_name):
+        rv = []
+        col = cls.__table__.c.get(column_name)
+        validators = cls.__validators__.get(column_name, [])
+        for validator in validators:
+            if isinstance(validator, str) and hasattr(cls, validator):
+                rv.append(getattr(cls, validator))
+            else:
+                if inspect.isclass(validator):
+                    validator = validator()
+                rv.append(validator)
+
+        if col is not None and not any(isinstance(x, Required) for x in validators):
+            not_null = not col.primary_key and not col.nullable
+            required_msg = col.info and col.info.get('required', None)
+            if not_null or required_msg:
+                if isinstance(required_msg, bool):
+                    required_msg = None
+                elif isinstance(required_msg, str):
+                    required_msg = cls.gettext_fn(required_msg)
+                rv.append(Required(required_msg or None))
+        return rv
+
+    def __setattr__(self, key, value):
+        if self._meta.validation:
+            for validator in self._get_validators(key):
+                try:
+                    validator(value)
+                except ValidationError as e:
+                    e.model = self.__class__
+                    e.column = key
+                    raise e
+        super().__setattr__(key, value)
+
     def __repr__(self):
-        props = getattr(getattr(self, '_meta', object), 'repr', ())
         properties = [f'{prop}={getattr(self, prop)!r}'
-                      for prop in props if hasattr(self, prop)]
+                      for prop in self._meta.repr if hasattr(self, prop)]
         return f"{self.__class__.__name__}({', '.join(properties)})"
 
     def __eq__(self, other):

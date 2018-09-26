@@ -11,7 +11,7 @@ class ModelRegistry(metaclass=SubclassableSingleton):
     enable_lazy_mapping = False
 
     def __init__(self):
-        from ..base_model import BaseModel as Model
+        from .base_model import BaseModel as Model
 
         # keyed by: full.base.model.module.name.BaseModelClassName
         # values are the base classes themselves
@@ -64,7 +64,7 @@ class ModelRegistry(metaclass=SubclassableSingleton):
             self._initialized.add(mcs_init_args.name)
 
     def finalize_mappings(self):
-        from ..meta.base_model_metaclass import DeclarativeMeta
+        from sqlalchemy_unchained.base_model_metaclass import DeclarativeMeta
 
         # this outer loop is needed to perform initializations in the order the
         # classes were originally discovered at import time

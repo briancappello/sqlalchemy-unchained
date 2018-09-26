@@ -23,3 +23,17 @@ def snake_case(string):
         return string
     string = string.replace('-', '_').replace(' ', '_')
     return de_camel(string)
+
+
+def title_case(string):
+    """
+    Converts a string to title case. For example::
+
+        title_case('one_two_three') -> 'One Two Three'
+    """
+    if not string:
+        return string
+    string = string.replace('_', ' ').replace('-', ' ')
+    parts = de_camel(string, ' ', _lowercase=False).strip().split(' ')
+    return ' '.join([part if part.isupper() else part.title()
+                     for part in parts])
