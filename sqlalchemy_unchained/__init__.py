@@ -3,6 +3,9 @@ import functools
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.ext.declarative import (declarative_base as _declarative_base)
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship as _relationship
 
 from .base_model import BaseModel, _QueryProperty
