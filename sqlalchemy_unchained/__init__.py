@@ -1,5 +1,9 @@
+import functools
+
+from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.ext.declarative import (declarative_base as _declarative_base)
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship as _relationship
 
 from .base_model import BaseModel, _QueryProperty
 from .base_model_metaclass import DeclarativeMeta
@@ -9,6 +13,24 @@ from .model_meta_options import ModelMetaOptionsFactory
 from .model_registry import ModelRegistry
 from .validation import (BaseValidator, Required, ValidationError, ValidationErrors,
                          validates)
+
+
+def _set_default_query_class(d, query_cls):
+    if 'query_class' not in d:
+        d['query_class'] = query_cls
+
+
+def _wrap_with_default_query_class(fn, query_cls):
+    @functools.wraps(fn)
+    def newfn(*args, **kwargs):
+        _set_default_query_class(kwargs, query_cls)
+        if "backref" in kwargs:
+            backref = kwargs['backref']
+            if isinstance(backref, str):
+                backref = (backref, {})
+            _set_default_query_class(backref[1], query_cls)
+        return fn(*args, **kwargs)
+    return newfn
 
 
 def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
@@ -50,3 +72,13 @@ def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
 def scoped_session_factory(bind=None, scopefunc=None, **kwargs):
     return scoped_session(sessionmaker(bind=bind, **kwargs),
                           scopefunc=scopefunc)
+
+
+def init_sqlalchemy_unchained(db_uri, session_scopefunc=None,
+                              model_registry_cls=ModelRegistry, **kwargs):
+    _registry = model_registry_cls()
+    engine = create_engine(db_uri)
+    Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc)
+    Model = declarative_base(Session, bind=engine, **kwargs)
+    relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
+    return engine, Session, Model, relationship
