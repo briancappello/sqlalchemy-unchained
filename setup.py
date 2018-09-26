@@ -26,7 +26,6 @@ setup(
     extras_require={
         'dev': [
             'coverage',
-            'factory_boy',
             'pytest',
             'tox',
         ],
