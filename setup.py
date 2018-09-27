@@ -7,7 +7,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='SQLAlchemy Unchained',
-    version='version='0.2.0'',
+    version='0.2.1',
     description='Improved declarative SQLAlchemy models',
     long_description=long_description,
     url='https://github.com/briancappello/sqlalchemy-unchained',

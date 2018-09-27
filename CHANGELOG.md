@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.2.1 (unreleased)
+## v0.2.1 (2018/09/26)
 
 - fix automatic Required validation (should not raise if the column has a default value)
 
