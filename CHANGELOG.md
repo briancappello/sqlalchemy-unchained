@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.1 (unreleased)
+
+- fix automatic Required validation (should not raise if the column has a default value)
+
 ## v0.2.0 (2018/09/26)
 
 - implement validation for models

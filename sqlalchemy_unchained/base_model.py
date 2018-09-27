@@ -109,7 +109,9 @@ class BaseModel(object):
                     validator = validator()
                 rv.append(validator)
 
-        if col is not None and not any(isinstance(x, Required) for x in validators):
+        if (col is not None
+                and not any(isinstance(x, Required) for x in validators)
+                and col.default is None):
             not_null = not col.primary_key and not col.nullable
             required_msg = col.info and col.info.get('required', None)
             if not_null or required_msg:
