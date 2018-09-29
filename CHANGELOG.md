@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.2.2 (unreleased)
+## v0.2.2 (2018/09/29)
 
 - update to py-meta-utils 0.2
 
