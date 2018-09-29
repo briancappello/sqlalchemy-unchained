@@ -286,15 +286,15 @@ class ColumnMetaOption(MetaOption):
         return self.default if value is True else value
 
     def check_value(self, value, mcs_args: McsArgs):
-        msg = f'{self.name} Meta option on {mcs_args.model_repr} ' \
+        msg = f'{self.name} Meta option on {mcs_args.repr} ' \
               f'must be a str, bool or None'
         assert value is None or isinstance(value, (bool, str)), msg
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
-        is_polymorphic = mcs_args.model_meta.polymorphic
-        is_polymorphic_base = mcs_args.model_meta._is_base_polymorphic_model
+        is_polymorphic = mcs_args.meta.polymorphic
+        is_polymorphic_base = mcs_args.meta._is_base_polymorphic_model
 
-        if (mcs_args.model_meta.abstract
+        if (mcs_args.meta.abstract
                 or (is_polymorphic and not is_polymorphic_base)):
             return
 

@@ -96,7 +96,7 @@ class ModelRegistry(metaclass=SubclassableSingleton):
         mcs_args.bases = tuple([correct_base] + list(mcs_args.bases))
 
     def _should_convert_bases_to_mixins(self, mcs_args: McsArgs):
-        if mcs_args.model_meta.polymorphic:
+        if mcs_args.meta.polymorphic:
             return False
 
         for b in mcs_args.bases:

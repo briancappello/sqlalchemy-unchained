@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.2 (unreleased)
+
+- update to py-meta-utils 0.2
+
 ## v0.2.1 (2018/09/26)
 
 - fix automatic Required validation (should not raise if the column has a default value)
