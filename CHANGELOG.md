@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.3.0 (unreleased)
+## v0.3.0 (2018/09/30)
 
 - update to py-meta-utils 0.3
 
