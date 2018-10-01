@@ -291,10 +291,10 @@ class ColumnMetaOption(MetaOption):
         assert value is None or isinstance(value, (bool, str)), msg
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
-        is_polymorphic = mcs_args.meta.polymorphic
-        is_polymorphic_base = mcs_args.meta._is_base_polymorphic_model
+        is_polymorphic = mcs_args.Meta.polymorphic
+        is_polymorphic_base = mcs_args.Meta._is_base_polymorphic_model
 
-        if (mcs_args.meta.abstract
+        if (mcs_args.Meta.abstract
                 or (is_polymorphic and not is_polymorphic_base)):
             return
 

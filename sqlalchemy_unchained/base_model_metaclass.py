@@ -2,7 +2,7 @@ import re
 import sqlalchemy as sa
 
 from collections import defaultdict
-from py_meta_utils import McsArgs, McsInitArgs, deep_getattr
+from py_meta_utils import McsArgs, McsInitArgs, deep_getattr, apply_factory_meta_options
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import (
     DeclarativeMeta as BaseDeclarativeMeta, declared_attr)
@@ -126,12 +126,8 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
 
         mcs_args = McsArgs(mcs, name, bases, clsdict)
         ModelRegistry()._ensure_correct_base_model(mcs_args)
-
-        factory_cls = deep_getattr(
-            clsdict, mcs_args.bases, '_meta_options_factory_class',
-            ModelMetaOptionsFactory)
-        options_factory: ModelMetaOptionsFactory = factory_cls()
-        options_factory._contribute_to_class(mcs_args)
+        options_factory = apply_factory_meta_options(
+            mcs_args, default_factory_class=ModelMetaOptionsFactory)
 
         if options_factory.abstract:
             return super().__new__(*mcs_args)
@@ -178,9 +174,9 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
         # effect (and that agrees with what conceptually should be the case).
         # Sooo, we're passing the correct arguments up the chain, to reduce
         # confusion, just in case anybody needs to inspect them)
-        _, name, bases, clsdict = cls._meta._mcs_args
+        _, name, bases, clsdict = cls.Meta._mcs_args
 
-        if cls._meta.abstract:
+        if cls.Meta.abstract:
             super().__init__(name, bases, clsdict)
 
         if should_set_tablename(cls):
@@ -188,12 +184,12 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
 
         from .model_registry import ModelRegistry
         if not ModelRegistry().enable_lazy_mapping or \
-                (not cls._meta.abstract and not cls._meta.lazy_mapped):
+                (not cls.Meta.abstract and not cls.Meta.lazy_mapped):
             cls._pre_mcs_init()
             super().__init__(name, bases, clsdict)
             cls._post_mcs_init()
 
-        if not cls._meta.abstract:
+        if not cls.Meta.abstract:
             ModelRegistry().register(McsInitArgs(cls, name, bases, clsdict))
 
     def _pre_mcs_init(cls):

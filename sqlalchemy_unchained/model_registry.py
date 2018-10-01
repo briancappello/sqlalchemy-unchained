@@ -60,7 +60,7 @@ class ModelRegistry(metaclass=SubclassableSingleton):
 
     def register(self, mcs_init_args: McsInitArgs):
         self._models[mcs_init_args.name] = mcs_init_args
-        if not self.enable_lazy_mapping or not mcs_init_args.cls._meta.lazy_mapped:
+        if not self.enable_lazy_mapping or not mcs_init_args.cls.Meta.lazy_mapped:
             self._initialized.add(mcs_init_args.name)
 
     def finalize_mappings(self):
@@ -91,12 +91,12 @@ class ModelRegistry(metaclass=SubclassableSingleton):
             if issubclass(b, correct_base):
                 return
 
-        mcs_args.clsdict['_meta'] = \
-            deep_getattr({}, mcs_args.bases, '_meta', None)
+        mcs_args.clsdict['Meta'] = \
+            deep_getattr({}, mcs_args.bases, 'Meta', None)
         mcs_args.bases = tuple([correct_base] + list(mcs_args.bases))
 
     def _should_convert_bases_to_mixins(self, mcs_args: McsArgs):
-        if mcs_args.meta.polymorphic:
+        if mcs_args.Meta.polymorphic:
             return False
 
         for b in mcs_args.bases:

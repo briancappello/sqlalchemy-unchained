@@ -5,7 +5,7 @@ from sqlalchemy_unchained import ModelRegistry, Required, ValidationErrors
 
 class TestModelMetaOptions:
     def test_defaults(self, db):
-        meta = db.Model._meta
+        meta = db.Model.Meta
         assert meta._testing_ == 'this setting is only available when ' \
                                  'os.getenv("SQLA_TESTING") == "True"'
 
@@ -30,7 +30,7 @@ class TestModelMetaOptions:
                 updated_at = 'updated'
                 _testing_ = 'over'
 
-        meta = Over._meta
+        meta = Over.Meta
         assert meta._testing_ == 'over'
         assert meta.abstract is False
         assert meta.lazy_mapped is False
@@ -49,7 +49,7 @@ class TestModelMetaOptions:
                 lazy_mapped = True
                 updated_at = 'extends'
 
-        meta = ExtendsOver._meta
+        meta = ExtendsOver.Meta
         assert meta._testing_ == 'over'
         assert meta.abstract is False
         assert meta.lazy_mapped is True
@@ -68,16 +68,16 @@ class TestModelMetaOptions:
             __abstract__ = True
 
         ModelRegistry().finalize_mappings()
-        assert Classic._meta.abstract is True
-        assert Classic._meta._mcs_args.clsdict['__abstract__'] is True
+        assert Classic.Meta.abstract is True
+        assert Classic.Meta._mcs_args.clsdict['__abstract__'] is True
 
         class MyMeta(db.Model):
             class Meta:
                 abstract = True
 
         ModelRegistry().finalize_mappings()
-        assert MyMeta._meta.abstract is True
-        assert MyMeta._meta._mcs_args.clsdict['__abstract__'] is True
+        assert MyMeta.Meta.abstract is True
+        assert MyMeta.Meta._mcs_args.clsdict['__abstract__'] is True
 
     def test_primary_key(self, db):
         class NotLazy(db.Model):
@@ -146,9 +146,9 @@ class TestModelMetaOptions:
         class GlassOnion(YellowSubmarine):
             pass
 
-        assert Base._meta._base_tablename is None
-        assert YellowSubmarine._meta._base_tablename == 'base'
-        assert GlassOnion._meta._base_tablename == 'yellow_submarine'
+        assert Base.Meta._base_tablename is None
+        assert YellowSubmarine.Meta._base_tablename == 'base'
+        assert GlassOnion.Meta._base_tablename == 'yellow_submarine'
 
     def test_polymorphic_manual_base_tablename(self, db):
         class Base(db.Model):
@@ -164,9 +164,9 @@ class TestModelMetaOptions:
         class GlassOnion(YellowSubmarine):
             pass
 
-        assert Base._meta._base_tablename is None
-        assert YellowSubmarine._meta._base_tablename == 'bases'
-        assert GlassOnion._meta._base_tablename == 'yellow_subs'
+        assert Base.Meta._base_tablename is None
+        assert YellowSubmarine.Meta._base_tablename == 'bases'
+        assert GlassOnion.Meta._base_tablename == 'yellow_subs'
 
     def test_polymorphic_manual_declared_attr_tablename(self, db):
         class Base(db.Model):
@@ -184,11 +184,11 @@ class TestModelMetaOptions:
         class GlassOnion(YellowSubmarine):
             id = db.foreign_key(YellowSubmarine.__tablename__, primary_key=True)
 
-        assert Base._meta._base_tablename is None
+        assert Base.Meta._base_tablename is None
         assert Base.__tablename__ == 'bases'
-        assert YellowSubmarine._meta._base_tablename is None
+        assert YellowSubmarine.Meta._base_tablename is None
         assert YellowSubmarine.__tablename__ == 'yellowsubmarines'
-        assert GlassOnion._meta._base_tablename is None
+        assert GlassOnion.Meta._base_tablename is None
 
     def test_polymorphic_declared_attr_tablename(self, db):
         class Base(db.Model):
@@ -206,11 +206,11 @@ class TestModelMetaOptions:
         class GlassOnion(YellowSubmarine):
             pass
 
-        assert Base._meta._base_tablename is None
+        assert Base.Meta._base_tablename is None
         assert Base.__tablename__ == 'bases'
-        assert YellowSubmarine._meta._base_tablename is None
+        assert YellowSubmarine.Meta._base_tablename is None
         assert YellowSubmarine.__tablename__ == 'yellowsubmarines'
-        assert GlassOnion._meta._base_tablename is None
+        assert GlassOnion.Meta._base_tablename is None
 
     def test_tablename(self, db):
         class NotLazy(db.Model):
@@ -221,8 +221,8 @@ class TestModelMetaOptions:
         class Auto(NotLazy):
             pass
 
-        assert Auto._meta.table is None
-        assert '__tablename__' not in Auto._meta._mcs_args.clsdict
+        assert Auto.Meta.table is None
+        assert '__tablename__' not in Auto.Meta._mcs_args.clsdict
         assert Auto.__tablename__ == 'auto'
 
         class DeclaredAttr(NotLazy):
@@ -230,12 +230,12 @@ class TestModelMetaOptions:
             def __tablename__(cls):
                 return cls.__name__.lower()
 
-        assert DeclaredAttr._meta.table is None
+        assert DeclaredAttr.Meta.table is None
         assert DeclaredAttr.__tablename__ == 'declaredattr'
 
         class Manual(NotLazy):
             __tablename__ = 'manuals'
 
-        assert Manual._meta.table == 'manuals'
-        assert Manual._meta._mcs_args.clsdict['__tablename__'] == 'manuals'
+        assert Manual.Meta.table == 'manuals'
+        assert Manual.Meta._mcs_args.clsdict['__tablename__'] == 'manuals'
         assert Manual.__tablename__ == 'manuals'

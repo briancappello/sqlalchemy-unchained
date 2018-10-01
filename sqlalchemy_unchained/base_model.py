@@ -56,18 +56,18 @@ class BaseModel(object):
     #: Convenience property to query the database for instances of this model
     # using the current session. Equivalent to ``db.session.query(Model)``
     # unless :attr:`query_class` has been changed.
-    query = None
+    query: orm.Query = None
 
     def __init__(self, **kwargs):
         super().__init__()
-        if self._meta.validation:
+        if self.Meta.validation:
             self.update(partial_validation=False, **kwargs)
 
     def update(self, partial_validation=True, **kwargs):
         """
         Update fields on the model.
         """
-        if self._meta.validation:
+        if self.Meta.validation:
             self.validate(partial=partial_validation, **kwargs)
         for attr, value in kwargs.items():
             setattr(self, attr, value)
@@ -123,7 +123,7 @@ class BaseModel(object):
         return rv
 
     def __setattr__(self, key, value):
-        if self._meta.validation:
+        if self.Meta.validation:
             for validator in self._get_validators(key):
                 try:
                     validator(value)
@@ -135,7 +135,7 @@ class BaseModel(object):
 
     def __repr__(self):
         properties = [f'{prop}={getattr(self, prop)!r}'
-                      for prop in self._meta.repr if hasattr(self, prop)]
+                      for prop in self.Meta.repr if hasattr(self, prop)]
         return f"{self.__class__.__name__}({', '.join(properties)})"
 
     def __eq__(self, other):

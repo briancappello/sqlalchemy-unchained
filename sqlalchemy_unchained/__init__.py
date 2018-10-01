@@ -1,5 +1,6 @@
 import functools
 
+from py_meta_utils import META_OPTIONS_FACTORY_CLASS_ATTR_NAME
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.ext.declarative import (declarative_base as _declarative_base)
@@ -45,8 +46,9 @@ def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
             clsdict['__module__'] = model.__module__
             if hasattr(model, 'Meta'):
                 clsdict['Meta'] = model.Meta
-            if hasattr(model, '_meta_options_factory_class'):
-                clsdict['_meta_options_factory_class'] = model._meta_options_factory_class
+            if hasattr(model, META_OPTIONS_FACTORY_CLASS_ATTR_NAME):
+                clsdict[META_OPTIONS_FACTORY_CLASS_ATTR_NAME] = \
+                    getattr(model, META_OPTIONS_FACTORY_CLASS_ATTR_NAME)
             return metaclass(name, bases, clsdict)
 
         model = _declarative_base(

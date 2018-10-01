@@ -23,10 +23,10 @@ class ColumnMetaOption(MetaOption):
         assert value is None or isinstance(value, (bool, str)), msg
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
-        is_polymorphic = mcs_args.meta.polymorphic
-        is_polymorphic_base = mcs_args.meta._is_base_polymorphic_model
+        is_polymorphic = mcs_args.Meta.polymorphic
+        is_polymorphic_base = mcs_args.Meta._is_base_polymorphic_model
 
-        if (mcs_args.meta.abstract
+        if (mcs_args.Meta.abstract
                 or (is_polymorphic and not is_polymorphic_base)):
             return
 
@@ -89,9 +89,9 @@ class PolymorphicBaseTablenameMetaOption(MetaOption):
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
         if base_model_meta and not base_model_meta.abstract:
             bm = base_model_meta._mcs_args
-            clsdicts = [bm.clsdict] + [b._meta._mcs_args.clsdict
+            clsdicts = [bm.clsdict] + [b.Meta._mcs_args.clsdict
                                        for b in bm.bases
-                                       if hasattr(b, '_meta')]
+                                       if hasattr(b, 'Meta')]
             declared_attrs = [isinstance(d.get('__tablename__'), declared_attr)
                               for d in clsdicts]
             if any(declared_attrs):
@@ -104,19 +104,19 @@ class PolymorphicOnColumnMetaOption(ColumnMetaOption):
         super().__init__(name=name, default=default)
 
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
-        if mcs_args.meta.polymorphic not in {'single', 'joined'}:
+        if mcs_args.Meta.polymorphic not in {'single', 'joined'}:
             return None
         return super().get_value(meta, base_model_meta, mcs_args)
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
-        if mcs_args.meta.polymorphic not in {'single', 'joined'}:
+        if mcs_args.Meta.polymorphic not in {'single', 'joined'}:
             return
 
         # maybe add the polymorphic_on discriminator column
         super().contribute_to_class(mcs_args, col_name)
 
         mapper_args = mcs_args.clsdict.get('__mapper_args__', {})
-        if (mcs_args.meta._is_base_polymorphic_model
+        if (mcs_args.Meta._is_base_polymorphic_model
                 and 'polymorphic_on' not in mapper_args):
             mapper_args['polymorphic_on'] = mcs_args.clsdict[col_name]
             mcs_args.clsdict['__mapper_args__'] = mapper_args
@@ -131,7 +131,7 @@ class PolymorphicJoinedPkColumnMetaOption(ColumnMetaOption):
         super().__init__(name='_', default='_')
 
     def contribute_to_class(self, mcs_args: McsArgs, value):
-        meta = mcs_args.meta
+        meta = mcs_args.Meta
         if meta.abstract or not meta._base_tablename:
             return
 
@@ -143,8 +143,8 @@ class PolymorphicJoinedPkColumnMetaOption(ColumnMetaOption):
 
     def get_column(self, mcs_args: McsArgs):
         from .foreign_key import foreign_key
-        return foreign_key(mcs_args.meta._base_tablename,
-                           primary_key=True, fk_col=mcs_args.meta.pk)
+        return foreign_key(mcs_args.Meta._base_tablename,
+                           primary_key=True, fk_col=mcs_args.Meta.pk)
 
 
 class PolymorphicTableArgsMetaOption(MetaOption):
@@ -153,8 +153,8 @@ class PolymorphicTableArgsMetaOption(MetaOption):
         super().__init__(name='_', default='_')
 
     def contribute_to_class(self, mcs_args: McsArgs, value):
-        if (mcs_args.meta.polymorphic == 'single'
-                and mcs_args.meta._is_base_polymorphic_model):
+        if (mcs_args.Meta.polymorphic == 'single'
+                and mcs_args.Meta._is_base_polymorphic_model):
             mcs_args.clsdict['__table_args__'] = None
 
 
@@ -163,7 +163,7 @@ class PolymorphicIdentityMetaOption(MetaOption):
         super().__init__(name=name, default=default, inherit=False)
 
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
-        if mcs_args.meta.polymorphic in {False, '_fully_manual_'}:
+        if mcs_args.Meta.polymorphic in {False, '_fully_manual_'}:
             return None
 
         identifier = super().get_value(meta, base_model_meta, mcs_args)
@@ -172,7 +172,7 @@ class PolymorphicIdentityMetaOption(MetaOption):
                                identifier or mcs_args.name)
 
     def contribute_to_class(self, mcs_args: McsArgs, identifier):
-        if mcs_args.meta.polymorphic in {False, '_fully_manual_'}:
+        if mcs_args.Meta.polymorphic in {False, '_fully_manual_'}:
             return
 
         mapper_args = mcs_args.clsdict.get('__mapper_args__', {})
@@ -274,7 +274,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
     def _is_base_polymorphic_model(self):
         if not self.polymorphic:
             return False
-        base_meta = deep_getattr({}, self._mcs_args.bases, '_meta')
+        base_meta = deep_getattr({}, self._mcs_args.bases, 'Meta')
         return base_meta.abstract
 
     @property

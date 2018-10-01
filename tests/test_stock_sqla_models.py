@@ -6,15 +6,15 @@ class TestStockSQLA:
         class AbstractAttr(db.Model):
             __abstract__ = True
 
-        assert AbstractAttr._meta.abstract is True
-        assert '__abstract__' in AbstractAttr._meta._mcs_args.clsdict
+        assert AbstractAttr.Meta.abstract is True
+        assert '__abstract__' in AbstractAttr.Meta._mcs_args.clsdict
 
         class AbstractMeta(db.Model):
             class Meta:
                 abstract = True
 
-        assert AbstractMeta._meta.abstract is True
-        assert '__abstract__' in AbstractMeta._meta._mcs_args.clsdict
+        assert AbstractMeta.Meta.abstract is True
+        assert '__abstract__' in AbstractMeta.Meta._mcs_args.clsdict
 
     def test_columns_do_not_override_existing_attributes(self, db):
         class Columns(db.Model):
@@ -41,16 +41,16 @@ class TestStockSQLA:
 
         # there's no way to know whether user wants single, joined, or concrete
         # so most polymorphic magic must remain disabled
-        assert Person._meta.polymorphic == '_manual_'
+        assert Person.Meta.polymorphic == '_manual_'
         assert not hasattr(Person, 'discriminator')
-        assert Person._meta.polymorphic_on is None
-        assert Person._meta.polymorphic_identity == 'base person'
+        assert Person.Meta.polymorphic_on is None
+        assert Person.Meta.polymorphic_identity == 'base person'
 
         class Employee(Person):
             __table_args__ = None
 
         assert Employee.id == Person.id
-        assert Employee._meta.polymorphic_identity == 'Employee'
+        assert Employee.Meta.polymorphic_identity == 'Employee'
 
     def test_declared_attr_polymorphic_models(self, db):
         class Person(db.Model):
@@ -66,13 +66,13 @@ class TestStockSQLA:
 
         # when the user has used a @declared_attr for __mapper_args__, there's
         # no way to know anything, so all polymorphic magic must be disabled
-        assert Person._meta.polymorphic == '_fully_manual_'
+        assert Person.Meta.polymorphic == '_fully_manual_'
         assert not hasattr(Person, 'discriminator')
-        assert Person._meta.polymorphic_on is None
-        assert Person._meta.polymorphic_identity is None
+        assert Person.Meta.polymorphic_on is None
+        assert Person.Meta.polymorphic_identity is None
 
         class Employee(Person):
             __table_args__ = None
 
         assert Employee.id == Person.id
-        assert Employee._meta.polymorphic_identity is None
+        assert Employee.Meta.polymorphic_identity is None
