@@ -192,10 +192,12 @@ NOTE: The snake case logic used is slightly different from that of Flask-SQLAlch
 ```python
 class Foo(db.Model):
     class Meta:
-        pk: Union[str, None] = 'id'  # 'id' is the default
+        pk: Union[str, None] = ModelRegistry().default_primary_key_column = 'id'
 ```
 
 Set to a string to customize the column name used for the primary key, or set to `None` to disable the column.
+
+NOTE: Customizing the default primary key column name used for all models is different from customizing the defaults for other meta options. (You should subclass `ModelRegistry` and set its `default_primary_key_column` attribute. This is necessary for the `foreign_key` helper function to work correctly.)
 
 ### Created At
 
@@ -272,48 +274,25 @@ class Bar(Foo):
 
 ## Customizing Meta Options
 
-The meta options available are configurable. Let's take a look at the implementation of the primary key meta option:
+The meta options available are configurable. Let's take a look at the implementation of the `created_at` meta option:
 
 ```python
 import sqlalchemy as sa
 
-from py_meta_utils import McsArgs, MetaOption
+from py_meta_utils import McsArgs
+from sqlalchemy import func as sa_func
+from sqlalchemy_unchained import ColumnMetaOption
 
 
-class ColumnMetaOption(MetaOption):
-    def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
-        value = super().get_value(meta, base_model_meta, mcs_args)
-        return self.default if value is True else value
-
-    def check_value(self, value, mcs_args: McsArgs):
-        msg = f'{self.name} Meta option on {mcs_args.repr} ' \
-              f'must be a str, bool or None'
-        assert value is None or isinstance(value, (bool, str)), msg
-
-    def contribute_to_class(self, mcs_args: McsArgs, col_name):
-        is_polymorphic = mcs_args.Meta.polymorphic
-        is_polymorphic_base = mcs_args.Meta._is_base_polymorphic_model
-
-        if (mcs_args.Meta.abstract
-                or (is_polymorphic and not is_polymorphic_base)):
-            return
-
-        if col_name and col_name not in mcs_args.clsdict:
-            mcs_args.clsdict[col_name] = self.get_column(mcs_args)
-
-    def get_column(self, mcs_args: McsArgs):
-        raise NotImplementedError
-
-
-class PrimaryKeyColumnMetaOption(ColumnMetaOption):
-    def __init__(self, name='pk', default='id', inherit=True):
+class CreatedAtColumnMetaOption(ColumnMetaOption):
+    def __init__(self, name='created_at', default='created_at', inherit=True):
         super().__init__(name=name, default=default, inherit=inherit)
 
     def get_column(self, mcs_args: McsArgs):
-        return sa.Column(sa.Integer, primary_key=True)
+        return sa.Column(sa.DateTime, server_default=sa_func.now())
 ```
 
-For examples sake, let's say you wanted every model to have a required name column. First we need to implement a `ColumnMetaOption`:
+For examples sake, let's say you wanted every model to have a required name column, but no automatic timestamping behavior. First we need to implement a `ColumnMetaOption`:
 
 ```python
 # your_package/base_model.py
@@ -339,9 +318,13 @@ class CustomModelMetaOptionsFactory(ModelMetaOptionsFactory):
 
 class BaseModel(_BaseModel):
     _meta_options_factory_class = CustomModelMetaOptionsFactory
+
+    class Meta:
+        created_at = None
+        updated_at = None
 ```
 
-The last step is to use our customized `BaseModel` class:
+The last step is to tell SQLAlchemy Unchained to use our customized `BaseModel` class:
 
 ```python
 # your_package/db.py
@@ -356,3 +339,72 @@ engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI,
                                                                  model=BaseModel)
 ```
 
+## Customizing the Default Primary Key Column Name
+
+The primary key column is special in that knowledge of its setting is required for determining foreign key column names during model class creation. The first step is to subclass the `ModelRegistry` and set its `default_primary_key_column` class attribute:
+
+```python
+# your_package/model_registry.py
+
+from sqlalchemy_unchained import ModelRegistry as BaseModelRegistry
+
+
+class ModelRegistry(BaseModelRegistry):
+    default_primary_key_column = 'pk'
+```
+
+And then, in order to inform SQLAlchemy Unchained about your customized model registry, you just need to import it in your code *before* calling `init_sqlalchemy_unchained`:
+
+```python
+# your_package/db.py
+
+from sqlalchemy_unchained import *
+
+from .config import Config
+from .model_registry import ModelRegistry
+
+
+engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
+```
+
+## Lazy Mapping
+
+Lazy mapping is feature that this package introduces on top of SQLAlchemy. It's experimental, and disabled by default. In stock SQLAlchemy, when you define a model, the second that code gets imported, the base model's metaclass will register the model with SQLAlchemy's mapper. 99% of the time this is what you want to happen, but if for some reason you *don't* want that behavior, then you have to enable lazy mapping. There are two components to enabling lazy mapping.
+
+The first step is to customize the model registry:
+
+```python
+# your_package/model_registry.py
+
+from sqlalchemy_unchained import ModelRegistry
+
+
+class LazyModelRegistry(ModelRegistry):
+    enable_lazy_mapping = True
+
+    def should_initialize(self, model_name: str) -> bool:
+        pass # implement your custom logic for determining which models to register
+        # with SQLAlchemy
+```
+
+And just like for customizing the primary key column, we need to import our `ModelRegistry` subclass before calling `init_sqlalchey_unchained`.
+
+```python
+# your_package/db.py
+
+from sqlalchemy_unchained import *
+
+from .config import Config
+from .model_registry import LazyModelRegistry
+
+
+engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
+```
+
+The second is to define your models like so:
+
+```python
+class Foo(db.Model):
+    class Meta:
+        lazy_mapped = True
+```

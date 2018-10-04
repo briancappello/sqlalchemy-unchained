@@ -9,6 +9,7 @@ from typing import *
 
 class ModelRegistry(metaclass=SubclassableSingleton):
     enable_lazy_mapping = False
+    default_primary_key_column = 'id'
 
     def __init__(self):
         from .base_model import BaseModel as Model

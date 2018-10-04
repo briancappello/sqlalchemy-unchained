@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.3.1 (unreleased)
+
+- set default primary key as a class attribute on the `ModelRegistry`
+
 ## v0.3.0 (2018/09/30)
 
 - update to py-meta-utils 0.3

@@ -38,8 +38,16 @@ class ColumnMetaOption(MetaOption):
 
 
 class PrimaryKeyColumnMetaOption(ColumnMetaOption):
-    def __init__(self, name='pk', default='id', inherit=True):
+    def __init__(self, name='pk', default=_missing, inherit=True):
         super().__init__(name=name, default=default, inherit=inherit)
+
+    def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
+        value = super().get_value(meta, base_model_meta, mcs_args)
+        if value is not _missing:
+            return value
+
+        from .model_registry import ModelRegistry
+        return ModelRegistry().default_primary_key_column
 
     def get_column(self, mcs_args: McsArgs):
         return sa.Column(sa.Integer, primary_key=True)

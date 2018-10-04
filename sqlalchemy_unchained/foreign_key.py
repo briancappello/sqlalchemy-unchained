@@ -4,16 +4,16 @@ import sqlalchemy as sa
 from typing import *
 
 from .base_model import BaseModel as Model
+from .model_registry import ModelRegistry
 from .utils import snake_case
 
 
 def foreign_key(model_or_table_name_or_column_name: Union[str, Type[Model]],
                 model_or_table_name: Optional[Union[str, Type[Model]]] = None,
                 *,
-                fk_col: str = 'id',
+                fk_col: Optional[str] = None,
                 primary_key: bool = False,
-                **kwargs,
-                ) -> sa.Column:
+                **kwargs) -> sa.Column:
     """
     Helper method to add a foreign key column to a model.
 
@@ -49,6 +49,7 @@ def foreign_key(model_or_table_name_or_column_name: Union[str, Type[Model]],
     :param bool primary_key: Whether or not this Column is a primary key
     :param kwargs: any other kwargs to pass the Column constructor
     """
+    fk_col = fk_col or ModelRegistry().default_primary_key_column
     column_name = model_or_table_name_or_column_name
     if model_or_table_name is None:
         column_name = None
