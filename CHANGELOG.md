@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.4.0 (unreleased)
+
+- fix automatic required validators
+
 ## v0.3.1 (2018/10/04)
 
 - set default primary key as a class attribute on the `ModelRegistry`

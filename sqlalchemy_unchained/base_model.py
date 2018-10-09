@@ -60,8 +60,7 @@ class BaseModel(object):
 
     def __init__(self, **kwargs):
         super().__init__()
-        if self.Meta.validation:
-            self.update(partial_validation=False, **kwargs)
+        self.update(partial_validation=False, **kwargs)
 
     def update(self, partial_validation=True, **kwargs):
         """
@@ -109,17 +108,15 @@ class BaseModel(object):
                     validator = validator()
                 rv.append(validator)
 
-        if (col is not None
-                and not any(isinstance(x, Required) for x in validators)
-                and col.default is None):
-            not_null = not col.primary_key and not col.nullable
-            required_msg = col.info and col.info.get('required', None)
-            if not_null or required_msg:
-                if isinstance(required_msg, bool):
-                    required_msg = None
-                elif isinstance(required_msg, str):
-                    required_msg = cls.gettext_fn(required_msg)
-                rv.append(Required(required_msg or None))
+        required_msg = hasattr(col, 'info') and col.info.get('required', None)
+        if (required_msg and not any(isinstance(x, Required) for x in validators)
+                and col.default is None
+                and required_msg):
+            if isinstance(required_msg, bool):
+                required_msg = None
+            elif isinstance(required_msg, str):
+                required_msg = cls.gettext_fn(required_msg)
+            rv.append(Required(required_msg or None))
         return rv
 
     def __setattr__(self, key, value):
