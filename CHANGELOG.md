@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.4.0 (unreleased)
+## v0.4.0 (2018/10/09)
 
 - fix automatic required validators
 - rename `ModelRegistry` to `_ModelRegistry`
