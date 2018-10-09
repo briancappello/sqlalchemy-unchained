@@ -1,4 +1,4 @@
-from sqlalchemy_unchained import ModelRegistry
+from sqlalchemy_unchained import _ModelRegistry
 
 
 def _names(bases):
@@ -20,7 +20,7 @@ class TestConvertBases:
         class B3(B1, B2):
             pass
 
-        result = ModelRegistry()._registry[B3.__name__][B3.__module__].bases
+        result = _ModelRegistry()._registry[B3.__name__][B3.__module__].bases
         assert _names(result) == [
             'B1_FSQLAConvertedMixin', 'B2_FSQLAConvertedMixin', 'Model',
         ], 'it should be able to extend multiple base models'
@@ -31,7 +31,7 @@ class TestConvertBases:
         class B5(B4, B3):
             pass
 
-        result = ModelRegistry()._registry[B5.__name__][B5.__module__].bases
+        result = _ModelRegistry()._registry[B5.__name__][B5.__module__].bases
         assert _names(result) == [
             'B4_FSQLAConvertedMixin', 'B3_FSQLAConvertedMixin',
             'B1_FSQLAConvertedMixin', 'B2_FSQLAConvertedMixin', 'Model',
@@ -46,7 +46,7 @@ class TestConvertBases:
         class B7(B5, B6, GenericMixin):
             pass
 
-        result = ModelRegistry()._registry[B7.__name__][B7.__module__].bases
+        result = _ModelRegistry()._registry[B7.__name__][B7.__module__].bases
         assert _names(result) == [
             'B5_FSQLAConvertedMixin', 'B4_FSQLAConvertedMixin',
             'B3_FSQLAConvertedMixin', 'B1_FSQLAConvertedMixin',

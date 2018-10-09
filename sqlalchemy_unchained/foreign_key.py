@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from typing import *
 
 from .base_model import BaseModel as Model
-from .model_registry import ModelRegistry
+from .model_registry import _ModelRegistry
 from .utils import snake_case
 
 
@@ -49,7 +49,7 @@ def foreign_key(model_or_table_name_or_column_name: Union[str, Type[Model]],
     :param bool primary_key: Whether or not this Column is a primary key
     :param kwargs: any other kwargs to pass the Column constructor
     """
-    fk_col = fk_col or ModelRegistry().default_primary_key_column
+    fk_col = fk_col or _ModelRegistry().default_primary_key_column
     column_name = model_or_table_name_or_column_name
     if model_or_table_name is None:
         column_name = None

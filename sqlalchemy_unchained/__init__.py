@@ -14,7 +14,7 @@ from .base_model_metaclass import DeclarativeMeta
 from .base_query import BaseQuery, QueryMixin
 from .foreign_key import foreign_key
 from .model_meta_options import ColumnMetaOption, ModelMetaOptionsFactory
-from .model_registry import ModelRegistry
+from .model_registry import _ModelRegistry
 from .validation import (BaseValidator, Required, ValidationError, ValidationErrors,
                          validates)
 
@@ -80,7 +80,7 @@ def scoped_session_factory(bind=None, scopefunc=None, **kwargs):
 
 
 def init_sqlalchemy_unchained(db_uri, session_scopefunc=None,
-                              model_registry_cls=ModelRegistry, **kwargs):
+                              model_registry_cls=_ModelRegistry, **kwargs):
     _registry = model_registry_cls()
     engine = create_engine(db_uri)
     Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc)

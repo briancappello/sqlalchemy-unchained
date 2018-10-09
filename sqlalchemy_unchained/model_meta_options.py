@@ -46,8 +46,8 @@ class PrimaryKeyColumnMetaOption(ColumnMetaOption):
         if value is not _missing:
             return value
 
-        from .model_registry import ModelRegistry
-        return ModelRegistry().default_primary_key_column
+        from .model_registry import _ModelRegistry
+        return _ModelRegistry().default_primary_key_column
 
     def get_column(self, mcs_args: McsArgs):
         return sa.Column(sa.Integer, primary_key=True)

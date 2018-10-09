@@ -7,7 +7,7 @@ from sqlalchemy.orm.interfaces import MapperProperty
 from typing import *
 
 
-class ModelRegistry(metaclass=SubclassableSingleton):
+class _ModelRegistry(metaclass=SubclassableSingleton):
     enable_lazy_mapping = False
     default_primary_key_column = 'id'
 
@@ -108,7 +108,7 @@ class ModelRegistry(metaclass=SubclassableSingleton):
 
     def _convert_bases_to_mixins(self, mcs_args: McsArgs):
         """
-        For each base class in bases that the ModelRegistry knows about, create
+        For each base class in bases that the _ModelRegistry knows about, create
         a replacement class containing the methods and attributes from the base
         class:
          - the mixin should only extend object (not db.Model)

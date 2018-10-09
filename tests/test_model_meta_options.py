@@ -1,6 +1,6 @@
 import pytest
 
-from sqlalchemy_unchained import ModelRegistry, Required, ValidationErrors
+from sqlalchemy_unchained import _ModelRegistry, Required, ValidationErrors
 
 
 class TestModelMetaOptions:
@@ -67,7 +67,7 @@ class TestModelMetaOptions:
         class Classic(db.Model):
             __abstract__ = True
 
-        ModelRegistry().finalize_mappings()
+        _ModelRegistry().finalize_mappings()
         assert Classic.Meta.abstract is True
         assert Classic.Meta._mcs_args.clsdict['__abstract__'] is True
 
@@ -75,7 +75,7 @@ class TestModelMetaOptions:
             class Meta:
                 abstract = True
 
-        ModelRegistry().finalize_mappings()
+        _ModelRegistry().finalize_mappings()
         assert MyMeta.Meta.abstract is True
         assert MyMeta.Meta._mcs_args.clsdict['__abstract__'] is True
 

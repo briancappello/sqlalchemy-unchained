@@ -3,6 +3,7 @@
 ## v0.4.0 (unreleased)
 
 - fix automatic required validators
+- rename `ModelRegistry` to `_ModelRegistry`
 
 ## v0.3.1 (2018/10/04)
 

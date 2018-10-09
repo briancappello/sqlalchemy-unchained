@@ -48,7 +48,7 @@ from sqlalchemy_unchained import _wrap_with_default_query_class
 from .config import Config
 
 
-_registry = ModelRegistry()
+_registry = _ModelRegistry()
 engine = create_engine(Config.DB_URI)
 Session = scoped_session_factory(bind=engine)
 Model = declarative_base(Session, bind=engine)
@@ -192,12 +192,12 @@ NOTE: The snake case logic used is slightly different from that of Flask-SQLAlch
 ```python
 class Foo(db.Model):
     class Meta:
-        pk: Union[str, None] = ModelRegistry().default_primary_key_column = 'id'
+        pk: Union[str, None] = _ModelRegistry().default_primary_key_column = 'id'
 ```
 
 Set to a string to customize the column name used for the primary key, or set to `None` to disable the column.
 
-NOTE: Customizing the default primary key column name used for all models is different from customizing the defaults for other meta options. (You should subclass `ModelRegistry` and set its `default_primary_key_column` attribute. This is necessary for the `foreign_key` helper function to work correctly.)
+NOTE: Customizing the default primary key column name used for all models is different from customizing the defaults for other meta options. (You should subclass `_ModelRegistry` and set its `default_primary_key_column` attribute. This is necessary for the `foreign_key` helper function to work correctly.)
 
 ### Created At
 
@@ -341,7 +341,7 @@ engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI,
 
 ## Customizing the Default Primary Key Column Name
 
-The primary key column is special in that knowledge of its setting is required for determining foreign key column names during model class creation. The first step is to subclass the `ModelRegistry` and set its `default_primary_key_column` class attribute:
+The primary key column is special in that knowledge of its setting is required for determining foreign key column names during model class creation. The first step is to subclass the `_ModelRegistry` and set its `default_primary_key_column` class attribute:
 
 ```python
 # your_package/model_registry.py
@@ -349,7 +349,7 @@ The primary key column is special in that knowledge of its setting is required f
 from sqlalchemy_unchained import ModelRegistry as BaseModelRegistry
 
 
-class ModelRegistry(BaseModelRegistry):
+class _ModelRegistry(BaseModelRegistry):
     default_primary_key_column = 'pk'
 ```
 
@@ -361,7 +361,7 @@ And then, in order to inform SQLAlchemy Unchained about your customized model re
 from sqlalchemy_unchained import *
 
 from .config import Config
-from .model_registry import ModelRegistry
+from .model_registry import _ModelRegistry
 
 
 engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
@@ -387,7 +387,7 @@ class LazyModelRegistry(ModelRegistry):
         # with SQLAlchemy
 ```
 
-And just like for customizing the primary key column, we need to import our `ModelRegistry` subclass before calling `init_sqlalchey_unchained`.
+And just like for customizing the primary key column, we need to import our `_ModelRegistry` subclass before calling `init_sqlalchey_unchained`.
 
 ```python
 # your_package/db.py
