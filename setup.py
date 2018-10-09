@@ -10,6 +10,7 @@ setup(
     version='0.3.1',
     description='Improved declarative SQLAlchemy models',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/briancappello/sqlalchemy-unchained',
     author='Brian Cappello',
     license='MIT',
