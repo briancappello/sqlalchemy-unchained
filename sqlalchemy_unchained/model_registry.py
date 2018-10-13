@@ -18,7 +18,7 @@ class _ModelRegistry(metaclass=SubclassableSingleton):
         # values are the base classes themselves
         # ordered by registration/discovery order, so the last class to be
         # inserted into this lookup is the correct base class to use
-        self._base_model_classes: Dict[str, Type[Model]] = {}
+        self._base_model_classes = {}  # type: Dict[str, Type[Model]]
 
         # all discovered models "classes", before type.__new__ has been called:
         # - keyed by model class name
@@ -28,7 +28,7 @@ class _ModelRegistry(metaclass=SubclassableSingleton):
         #   - values: McsArgs(model_mcs, name, bases, clsdict)
         # this dict is used for inspecting base classes when __new__ is
         # called on a model class that extends another of the same name
-        self._registry: Dict[str, Dict[str, McsArgs]] = defaultdict(dict)
+        self._registry = defaultdict(dict)  # type: Dict[str, Dict[str, McsArgs]]
 
         # actual model classes awaiting initialization (after type.__new__ but
         # before type.__init__):
@@ -39,13 +39,13 @@ class _ModelRegistry(metaclass=SubclassableSingleton):
         # via the register method - insertion order of the correct version of a
         # model class by name is therefore determined by the import order of
         # bundles' models modules (essentially, by the RegisterModelsHook))
-        self._models: Dict[str, McsInitArgs] = {}
+        self._models = {}  # type: Dict[str, McsInitArgs]
 
         # which keys in self._models have already been initialized
-        self._initialized: Set[str] = set()
+        self._initialized = set()  # type: Set[str]
 
     def register_base_model_class(self, model):
-        self._base_model_classes[f'{model.__module__}.{model.__name__}'] = model
+        self._base_model_classes[model.__module__ + '.' + model.__name__] = model
 
     def _reset(self):
         self._base_model_classes = {}
@@ -116,7 +116,7 @@ class _ModelRegistry(metaclass=SubclassableSingleton):
            association_proxy, etc), then turn them into @declared_attr props
         """
         def _mixin_name(name):
-            return f'{name}_FSQLAConvertedMixin'
+            return name + '_FSQLAConvertedMixin'
 
         new_base_names = set()
         new_bases = []
@@ -130,7 +130,7 @@ class _ModelRegistry(metaclass=SubclassableSingleton):
                 self._registry[b.__name__][b.__module__]
 
             for bb in reversed(base_bases):
-                if f'{bb.__module__}.{bb.__name__}' in self._base_model_classes:
+                if bb.__module__ + '.' + bb.__name__ in self._base_model_classes:
                     if bb not in new_bases:
                         new_bases.append(bb)
                 elif (bb.__name__ not in new_base_names
@@ -147,10 +147,13 @@ class _ModelRegistry(metaclass=SubclassableSingleton):
                 if has_fk or isinstance(value, MapperProperty):
                     # programmatically add a method wrapped with declared_attr
                     # to the new mixin class
-                    exec(f"""\
+                    exec("""\
 @declared_attr
 def {attr}(self):
-    return value""", {'value': value, 'declared_attr': declared_attr}, clsdict)
+    return value
+""".format(attr=attr),
+                         {'value': value, 'declared_attr': declared_attr},
+                         clsdict)
                 else:
                     clsdict[attr] = value
 

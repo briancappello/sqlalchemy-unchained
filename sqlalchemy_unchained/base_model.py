@@ -3,6 +3,7 @@ import inspect
 from collections import defaultdict
 from sqlalchemy import orm
 from sqlalchemy.orm.exc import UnmappedClassError
+from typing import *
 
 from .model_meta_options import ModelMetaOptionsFactory
 from .validation import Required, ValidationError, ValidationErrors
@@ -49,14 +50,14 @@ class BaseModel(object):
 
     #: Query class used by :attr:`query`. Defaults to
     # :class:`SQLAlchemy.Query`, which defaults to :class:`BaseQuery`.
-    query_class = None
+    query_class = None  # type: Type[orm.Query]
 
     gettext_fn = GettextDescriptor()
 
     #: Convenience property to query the database for instances of this model
     # using the current session. Equivalent to ``db.session.query(Model)``
     # unless :attr:`query_class` has been changed.
-    query: orm.Query = None
+    query = None  # type: orm.Query
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -131,9 +132,9 @@ class BaseModel(object):
         super().__setattr__(key, value)
 
     def __repr__(self):
-        properties = [f'{prop}={getattr(self, prop)!r}'
-                      for prop in self.Meta.repr if hasattr(self, prop)]
-        return f"{self.__class__.__name__}({', '.join(properties)})"
+        pairs = ['{k}={v!r}'.format(k=attr, v=getattr(self, attr))
+                 for attr in self.Meta.qualname if hasattr(self, attr)]
+        return self.__class__.__name__ + '(' + ', '.join(pairs) + ')'
 
     def __eq__(self, other):
         """

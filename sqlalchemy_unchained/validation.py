@@ -75,4 +75,4 @@ class Required(BaseValidator):
                 return self.msg
             elif isinstance(self.msg, _LazyString):
                 return str(self.msg)
-        return f'{title_case(e.column)} is required.'
+        return title_case(e.column) + ' is required.'

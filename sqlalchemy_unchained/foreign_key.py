@@ -62,6 +62,6 @@ def foreign_key(model_or_table_name_or_column_name: Union[str, Type[Model]],
         table_name = snake_case(model_or_table_name)
 
     args = [column_name] if column_name else []
-    args += [sa.Integer, sa.ForeignKey(f'{table_name}.{fk_col}')]
+    args += [sa.Integer, sa.ForeignKey(table_name + '.' + fk_col)]
 
     return sa.Column(*args, primary_key=primary_key, **kwargs)

@@ -6,6 +6,8 @@ Enhanced declarative models for SQLAlchemy.
 
 ### 1. Install:
 
+Requires Python 3.5+
+
 ```bash
 $ pip install sqlalchemy-unchained
 ```

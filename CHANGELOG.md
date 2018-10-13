@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.4.1 (unreleased)
+
+- configure tox & travis
+- make compatible with Python 3.5
+
 ## v0.4.0 (2018/10/09)
 
 - fix automatic required validators

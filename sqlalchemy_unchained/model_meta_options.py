@@ -18,8 +18,9 @@ class ColumnMetaOption(MetaOption):
         return self.default if value is True else value
 
     def check_value(self, value, mcs_args: McsArgs):
-        msg = f'{self.name} Meta option on {mcs_args.repr} ' \
-              f'must be a str, bool or None'
+        msg = '{name} Meta option on {cls} must be a str, bool or None'.format(
+            name=self.name,
+            cls=mcs_args.qualname)
         assert value is None or isinstance(value, (bool, str)), msg
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
@@ -210,8 +211,8 @@ class PolymorphicMetaOption(MetaOption):
         valid = ['joined', 'single', True, False]
         msg = '{name} Meta option on {model} must be one of {choices}'.format(
             name=self.name,
-            model=mcs_args.repr,
-            choices=', '.join(f'{c!r}' for c in valid))
+            model=mcs_args.qualname,
+            choices=', '.join('{v!r}'.format(v=v) for v in valid))
         assert value in valid, msg
 
 
@@ -239,13 +240,6 @@ class TableMetaOption(MetaOption):
 
 class ModelMetaOptionsFactory(MetaOptionsFactory):
     def _get_meta_options(self) -> List[MetaOption]:
-        """"
-        Define fields allowed in the Meta class on end-user models, and the
-        behavior of each.
-
-        Custom ModelMetaOptions classes should override this method to customize
-        the options supported on class Meta of end-user models.
-        """
         testing_options = [_TestingMetaOption()] if _is_testing() else []
 
         # when options require another option, its dependent must be listed.
@@ -287,7 +281,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
 
     @property
     def _model_repr(self):
-        return self._mcs_args.repr
+        return self._mcs_args.qualname
 
     def __repr__(self):
         return '<{cls} model={model!r} model_meta_options={attrs!r}>'.format(
