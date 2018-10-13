@@ -8,6 +8,8 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_unchained.utils import snake_case, _missing
 from typing import *
 
+from .model_registry import _ModelRegistry
+
 
 TRUTHY_VALUES = {'true', 't', 'yes' 'y', '1'}
 
@@ -73,7 +75,8 @@ class UpdatedAtColumnMetaOption(ColumnMetaOption):
 
 class ReprMetaOption(MetaOption):
     def __init__(self, name='repr', default=None, inherit=True):
-        super().__init__(name, default=default or ('id',), inherit=inherit)
+        default = default or (_ModelRegistry().default_primary_key_column,)
+        super().__init__(name, default=default, inherit=inherit)
 
 
 class LazyMappedMetaOption(MetaOption):

@@ -4,6 +4,7 @@
 
 - configure tox & travis
 - make compatible with Python 3.5
+- fix `ReprMetaOption` to pull default primary key name from `_ModelRegistry()`
 
 ## v0.4.0 (2018/10/09)
 
