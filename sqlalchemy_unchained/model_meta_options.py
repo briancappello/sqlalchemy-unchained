@@ -16,10 +16,9 @@ TRUTHY_VALUES = {'true', 't', 'yes' 'y', '1'}
 
 class ColumnMetaOption(MetaOption):
     def check_value(self, value, mcs_args: McsArgs):
-        msg = '{name} Meta option on {cls} must be a str or None'.format(
-            name=self.name,
-            cls=mcs_args.qualname)
-        assert value is None or isinstance(value, str), msg
+        if not (value is None or isinstance(value, str)):
+            raise TypeError('{name} Meta option on {cls} must be a str or None'.format(
+                name=self.name, cls=mcs_args.qualname))
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
         is_polymorphic = mcs_args.Meta.polymorphic
@@ -207,12 +206,13 @@ class PolymorphicMetaOption(MetaOption):
         if value in {'_manual_', '_fully_manual_'}:
             return
 
-        valid = ['joined', 'single', True, False]
-        msg = '{name} Meta option on {model} must be one of {choices}'.format(
-            name=self.name,
-            model=mcs_args.qualname,
-            choices=', '.join('{v!r}'.format(v=v) for v in valid))
-        assert value in valid, msg
+        valid_values = ['joined', 'single', True, False]
+        if value not in valid_values:
+            raise ValueError(
+                '{name} Meta option on {model} must be one of {choices}'.format(
+                    name=self.name,
+                    model=mcs_args.qualname,
+                    choices=', '.join('%r' % v for v in valid_values)))
 
 
 class TableMetaOption(MetaOption):

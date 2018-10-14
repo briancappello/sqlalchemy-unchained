@@ -7,6 +7,7 @@
 - fix `ReprMetaOption` to pull default primary key name from `_ModelRegistry()`
 - `ColumnMetaOption` values should only be `str` or `None`
 - bump required `py-meta-utils` to v0.5.1
+- `ColumnMetaOption.check_value` should raise `TypeError` or `ValueError`, not `AssertionError`
 
 ## v0.4.0 (2018/10/09)
 
