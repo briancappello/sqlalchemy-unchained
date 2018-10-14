@@ -61,6 +61,7 @@ def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
             metaclass=make_model_metaclass,
             constructor=None,  # use BaseModel's explicitly declared constructor
         )
+        _ModelRegistry().register_base_model_class(model)
 
     # if user passed in a declarative base and a metaclass for some reason,
     # make sure the base uses the metaclass
@@ -75,13 +76,20 @@ def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
 
 
 def scoped_session_factory(bind=None, scopefunc=None, **kwargs):
-    return scoped_session(sessionmaker(bind=bind, **kwargs),
-                          scopefunc=scopefunc)
+    return scoped_session(sessionmaker(bind=bind, **kwargs), scopefunc=scopefunc)
 
 
-def init_sqlalchemy_unchained(db_uri, session_scopefunc=None,
-                              model_registry_cls=_ModelRegistry, **kwargs):
-    _registry = model_registry_cls()
+def init_sqlalchemy_unchained(db_uri, session_scopefunc=None, **kwargs):
+    """
+    Main entry point for connecting to the database.
+
+    :param db_uri: The SQLAlchemy database URI to connect to.
+    :param session_scopefunc: The function to use for automatically scoping the session.
+                              Defaults to ``None``, which means you have full control
+                              over the session lifecycle.
+    :param kwargs: Any extra keyword arguments to pass to :func:`declarative_base`.
+    :return: Tuple[engine, Session, Model, relationship]
+    """
     engine = create_engine(db_uri)
     Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc)
     Model = declarative_base(Session, bind=engine, **kwargs)
