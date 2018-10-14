@@ -133,7 +133,7 @@ class BaseModel(object):
 
     def __repr__(self):
         pairs = ['{k}={v!r}'.format(k=attr, v=getattr(self, attr))
-                 for attr in self.Meta.qualname if hasattr(self, attr)]
+                 for attr in self.Meta.repr if hasattr(self, attr)]
         return self.__class__.__name__ + '(' + ', '.join(pairs) + ')'
 
     def __eq__(self, other):
