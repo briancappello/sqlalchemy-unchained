@@ -15,15 +15,11 @@ TRUTHY_VALUES = {'true', 't', 'yes' 'y', '1'}
 
 
 class ColumnMetaOption(MetaOption):
-    def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
-        value = super().get_value(meta, base_model_meta, mcs_args)
-        return self.default if value is True else value
-
     def check_value(self, value, mcs_args: McsArgs):
-        msg = '{name} Meta option on {cls} must be a str, bool or None'.format(
+        msg = '{name} Meta option on {cls} must be a str or None'.format(
             name=self.name,
             cls=mcs_args.qualname)
-        assert value is None or isinstance(value, (bool, str)), msg
+        assert value is None or isinstance(value, str), msg
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
         is_polymorphic = mcs_args.Meta.polymorphic
