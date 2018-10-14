@@ -255,7 +255,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
             PolymorphicOnColumnMetaOption(),
             PolymorphicIdentityMetaOption(),
             PolymorphicBaseTablenameMetaOption(),
-            PolymorphicJoinedPkColumnMetaOption(),  # requires _BaseTablename
+            PolymorphicJoinedPkColumnMetaOption(),  # requires PolymorphicBaseTablename
 
             # must be after PolymorphicJoinedPkColumnMetaOption
             PrimaryKeyColumnMetaOption(),
