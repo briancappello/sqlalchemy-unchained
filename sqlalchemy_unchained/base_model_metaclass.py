@@ -122,14 +122,14 @@ class BindMetaMixin:
 
 class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
     def __new__(mcs, name, bases, clsdict):
-        from .model_registry import _ModelRegistry
-
         mcs_args = McsArgs(mcs, name, bases, clsdict)
-        _ModelRegistry()._ensure_correct_base_model(mcs_args)
-        options_factory = apply_factory_meta_options(
-            mcs_args, default_factory_class=ModelMetaOptionsFactory)
 
-        if options_factory.abstract:
+        from .model_registry import _ModelRegistry
+        _ModelRegistry()._ensure_correct_base_model(mcs_args)
+
+        Meta = apply_factory_meta_options(
+            mcs_args, default_factory_class=ModelMetaOptionsFactory)
+        if Meta.abstract:
             return super().__new__(*mcs_args)
 
         validators = deep_getattr(clsdict, bases, '__validators__', defaultdict(list))
