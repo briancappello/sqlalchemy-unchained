@@ -2,7 +2,7 @@ import re
 import sqlalchemy as sa
 
 from collections import defaultdict
-from py_meta_utils import McsArgs, McsInitArgs, deep_getattr, apply_factory_meta_options
+from py_meta_utils import McsArgs, McsInitArgs, deep_getattr, process_factory_meta_options
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import (
     DeclarativeMeta as BaseDeclarativeMeta, declared_attr)
@@ -127,7 +127,7 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
         from .model_registry import _ModelRegistry
         _ModelRegistry()._ensure_correct_base_model(mcs_args)
 
-        Meta = apply_factory_meta_options(
+        Meta = process_factory_meta_options(
             mcs_args, default_factory_class=ModelMetaOptionsFactory)
         if Meta.abstract:
             return super().__new__(*mcs_args)

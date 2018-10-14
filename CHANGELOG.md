@@ -1,11 +1,12 @@
 # CHANGELOG
 
-## v0.4.1 (unreleased)
+## v0.5.0 (unreleased)
 
 - configure tox & travis
 - make compatible with Python 3.5
 - fix `ReprMetaOption` to pull default primary key name from `_ModelRegistry()`
 - `ColumnMetaOption` values should only be `str` or `None`
+- bump required `py-meta-utils` to v0.5.1
 
 ## v0.4.0 (2018/10/09)
 
