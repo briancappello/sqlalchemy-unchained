@@ -138,6 +138,21 @@ class TestModelMetaOptions:
         foo = Foo()
         assert isinstance(foo, Foo)
 
+    def test_repr(self, db):
+        class Default(db.Model):
+            pass
+
+        assert repr(Default()) == 'Default(id=None, created_at=None, updated_at=None)'
+
+        class Foo(db.Model):
+            class Meta:
+                repr = ('id', 'name', 'code')
+            name = db.Column(db.String)
+            code = db.Column(db.Integer)
+
+        foo = Foo(name='fubar', code=500)
+        assert repr(foo) == "Foo(id=None, name='fubar', code=500)"
+
     def test_polymorphic_auto_base_tablename(self, db):
         class Base(db.Model):
             class Meta:
