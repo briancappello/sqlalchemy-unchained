@@ -3,7 +3,7 @@ import sqlalchemy as sa
 
 from py_meta_utils import (AbstractMetaOption, McsArgs, MetaOption,
                            MetaOptionsFactory, deep_getattr)
-from sqlalchemy import func as sa_func, types as sa_types
+from sqlalchemy import func as sa_func
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_unchained.utils import snake_case, _missing
 from typing import *
@@ -129,7 +129,7 @@ class PolymorphicOnColumnMetaOption(ColumnMetaOption):
             mcs_args.clsdict['__mapper_args__'] = mapper_args
 
     def get_column(self, model_meta_options):
-        return sa.Column(sa_types.String)
+        return sa.Column(sa.String)
 
 
 class PolymorphicJoinedPkColumnMetaOption(ColumnMetaOption):
