@@ -85,18 +85,20 @@ class TestModelMetaOptions:
                 abstract = True
                 lazy_mapped = False
 
-        class DoesntOverwrite(NotLazy):
-            id = 'not a column'
-            a_pk_is_still_required = db.Column(db.Integer, primary_key=True)
+        DoesntOverwrite = type('DoesntOverwrite', (NotLazy,), {
+            _ModelRegistry().default_primary_key_column: 'not a column',
+            'a_pk_col_is_still_required': db.Column(db.Integer, primary_key=True),
+        })
 
-        assert DoesntOverwrite.id == 'not a column'
+        assert getattr(DoesntOverwrite,
+                       _ModelRegistry().default_primary_key_column) == 'not a column'
 
         class Manual(NotLazy):
             class Meta:
                 pk = None
             pk = db.Column(db.Integer, primary_key=True)
 
-        assert not hasattr(Manual, 'id')
+        assert not hasattr(Manual, _ModelRegistry().default_primary_key_column)
 
         class Auto(NotLazy):
             pass
@@ -105,10 +107,12 @@ class TestModelMetaOptions:
 
         class Renamed(NotLazy):
             class Meta:
-                pk = 'pk'
+                pk = 'unique_' + _ModelRegistry().default_primary_key_column
 
-        assert not hasattr(Renamed, 'id')
-        assert Renamed.pk.primary_key is True
+        assert not hasattr(Renamed, _ModelRegistry().default_primary_key_column)
+        pk_col = getattr(Renamed,
+                         'unique_' + _ModelRegistry().default_primary_key_column)
+        assert pk_col.primary_key is True
 
     def test_validation(self, db):
         class Foo(db.Model):
