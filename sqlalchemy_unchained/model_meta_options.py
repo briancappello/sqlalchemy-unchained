@@ -36,8 +36,8 @@ class ColumnMetaOption(MetaOption):
 
 
 class PrimaryKeyColumnMetaOption(ColumnMetaOption):
-    def __init__(self, name='pk', default=_missing, inherit=True):
-        super().__init__(name=name, default=default, inherit=inherit)
+    def __init__(self):
+        super().__init__(name='pk', default=_missing, inherit=True)
 
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
         value = super().get_value(meta, base_model_meta, mcs_args)
@@ -52,16 +52,16 @@ class PrimaryKeyColumnMetaOption(ColumnMetaOption):
 
 
 class CreatedAtColumnMetaOption(ColumnMetaOption):
-    def __init__(self, name='created_at', default='created_at', inherit=True):
-        super().__init__(name=name, default=default, inherit=inherit)
+    def __init__(self):
+        super().__init__(name='created_at', default='created_at', inherit=True)
 
     def get_column(self, mcs_args: McsArgs):
         return sa.Column(sa.DateTime, server_default=sa_func.now())
 
 
 class UpdatedAtColumnMetaOption(ColumnMetaOption):
-    def __init__(self, name='updated_at', default='updated_at', inherit=True):
-        super().__init__(name=name, default=default, inherit=inherit)
+    def __init__(self):
+        super().__init__(name='updated_at', default='updated_at', inherit=True)
 
     def get_column(self, mcs_args: McsArgs):
         return sa.Column(sa.DateTime,
@@ -69,14 +69,14 @@ class UpdatedAtColumnMetaOption(ColumnMetaOption):
 
 
 class ReprMetaOption(MetaOption):
-    def __init__(self, name='repr', default=None, inherit=True):
-        default = default or (_ModelRegistry().default_primary_key_column,)
-        super().__init__(name, default=default, inherit=inherit)
+    def __init__(self):
+        default = (_ModelRegistry().default_primary_key_column,)
+        super().__init__(name='repr', default=default, inherit=True)
 
 
 class LazyMappedMetaOption(MetaOption):
-    def __init__(self, name='lazy_mapped', default=False, inherit=True):
-        super().__init__(name=name, default=default, inherit=inherit)
+    def __init__(self):
+        super().__init__(name='lazy_mapped', default=False, inherit=True)
 
 
 class _TestingMetaOption(MetaOption):
@@ -86,7 +86,7 @@ class _TestingMetaOption(MetaOption):
 
 class ValidationMetaOption(MetaOption):
     def __init__(self):
-        super().__init__('validation', default=True, inherit=False)
+        super().__init__(name='validation', default=True, inherit=True)
 
 
 class PolymorphicBaseTablenameMetaOption(MetaOption):
@@ -108,7 +108,7 @@ class PolymorphicBaseTablenameMetaOption(MetaOption):
 
 class PolymorphicOnColumnMetaOption(ColumnMetaOption):
     def __init__(self, name='polymorphic_on', default='discriminator'):
-        super().__init__(name=name, default=default)
+        super().__init__(name=name, default=default, inherit=False)
 
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
         if mcs_args.Meta.polymorphic not in {'single', 'joined'}:
