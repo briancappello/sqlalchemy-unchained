@@ -348,24 +348,26 @@ The primary key column is special in that knowledge of its setting is required f
 ```python
 # your_package/model_registry.py
 
-from sqlalchemy_unchained import ModelRegistry as BaseModelRegistry
+from sqlalchemy_unchained import _ModelRegistry as BaseModelRegistry
 
 
-class _ModelRegistry(BaseModelRegistry):
+class CustomModelRegistry(BaseModelRegistry):
     default_primary_key_column = 'pk'
 ```
 
-And then, in order to inform SQLAlchemy Unchained about your customized model registry, you just need to import it in your code *before* calling `init_sqlalchemy_unchained`:
+And then, in order to inform SQLAlchemy Unchained about your customized model registry, you need call `_ModelRegistry.set_singleton_class`:
 
 ```python
 # your_package/db.py
 
 from sqlalchemy_unchained import *
+from sqlalchemy_unchained import _ModelRegistry
 
 from .config import Config
-from .model_registry import _ModelRegistry
+from .model_registry import CustomModelRegistry
 
 
+_ModelRegistry.set_singleton_class(CustomModelRegistry)
 engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
 ```
 
@@ -378,10 +380,10 @@ The first step is to customize the model registry:
 ```python
 # your_package/model_registry.py
 
-from sqlalchemy_unchained import ModelRegistry
+from sqlalchemy_unchained import _ModelRegistry
 
 
-class LazyModelRegistry(ModelRegistry):
+class LazyModelRegistry(_ModelRegistry):
     enable_lazy_mapping = True
 
     def should_initialize(self, model_name: str) -> bool:
@@ -389,21 +391,23 @@ class LazyModelRegistry(ModelRegistry):
         # with SQLAlchemy
 ```
 
-And just like for customizing the primary key column, we need to import our `_ModelRegistry` subclass before calling `init_sqlalchey_unchained`.
+And just like for customizing the primary key column, we need to inform `_ModelRegistry` of our subclass by calling `_ModelRegistry.set_singleton_class`:
 
 ```python
 # your_package/db.py
 
 from sqlalchemy_unchained import *
+from sqlalchemy_unchained import _ModelRegistry
 
 from .config import Config
 from .model_registry import LazyModelRegistry
 
 
+_ModelRegistry.set_singleton_class(LazyModelRegistry)
 engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
 ```
 
-The second is to define your models like so:
+The last step is to define your models like so:
 
 ```python
 class Foo(db.Model):

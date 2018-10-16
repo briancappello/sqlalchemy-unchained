@@ -1,13 +1,13 @@
 import sqlalchemy as sa
 
 from collections import defaultdict
-from py_meta_utils import McsArgs, McsInitArgs, SubclassableSingleton, deep_getattr
+from py_meta_utils import McsArgs, McsInitArgs, Singleton, deep_getattr
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm.interfaces import MapperProperty
 from typing import *
 
 
-class _ModelRegistry(metaclass=SubclassableSingleton):
+class _ModelRegistry(metaclass=Singleton):
     enable_lazy_mapping = False
     default_primary_key_column = 'id'
 

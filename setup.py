@@ -21,7 +21,7 @@ setup(
     python_requires='>=3.5',
     install_requires=[
         'alembic>=1.0',
-        'py-meta-utils>=0.5.1',
+        'py-meta-utils>=0.6.1',
         'sqlalchemy>=1.2.11',
     ],
     extras_require={
