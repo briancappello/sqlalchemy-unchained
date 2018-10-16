@@ -5,6 +5,7 @@ from py_meta_utils import (AbstractMetaOption, McsArgs, MetaOption,
                            MetaOptionsFactory, deep_getattr)
 from sqlalchemy import func as sa_func
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import column_property, ColumnProperty
 from sqlalchemy_unchained.utils import snake_case, _missing
 from typing import *
 
@@ -106,6 +107,24 @@ class PolymorphicBaseTablenameMetaOption(MetaOption):
             return bm.clsdict.get('__tablename__', snake_case(bm.name))
 
 
+class PolymorphicBasePkNameMetaOption(MetaOption):
+    def __init__(self):
+        super().__init__('_base_pk_name', default=None, inherit=False)
+
+    def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
+        if base_model_meta and not base_model_meta.abstract:
+            if base_model_meta.pk is not None:
+                return base_model_meta.pk
+
+            cols = [(k, v) for k, v in base_model_meta._mcs_args.clsdict.items()
+                    if isinstance(v, sa.Column)]
+            for name, col in cols:
+                if col.primary_key and col.foreign_keys:
+                    return name
+            raise Exception('Could not find a joined primary key column on ' +
+                            base_model_meta._mcs_args.name)
+
+
 class PolymorphicOnColumnMetaOption(ColumnMetaOption):
     def __init__(self, name='polymorphic_on', default='discriminator'):
         super().__init__(name=name, default=default, inherit=False)
@@ -139,19 +158,39 @@ class PolymorphicJoinedPkColumnMetaOption(ColumnMetaOption):
 
     def contribute_to_class(self, mcs_args: McsArgs, value):
         meta = mcs_args.Meta
-        if meta.abstract or not meta._base_tablename:
+        if (meta.abstract
+                or meta.polymorphic != 'joined'
+                or meta._is_base_polymorphic_model
+                or not meta._base_tablename):
             return
 
-        pk = meta.pk or 'id'  # FIXME is this default a good idea?
-        if (meta.polymorphic == 'joined'
-                and not meta._is_base_polymorphic_model
-                and pk not in mcs_args.clsdict):
-            mcs_args.clsdict[pk] = self.get_column(mcs_args)
+        if getattr(meta, 'pk', _missing) is None:
+            for col in [v for v in mcs_args.clsdict.values()
+                        if isinstance(v, (sa.Column, ColumnProperty))]:
+                if isinstance(col, ColumnProperty):
+                    col = col._orig_columns[0]
+                if col.primary_key and col.foreign_keys:
+                    return
+            raise Exception('Could not find a joined primary key column on ' +
+                            mcs_args.name)
 
-    def get_column(self, mcs_args: McsArgs):
-        from .foreign_key import foreign_key
-        return foreign_key(mcs_args.Meta._base_tablename,
-                           primary_key=True, fk_col=mcs_args.Meta.pk)
+        pk = getattr(meta, 'pk', None) or _ModelRegistry().default_primary_key_column
+        if pk not in mcs_args.clsdict:
+            mcs_args.clsdict[pk] = self.get_column(mcs_args, pk)
+
+    def get_column(self, mcs_args: McsArgs, pk):
+        def _get_fk_col():
+            from .foreign_key import foreign_key
+            return foreign_key(mcs_args.Meta._base_tablename,
+                               fk_col=mcs_args.Meta._base_pk_name, primary_key=True)
+
+        if mcs_args.bases and pk not in mcs_args.bases[0].Meta._mcs_args.clsdict:
+            for b in mcs_args.bases:
+                for c in b.__mro__:
+                    if (isinstance(getattr(c, 'Meta', None), MetaOptionsFactory)
+                            and pk in c.Meta._mcs_args.clsdict):
+                        return column_property(_get_fk_col(), getattr(c, pk))
+        return _get_fk_col()
 
 
 class PolymorphicTableArgsMetaOption(MetaOption):

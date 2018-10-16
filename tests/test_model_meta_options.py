@@ -231,6 +231,43 @@ class TestModelMetaOptions:
         assert YellowSubmarine.__tablename__ == 'yellowsubmarines'
         assert GlassOnion.Meta._base_tablename is None
 
+    def test_polymorphic_joined_pk(self, db):
+        class Base(db.Model):
+            class Meta:
+                polymorphic = True
+
+        class YellowSubmarine(Base):
+            pass
+
+        class GlassOnion(YellowSubmarine):
+            pass
+
+        assert Base.Meta._base_pk_name is None
+        assert YellowSubmarine.Meta._base_pk_name == 'id'
+        assert GlassOnion.Meta._base_pk_name == 'id'
+
+    def test_polymorphic_joined_pk_custom_fk(self, db):
+        class Base(db.Model):
+            class Meta:
+                polymorphic = True
+
+        class YellowSubmarine(Base):
+            class Meta:
+                pk = None
+
+            custom_pk = db.foreign_key(Base, primary_key=True)
+
+        class GlassOnion(YellowSubmarine):
+            class Meta:
+                pk = 'id'
+
+        assert Base.Meta._base_pk_name is None
+        assert Base.Meta._base_tablename is None
+        assert YellowSubmarine.Meta._base_tablename == 'base'
+        assert YellowSubmarine.Meta._base_pk_name == 'id'
+        assert GlassOnion.Meta._base_tablename == 'yellow_submarine'
+        assert GlassOnion.Meta._base_pk_name == 'custom_pk'
+
     def test_tablename(self, db):
         class NotLazy(db.Model):
             class Meta:
