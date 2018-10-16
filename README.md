@@ -314,8 +314,7 @@ class NameColumnMetaOption(ColumnMetaOption):
 
 
 class CustomModelMetaOptionsFactory(ModelMetaOptionsFactory):
-    def _get_meta_options(self):
-        return super()._get_meta_options() + [NameColumnMetaOption()]
+    _options = ModelMetaOptionsFactory._options + [NameColumnMetaOption]
 
 
 class BaseModel(_BaseModel):

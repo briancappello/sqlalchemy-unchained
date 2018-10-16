@@ -238,30 +238,30 @@ class TableMetaOption(MetaOption):
 
 
 class ModelMetaOptionsFactory(MetaOptionsFactory):
+    _options = [
+        AbstractMetaOption,  # required; must be first
+        LazyMappedMetaOption,
+        TableMetaOption,
+        ReprMetaOption,
+        ValidationMetaOption,
+
+        PolymorphicMetaOption,  # must be first of all polymorphic options
+        PolymorphicOnColumnMetaOption,
+        PolymorphicIdentityMetaOption,
+        PolymorphicBaseTablenameMetaOption,
+        PolymorphicBasePkNameMetaOption,
+        PolymorphicJoinedPkColumnMetaOption,  # requires PolymorphicBaseTablename
+
+        # PrimaryKeyColumnMetaOption must be after PolymorphicJoinedPkColumnMetaOption
+        # All ColumnMetaOptions must be after PolymorphicMetaOption
+        PrimaryKeyColumnMetaOption,
+        CreatedAtColumnMetaOption,
+        UpdatedAtColumnMetaOption,
+    ]
+
     def _get_meta_options(self) -> List[MetaOption]:
         testing_options = [_TestingMetaOption()] if _is_testing() else []
-
-        # when options require another option, its dependent must be listed.
-        # options in this list are not order-dependent, except where noted.
-        # all ColumnMetaOptions subclasses require PolymorphicMetaOption
-        return testing_options + [
-            AbstractMetaOption(),  # required; must be first
-            LazyMappedMetaOption(),
-            TableMetaOption(),
-            ReprMetaOption(),
-            ValidationMetaOption(),
-
-            PolymorphicMetaOption(),  # must be first of all polymorphic options
-            PolymorphicOnColumnMetaOption(),
-            PolymorphicIdentityMetaOption(),
-            PolymorphicBaseTablenameMetaOption(),
-            PolymorphicJoinedPkColumnMetaOption(),  # requires PolymorphicBaseTablename
-
-            # must be after PolymorphicJoinedPkColumnMetaOption
-            PrimaryKeyColumnMetaOption(),
-            CreatedAtColumnMetaOption(),
-            UpdatedAtColumnMetaOption(),
-        ]
+        return testing_options + super()._get_meta_options()
 
     def _contribute_to_class(self, mcs_args: McsArgs):
         options = self._get_meta_options()

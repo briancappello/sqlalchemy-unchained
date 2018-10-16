@@ -8,6 +8,7 @@
 - `ColumnMetaOption` values should only be `str` or `None`
 - bump required `py-meta-utils` to v0.6.1
 - `ColumnMetaOption.check_value` should raise `TypeError` or `ValueError`, not `AssertionError`
+- Move declaration of factory meta options from `ModelMetaOptionsFactory._get_meta_options()` to `ModelMetaOptionsFactory._options`
 
 ## v0.4.0 (2018/10/09)
 
