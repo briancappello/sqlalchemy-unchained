@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.5.0 (unreleased)
+## v0.5.0 (2018/10/16)
 
 - configure tox & travis
 - make compatible with Python 3.5
