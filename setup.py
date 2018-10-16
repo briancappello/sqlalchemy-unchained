@@ -31,6 +31,7 @@ setup(
             'tox',
         ],
         'docs': [
+            'm2r',
             'sphinx',
             'sphinx-autobuild',
             'sphinx-rtd-theme',

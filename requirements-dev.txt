@@ -1,4 +1,8 @@
 -r requirements.txt
 
+m2r
 pytest
+sphinx
+sphinx-autobuild
+sphinx-rtd-theme
 tox

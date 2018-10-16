@@ -4,7 +4,7 @@ Enhanced declarative models for SQLAlchemy.
 
 ## Usage
 
-### 1. Install:
+### Install
 
 Requires Python 3.5+
 
@@ -22,7 +22,7 @@ touch your_package/config.py your_package/db.py your_package/models.py
 
 From now it is assumed that you are working from the `your-project` directory. All file paths at the top of code samples will be relative to this directory, and all commands should be run from this directory (unless otherwise noted).
 
-### 2. Configure:
+### Configure
 
 ```python
 # your_package/config.py
@@ -38,26 +38,7 @@ class Config:
 
 Here we're creating an on-disk SQLite database at `project-root/db/dev.sqlite`. See the official documentation on [SQLAlchemy Dialects](https://docs.sqlalchemy.org/en/latest/dialects/) to learn more about connecting to other database engines.
 
-### 3. Connect:
-
-```python
-# your_package/db.py
-
-from sqlalchemy.orm import relationship as _relationship
-from sqlalchemy_unchained import *
-from sqlalchemy_unchained import _wrap_with_default_query_class
-
-from .config import Config
-
-
-_registry = _ModelRegistry()
-engine = create_engine(Config.DB_URI)
-Session = scoped_session_factory(bind=engine)
-Model = declarative_base(Session, bind=engine)
-relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
-```
-
-This pattern is so common that as long as you don't need to customize any of the arguments to `create_engine`, you can use the `init_sqlalchemy_unchained` convenience function:
+### Connect
 
 ```python
 # your_package/db.py
@@ -70,7 +51,25 @@ from .config import Config
 engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
 ```
 
-### 4. Create some models
+If you need to customize the creation of any of these parameters, this is the equivalent behind-the-scenes setup code:
+
+```python
+# your_package/db.py
+
+from sqlalchemy.orm import relationship as _relationship
+from sqlalchemy_unchained import *
+from sqlalchemy_unchained import _wrap_with_default_query_class
+
+from .config import Config
+
+
+engine = create_engine(Config.DB_URI)
+Session = scoped_session_factory(bind=engine)
+Model = declarative_base(Session, bind=engine)
+relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
+```
+
+### Create some models
 
 ```python
 # your_package/models.py
@@ -91,9 +90,9 @@ class Child(db.Model):
     parent = db.relationship('Parent', back_populates='children')
 ```
 
-This is the first bit that's different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically include a primary key column `id`, as well as the automatically-timestamped columns `created_at` and `updated_at`.
+This is the first bit that's really different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically include a primary key column `id`, as well as the automatically-timestamped columns `created_at` and `updated_at`.
 
-This is, of course, customizable. For example, if you wanted to rename the columns on `Parent` and disable timestamping on `Child`:
+This is customizable. For example, if you wanted to rename the columns on `Parent` and disable timestamping on `Child`:
 
 ```python
 # your_package/models.py
@@ -125,7 +124,7 @@ class Child(db.Model):
 
 The are other `Meta` options that SQLAlchemy Unchained supports, and we'll have a look at those in a bit. We'll also cover how to change the defaults for all models, as well as how to add support for your own custom `Meta` options. But for now, let's get migrations configured before we continue any further.
 
-### 5. Configure database migrations
+### Configure database migrations
 
 Install Alembic:
 
