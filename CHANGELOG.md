@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.5.1 (unreleased)
+## v0.5.1 (2018/10/20)
 
 - bugfix: cannot automatically determine if relationship/association_proxy attributes should be required
 

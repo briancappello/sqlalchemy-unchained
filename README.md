@@ -155,7 +155,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'sqlalchemy-unchained>=0.1',
+        'sqlalchemy-unchained>=0.5.1',
     ],
 )
 ```
