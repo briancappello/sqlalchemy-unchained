@@ -100,7 +100,6 @@ class BaseModel(object):
     @classmethod
     def _get_validators(cls, column_name):
         rv = []
-        col = cls.__table__.c.get(column_name)
         validators = cls.__validators__.get(column_name, [])
         for validator in validators:
             if isinstance(validator, str) and hasattr(cls, validator):
@@ -110,10 +109,16 @@ class BaseModel(object):
                     validator = validator()
                 rv.append(validator)
 
-        required_msg = hasattr(col, 'info') and col.info.get('required', None)
-        if (required_msg and not any(isinstance(x, Required) for x in validators)
-                and col.default is None
-                and required_msg):
+        col = cls.__table__.c.get(column_name)
+        if col is None:
+            # this happens for relationship attrs (and probably association proxies too)
+            return rv
+
+        required_msg = (hasattr(col, 'info') and col.info.get('required', None)
+                        or (not col.primary_key and not col.nullable))
+        if (required_msg
+                and not any(isinstance(x, Required) for x in validators)
+                and col.default is None):
             if isinstance(required_msg, bool):
                 required_msg = None
             elif isinstance(required_msg, str):
@@ -122,7 +127,10 @@ class BaseModel(object):
         return rv
 
     def __setattr__(self, key, value):
-        if self.Meta.validation:
+        col = self.__mapper__.columns.get(key)
+        if (self.Meta.validation
+                and col is not None
+                and ((col.name is None and hasattr(self, key)) or key == col.name)):
             for validator in self._get_validators(key):
                 try:
                     validator(value)

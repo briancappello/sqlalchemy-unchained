@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.5.1 (unreleased)
+
+- bugfix: cannot automatically determine if relationship/association_proxy attributes should be required
+
 ## v0.5.0 (2018/10/16)
 
 - configure tox & travis
