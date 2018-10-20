@@ -80,7 +80,8 @@ class BaseModel(object):
         """
         data = kwargs
         if not partial:
-            data = dict(**kwargs, **{col.name: None for col in cls.__table__.c
+            data = dict(**kwargs, **{col.name: None
+                                     for col in cls.__table__.c.values()
                                      if col.name not in kwargs})
 
         errors = defaultdict(list)
