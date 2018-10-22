@@ -79,18 +79,18 @@ def scoped_session_factory(bind=None, scopefunc=None, **kwargs):
     return scoped_session(sessionmaker(bind=bind, **kwargs), scopefunc=scopefunc)
 
 
-def init_sqlalchemy_unchained(db_uri, session_scopefunc=None, **kwargs):
+def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, **kwargs):
     """
     Main entry point for connecting to the database.
 
-    :param db_uri: The SQLAlchemy database URI to connect to.
+    :param database_uri: The SQLAlchemy database URI to connect to.
     :param session_scopefunc: The function to use for automatically scoping the session.
                               Defaults to ``None``, which means you have full control
                               over the session lifecycle.
     :param kwargs: Any extra keyword arguments to pass to :func:`declarative_base`.
     :return: Tuple[engine, Session, Model, relationship]
     """
-    engine = create_engine(db_uri)
+    engine = create_engine(database_uri)
     Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc)
     Model = declarative_base(Session, bind=engine, **kwargs)
     relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
