@@ -2,6 +2,12 @@
 
 Enhanced declarative models for SQLAlchemy.
 
+## Links
+
+* [Documentation on Read the Docs](https://sqlalchemy-unchained.readthedocs.io)
+* [Source Code on GitHub](https://github.com/briancappello/sqlalchemy-unchained)
+* [PyPI](https://pypi.org/project/SQLAlchemy-Unchained/)
+
 ## Usage
 
 ### Install
@@ -33,10 +39,42 @@ import os
 class Config:
     PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
-    DB_URI = 'sqlite:///' + os.path.join(PROJECT_ROOT, 'db', 'dev.sqlite')
+    DATABASE_URI = 'sqlite:///' + os.path.join(PROJECT_ROOT, 'db', 'dev.sqlite')
 ```
 
-Here we're creating an on-disk SQLite database at `project-root/db/dev.sqlite`. See the official documentation on [SQLAlchemy Dialects](https://docs.sqlalchemy.org/en/latest/dialects/) to learn more about connecting to other database engines.
+Here we're creating an on-disk SQLite database at `project-root/db/dev.sqlite`.
+
+If instead you'd like to use MariaDB/MySQL or PostgreSQL, now would be the time to configure it. For example, to use PostgreSQL with ``psycopg2``:
+
+```python
+# your_package/config.py
+
+import os
+
+
+class Config:
+    DATABASE_URI = '{engine}://{user}:{pw}@{host}:{port}/{db}'.format(
+        engine=os.getenv('SQLALCHEMY_DATABASE_ENGINE', 'postgresql+psycopg2'),
+        user=os.getenv('SQLALCHEMY_DATABASE_USER', 'your_db_user'),
+        pw=os.getenv('SQLALCHEMY_DATABASE_PASSWORD', 'your_db_user_password'),
+        host=os.getenv('SQLALCHEMY_DATABASE_HOST', '127.0.0.1'),
+        port=os.getenv('SQLALCHEMY_DATABASE_PORT', 5432),
+        db=os.getenv('SQLALCHEMY_DATABASE_NAME', 'your_db_name'))
+```
+
+Or for MariaDB/MySQL, replace the ``engine`` parameter with ``mysql+mysqldb`` and the ``port`` parameter with ``3306``.
+
+Note that you'll probably need to install the relevant driver package, eg:
+
+```bash
+# for psycopg2
+pip install --no-binary psycopg2
+
+# for mysql
+pip install mysqlclient
+```
+
+See the official documentation on [SQLAlchemy Dialects](https://docs.sqlalchemy.org/en/latest/dialects/) to learn more about connecting to other database engines.
 
 ### Connect
 
@@ -48,10 +86,10 @@ from sqlalchemy_unchained import *
 from .config import Config
 
 
-engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
+engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DATABASE_URI)
 ```
 
-If you need to customize the creation of any of these parameters, this is the equivalent behind-the-scenes setup code:
+If you need to customize the creation of any of these parameters, this is what `init_sqlalchemy_unchained` is doing behind the scenes:
 
 ```python
 # your_package/db.py
@@ -63,7 +101,7 @@ from sqlalchemy_unchained import _wrap_with_default_query_class
 from .config import Config
 
 
-engine = create_engine(Config.DB_URI)
+engine = create_engine(Config.DATABASE_URI)
 Session = scoped_session_factory(bind=engine)
 Model = declarative_base(Session, bind=engine)
 relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
@@ -126,10 +164,10 @@ The are other `Meta` options that SQLAlchemy Unchained supports, and we'll have 
 
 ### Configure database migrations
 
-Install Alembic:
+Initialize Alembic:
 
 ```bash
-pip install alembic && alembic init db/migrations
+alembic init db/migrations
 ```
 
 Next, we need to configure Alembic to use the same database as we've already configured. This happens towards the top of the `db/migrations/env.py` file, which the `alembic init db/migrations` command generated for us. Modify the following lines:
@@ -335,7 +373,7 @@ from .base_model import BaseModel
 from .config import Config
 
 
-engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI, 
+engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DATABASE_URI, 
                                                                  model=BaseModel)
 ```
 
@@ -366,7 +404,7 @@ from .model_registry import CustomModelRegistry
 
 
 _ModelRegistry.set_singleton_class(CustomModelRegistry)
-engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
+engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DATABASE_URI)
 ```
 
 ## Lazy Mapping
@@ -402,7 +440,7 @@ from .model_registry import LazyModelRegistry
 
 
 _ModelRegistry.set_singleton_class(LazyModelRegistry)
-engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DB_URI)
+engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DATABASE_URI)
 ```
 
 The last step is to define your models like so:

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.0 (unreleased)
+
+- rename `DB_URI` to `DATABASE_URI`
+
 ## v0.5.1 (2018/10/20)
 
 - bugfix: cannot automatically determine if relationship/association_proxy attributes should be required
