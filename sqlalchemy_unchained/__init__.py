@@ -15,8 +15,7 @@ from .base_query import BaseQuery, QueryMixin
 from .foreign_key import foreign_key
 from .model_meta_options import ColumnMetaOption, ModelMetaOptionsFactory
 from .model_registry import _ModelRegistry
-from .validation import (BaseValidator, Required, ValidationError, ValidationErrors,
-                         validates)
+from .validation import BaseValidator, Required, ValidationError, ValidationErrors
 
 
 def _set_default_query_class(d, query_cls):

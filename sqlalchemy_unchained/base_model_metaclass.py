@@ -144,12 +144,6 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
                         validators[col_name].append(v)
 
         for attr_name, attr in clsdict.items():
-            validates = getattr(attr, '__validates__', None)
-            if validates and deep_getattr(clsdict, mcs_args.bases, validates):
-                if attr_name not in validators[attr.__validates__]:
-                    validators[attr.__validates__].append(attr_name)
-                continue
-
             m = VALIDATOR_RE.match(attr_name)
             column = m.groupdict()['column'] if m else None
             if m and deep_getattr(clsdict, mcs_args.bases, column, None) is not None:

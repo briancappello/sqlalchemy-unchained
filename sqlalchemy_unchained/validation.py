@@ -41,11 +41,6 @@ class ValidationErrors(BaseValidationError):
         return '\n'.join([k + ': ' + str(e) for k, e in self.errors.items()])
 
 
-def validates(column):
-    def decorator(fn):
-        fn.__validates__ = column
-        return fn
-    return decorator
 
 
 class BaseValidator:
