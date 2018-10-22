@@ -317,14 +317,10 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
         base_meta = deep_getattr({}, self._mcs_args.bases, 'Meta')
         return base_meta.abstract
 
-    @property
-    def _model_repr(self):
-        return self._mcs_args.qualname
-
     def __repr__(self):
         return '<{cls} model={model!r} model_meta_options={attrs!r}>'.format(
             cls=self.__class__.__name__,
-            model=self._model_repr,
+            model=self._mcs_args.qualname,
             attrs={option.name: getattr(self, option.name, None)
                    for option in self._get_meta_options()})
 

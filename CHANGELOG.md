@@ -4,6 +4,7 @@
 
 - rename `DB_URI` to `DATABASE_URI`
 - rename the `db_uri` argument of `init_sqlalchemy_unchained` to `database_uri`
+- remove the `ModelMetaOptionsFactory._model_repr` property
 
 ## v0.5.1 (2018/10/20)
 
