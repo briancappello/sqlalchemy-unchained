@@ -30,24 +30,28 @@ def foreign_key(model_or_table_name_or_column_name: Union[str, Type[Model]],
                                     nullable=False)
             category = db.relationship('Category', back_populates='posts')
 
-    :param model_or_table_name_or_column_name: If two arguments are given, then
-        this is treated as the column name. Otherwise, it's treated as the table
-        name (see docs for model_or_table_name)
+    :param model_or_table_name_or_column_name:
+      If two arguments are given, then this is treated as the column name (the
+      column name for *this* side of the relationship). Otherwise, it's treated
+      as the model or table name (of the *opposite* side of the relationship).
 
-    :param model_or_table_name: the model or table name to link to
+    :param model_or_table_name: The model or table name of the *opposite* side
+      of the relationship.
+      If given a subclass of :class:`~sqlalchemy_unchained.BaseModel`, use its
+      :attr:`__tablename__` attribute.
+      If given a lowercase string, it's treated as an explicit table name.
+      If there are any uppercase characters, it's assumed to be a model name,
+      and will be converted to snake case. **NOTE:** The snake case logic used
+      is slightly different from that of Flask-SQLAlchemy when there are
+      sequential upper-case letters in the model's class name.
 
-        If given a lowercase string, it's treated as an explicit table name.
-
-        If there are any uppercase characters, it's assumed to be a model name,
-        and will be converted to snake case using the same automatic conversion
-        as Flask-SQLAlchemy does itself.
-
-        If given a subclass of :class:`flask_sqlalchemy.Model`, use its
-        :attr:`__tablename__` attribute.
-
-    :param str fk_col: column name of the primary key (defaults to "id")
-    :param bool primary_key: Whether or not this Column is a primary key
-    :param kwargs: any other kwargs to pass the Column constructor
+    :param str fk_col: The column name of the primary key on the *opposite* side
+      of the relationship (defaults to
+      :attr:`sqlalchemy_unchained._ModelRegistry.default_primary_key_column`).
+    :param bool primary_key: Whether or not this :class:`~sqlalchemy.Column` is
+                             a primary key.
+    :param kwargs: Any other kwargs to pass the :class:`~sqlalchemy.Column`
+                   constructor.
     """
     fk_col = fk_col or _ModelRegistry().default_primary_key_column
     column_name = model_or_table_name_or_column_name
