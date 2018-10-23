@@ -3,7 +3,8 @@ import functools
 from py_meta_utils import META_OPTIONS_FACTORY_CLASS_ATTR_NAME
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.ext.declarative import (declarative_base as _declarative_base)
+from sqlalchemy.ext.declarative import declarative_base as _declarative_base
+from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
@@ -108,7 +109,8 @@ def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
             mapper=mapper,
             metadata=metadata,
             metaclass=make_model_metaclass,
-            constructor=None,  # use BaseModel's explicitly declared constructor
+            constructor=(None if '__init__' in model.__dict__
+                         else _declarative_constructor),
         )
         _ModelRegistry().register_base_model_class(model)
 

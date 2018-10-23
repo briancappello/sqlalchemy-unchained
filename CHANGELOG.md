@@ -8,6 +8,7 @@
 - remove the `validates` decorator
 - add `SessionManager` and `ModelManager` classes
 - discourage the use of Active Record anti-patterns (remove `query` attribute from `BaseModel`)
+- bugfix for `declarative_base` if a custom base model is passed in without a constructor
 
 ## v0.5.1 (2018/10/20)
 
