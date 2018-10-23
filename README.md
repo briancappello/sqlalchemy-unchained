@@ -21,14 +21,16 @@ $ pip install sqlalchemy-unchained
 And let's create a directory structure to work with:
 
 ```bash
-mkdir your-project && cd your-project
-mkdir your_package && mkdir db && touch setup.py
-touch your_package/config.py your_package/db.py your_package/models.py
+mkdir your-project && cd your-project && \
+mkdir your_package && mkdir db && \
+touch setup.py your_package/config.py your_package/db.py your_package/models.py
 ```
 
 From now it is assumed that you are working from the `your-project` directory. All file paths at the top of code samples will be relative to this directory, and all commands should be run from this directory (unless otherwise noted).
 
 ### Configure
+
+#### Using SQLite
 
 ```python
 # your_package/config.py
@@ -44,7 +46,9 @@ class Config:
 
 Here we're creating an on-disk SQLite database at `project-root/db/dev.sqlite`.
 
-If instead you'd like to use MariaDB/MySQL or PostgreSQL, now would be the time to configure it. For example, to use PostgreSQL with ``psycopg2``:
+#### Using PostgreSQL or MariaDB/MySQL
+
+If instead you'd like to use PostgreSQL or MariaDB/MySQL, now would be the time to configure it. For example, to use PostgreSQL with the ``psycopg2`` engine:
 
 ```python
 # your_package/config.py
@@ -62,15 +66,15 @@ class Config:
         db=os.getenv('SQLALCHEMY_DATABASE_NAME', 'your_db_name'))
 ```
 
-Or for MariaDB/MySQL, replace the ``engine`` parameter with ``mysql+mysqldb`` and the ``port`` parameter with ``3306``.
+For MariaDB/MySQL, replace the ``engine`` parameter with ``mysql+mysqldb`` and the ``port`` parameter with ``3306``.
 
 Note that you'll probably need to install the relevant driver package, eg:
 
 ```bash
-# for psycopg2
+# for postgresql+psycopg2
 pip install --no-binary psycopg2
 
-# for mysql
+# for mysql+mysqldb
 pip install mysqlclient
 ```
 
@@ -129,7 +133,7 @@ class Child(db.Model):
     parent = db.relationship('Parent', back_populates='children')
 ```
 
-This is the first bit that's really different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically have their `__tablename__` configured, and include a primary key column `id`, as well as the automatically-timestamped columns `created_at` and `updated_at`.
+This is the first bit that's really different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically have their `__tablename__` configured, and include a primary key column `id` as well as the automatically-timestamped columns `created_at` and `updated_at`.
 
 This is customizable. For example, if you wanted to rename the columns on `Parent` and disable timestamping on `Child`:
 
@@ -218,7 +222,7 @@ alembic upgrade head
 
 SQLAlchemy Unchained encourages embracing the design patterns recommended by the Data Mapper Pattern that SQLAlchemy uses. This means we use managers (or services, if you prefer) to handle all of our interactions with the database. SQLAlchemy Unchained includes two classes to facilitate making this as easy as possible: [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) and [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager). 
 
-[SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) is a concrete class that you can and should use directly whenever you need to interact with the database session. [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager) is an abstract class that you should extend for each of the models in your application:
+[SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) is a concrete class that you can and should use directly whenever you need to interact with the database session. [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager) is an abstract subclass of [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) that you should extend for each of the models in your application:
 
 ```python
 from your_package import db
@@ -237,13 +241,16 @@ class YourModelManager(db.ModelManager):
 
     def find_by_name(self, name) -> Union[YourModel, None]:
         return self.get_by(name=name)
+
+
+instance = YourModelManager().create(name='foobar', commit=True)
 ```
 
-Both [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) and [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager) are singletons, so whenever you call `SessionManager()` or `YourModelManager()`, you will always get the same manager instance back.
+Both [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) and [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager) are singletons, so whenever you call `SessionManager()` or `YourModelManager()`, you will always get the same instance.
 
 ## Included Meta Options
 
-### Table
+### table (`__tablename__`)
 
 ```python
 class Foo(db.Model):
@@ -255,7 +262,7 @@ Set to customize the name of the table in the database for the model. By default
 
 NOTE: The snake case logic used is slightly different from that of Flask-SQLAlchemy, so if you're porting your models over and any of them have sequential upper-case letters, you will probably need to change the default.
 
-### Primary Key
+### pk (primary key column)
 
 ```python
 class Foo(db.Model):
@@ -267,7 +274,7 @@ Set to a string to customize the column name used for the primary key, or set to
 
 NOTE: Customizing the default primary key column name used for all models is different from customizing the defaults for other meta options. (You should subclass `_ModelRegistry` and set its `default_primary_key_column` attribute. This is necessary for the `foreign_key` helper function to work correctly.)
 
-### Created At
+### created_at (row insertion timestamp)
 
 ```python
 class Foo(db.Model):
@@ -277,7 +284,7 @@ class Foo(db.Model):
 
 Set to a string to customize the column name used for the creation timestamp, or set to `None` to disable the column.
 
-### Updated At
+### updated_at (last updated timestamp)
 
 ```python
 class Foo(db.Model):
@@ -287,19 +294,19 @@ class Foo(db.Model):
 
 Set to a string to customize the column name used for the updated timestamp, or set to `None` to disable the column.
 
-### Repr
+### repr (automatic pretty `__repr__`)
 
 ```python
 class Foo(db.Model):
     class Meta:
-        repr: Tuple[str, ...] = ('id',)  # ('id',) is the default
+        repr: Tuple[str, ...] = (_ModelRegistry.default_primary_key_column,) # default is ('id',)
 
 print(Foo())  # prints: Foo(id=1)
 ```
 
-Set to a tuple of attribute names to customize the representation of models.
+Set to a tuple of column (attribute) names to customize the representation of models.
 
-### Validation
+### validation
 
 ```python
 class Foo(db.Model):
@@ -309,7 +316,7 @@ class Foo(db.Model):
 
 Set to `False` to disable validation of model instances.
 
-### Polymorphic
+### polymorphic (mapped model class hierarchies)
 
 ```python
 class Foo(db.Model):
@@ -321,7 +328,7 @@ class Bar(Foo):
     pass
 ```
 
-This meta option is disabled by default, and can be set to one of `'joined'`, `True` (an alias for `'joined'`), or `'single'`. See [here](https://docs.sqlalchemy.org/en/latest/orm/inheritance.html) for more info.
+This meta option is disabled by default, and can be set to one of `'joined'`, `'single'`, or `True` (an alias for `'joined'`). See [the SQLAlchemy documentation on class inheritance hierarchies](https://docs.sqlalchemy.org/en/latest/orm/inheritance.html) for more info.
 
 When `polymorphic` is enabled, there are two other meta options available to further customize its behavior:
 
@@ -329,8 +336,8 @@ When `polymorphic` is enabled, there are two other meta options available to fur
 class Foo(db.Model):
     class Meta:
         polymorphic = True
-        polymorphic_on: str = 'discriminator'  # the name of the column to use
-        polymorphic_identity: str = 'models.Foo'  # the unique identifier to use for this model
+        polymorphic_on: str = 'discriminator'  # column name to store polymorphic_identity in
+        polymorphic_identity: str = 'models.Foo'  # unique identifier to use for this model
 
 
 class Bar(Foo):
@@ -338,15 +345,17 @@ class Bar(Foo):
         polymorphic_identity = 'models.Bar'
 ```
 
-`polymorphic_on` defaults to `'discriminator'`, and is the name of the column used to store the `polymorphic_identity`, which is the unique identifier used by SQLAlchemy to distinguish which model class a row should use. `polymorphic_identity` defaults to using each model class's name.
+`polymorphic_identity` is the identifier used by SQLAlchemy to distinguish which model class a row should use, and defaults to using the model's class name. The `polymorphic_identity` gets stored in the `polymorphic_on` column, which defaults to `'discriminator'`.
+
+**IMPORTANT:** The `polymorphic` and `polymorphic_on` Meta options should be specified on the base model of the hierarchy *only*. Conversely if you want to customize `polymorphic_identity`, it should be specified on *every* model in the hierarchy.
 
 ## Model Validation
 
-SQLAlchemy Unchained adds support for validating models before persisting them to the database. This is enabled by default, although you can disable it with the [validation](https://sqlalchemy-unchained.readthedocs.io/en/latest/readme.html#validation) ``Meta`` option. When validation is enabled, by default all non-nullable, scalar-value columns will be validated with [Required](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#required).
+SQLAlchemy Unchained adds support for validating models before persisting them to the database. This is enabled by default, although you can disable it with the [validation](https://sqlalchemy-unchained.readthedocs.io/en/latest/readme.html#validation) Meta option. When validation is enabled, by default all non-nullable, scalar-value columns will be validated with [Required](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#required).
 
 There are two different ways you can write custom validation for your models.
 
-The first is by extending [BaseValidator](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#basevalidator), implementing `__call__`, and raising [ValidationError](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerror) if their validation fails:
+The first is by extending [BaseValidator](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#basevalidator), implementing `__call__`, and raising [ValidationError](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerror) if the validation fails:
 
 ```python
 from your_package import db
@@ -355,7 +364,7 @@ from your_package import db
 class ValidateEmail(db.BaseValidator):
     def __call__(self, value):
         super().__call__(value)
-        if '@' not in value:
+        if '@' not in value:  # not how you should actually verify email addresses
             raise db.ValidationError(self.msg or 'Invalid email address')
 
 
@@ -373,11 +382,11 @@ class YourModel(db.Model):
 
     @staticmethod
     def validate_email(value):
-        if '@' not in value:
+        if '@' not in value:  # not how you should actually verify email addresses
             raise db.ValidationError('Invalid email address')
 ```
 
-Validation methods defined on model classes must follow a specific naming convention: either `validate_<column_name>` or `validates_<column_name>` will be picked up. Just like when implementing `__call__` on [BaseValidator](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#basevalidator), model validation methods should raise [ValidationError](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerror) if their validation fails.
+Validation methods defined on model classes must follow a specific naming convention: either `validate_<column_name>` or `validates_<column_name>` will work. Just like when implementing `__call__` on [BaseValidator](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#basevalidator), model validation methods should raise [ValidationError](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerror) if their validation fails.
 
 Validation happens automatically whenever your create or update a model instance. If any of the validators fail, [ValidationErrors](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerrors) will be raised.
 
@@ -477,9 +486,9 @@ _ModelRegistry.set_singleton_class(CustomModelRegistry)
 engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DATABASE_URI)
 ```
 
-## Lazy Mapping
+## Lazy Mapping (experimental)
 
-Lazy mapping is feature that this package introduces on top of SQLAlchemy. It's experimental, and disabled by default. In stock SQLAlchemy, when you define a model, the second that code gets imported, the base model's metaclass will register the model with SQLAlchemy's mapper. 99% of the time this is what you want to happen, but if for some reason you *don't* want that behavior, then you have to enable lazy mapping. There are two components to enabling lazy mapping.
+Lazy mapping is feature that this package introduces on top of SQLAlchemy. It's experimental and disabled by default. In stock SQLAlchemy, when you define a model, the second that code gets imported, the base model's metaclass will register the model with SQLAlchemy's mapper. 99% of the time this is what you want to happen, but if for some reason you *don't* want that behavior, then you have to enable lazy mapping. There are two components to enabling lazy mapping.
 
 The first step is to customize the model registry:
 
