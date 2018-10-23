@@ -129,7 +129,7 @@ class Child(db.Model):
     parent = db.relationship('Parent', back_populates='children')
 ```
 
-This is the first bit that's really different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically include a primary key column `id`, as well as the automatically-timestamped columns `created_at` and `updated_at`.
+This is the first bit that's really different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically have their `__tablename__` configured, and include a primary key column `id`, as well as the automatically-timestamped columns `created_at` and `updated_at`.
 
 This is customizable. For example, if you wanted to rename the columns on `Parent` and disable timestamping on `Child`:
 
@@ -152,6 +152,7 @@ class Parent(db.Model):
 
 class Child(db.Model):
     class Meta:
+        table = 'child'  # explicitly set/customize the table name
         created_at = None
         updated_at = None
 
@@ -373,7 +374,7 @@ class CreatedAtColumnMetaOption(ColumnMetaOption):
         return sa.Column(sa.DateTime, server_default=sa_func.now())
 ```
 
-For examples sake, let's say you wanted every model to have a required name column, but no automatic timestamping behavior. First we need to implement a `ColumnMetaOption`:
+For examples sake, let's say you wanted every model to have a required name column, but no automatic timestamping behavior. First we need to implement a [ColumnMetaOption](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#columnmetaoption):
 
 ```python
 # your_package/base_model.py
@@ -387,7 +388,7 @@ from sqlalchemy_unchained import (BaseModel as _BaseModel, ColumnMetaOption,
 class NameColumnMetaOption(ColumnMetaOption):
     def __init__(self):
         super().__init__('name', default='name', inherit=True)
-    
+
     def get_column(self, mcs_args: McsArgs):
         return sa.Column(sa.String, nullable=False)
 
