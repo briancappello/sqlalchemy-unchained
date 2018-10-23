@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.6.0 (unreleased)
+## v0.6.0 (2018/10/23)
 
 - documentation improvements
 - rename `DB_URI` to `DATABASE_URI`
