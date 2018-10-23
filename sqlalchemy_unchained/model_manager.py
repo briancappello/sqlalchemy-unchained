@@ -88,15 +88,15 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
     """
 
     class Meta:
-        abstract: bool = True
-        model: Type[BaseModel] = None
+        abstract = True
+        model = None
 
-    query: BaseQuery = _QueryDescriptor()
+    query = _QueryDescriptor()
     """
     The :class:`~sqlalchemy_unchained.BaseQuery` for this manager's model.
     """
 
-    q: BaseQuery = _QueryDescriptor()
+    q = _QueryDescriptor()
     """
     An alias for :attr:`query`.
     """
