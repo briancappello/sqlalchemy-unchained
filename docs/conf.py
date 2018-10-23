@@ -104,6 +104,12 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_context = {
+    'css_files': [
+        '_static/theme_customizations.css',
+    ],
+}
+
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
@@ -195,4 +201,8 @@ epub_exclude_files = ['search.html']
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'sqlalchemy': ('https://docs.sqlalchemy.org/en/latest/', None),
+    'py_meta_utils': ('https://py-meta-utils.readthedocs.io/en/latest/', None),
+}
