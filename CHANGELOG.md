@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.6.1 (unreleased)
+
+- require py-meta-utils 0.7.0
+- fix SessionManager tests
+
 ## v0.6.0 (2018/10/23)
 
 - documentation improvements

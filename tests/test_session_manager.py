@@ -26,7 +26,7 @@ class TestSessionManager:
         assert foo in session_manager.session
 
         with session_manager.no_autoflush:
-            assert not Foobar.query.all()
+            assert not session_manager.query(Foobar).all()
 
     def test_save_with_commit(self, db, session_manager: SessionManager):
         class Foobar(db.Model):
@@ -38,7 +38,7 @@ class TestSessionManager:
         session_manager.save(foo, commit=True)
 
         assert foo in session_manager.session
-        assert Foobar.query.all() == [foo]
+        assert session_manager.query(Foobar).all() == [foo]
 
     def test_save_all_without_commit(self, db, session_manager: SessionManager):
         class Foobar(db.Model):
@@ -53,7 +53,7 @@ class TestSessionManager:
         assert foo2 in session_manager.session
 
         with session_manager.no_autoflush:
-            assert not Foobar.query.all()
+            assert not session_manager.query(Foobar).all()
 
     def test_save_all_with_commit(self, db, session_manager: SessionManager):
         class Foobar(db.Model):
@@ -67,7 +67,7 @@ class TestSessionManager:
         assert foo1 in session_manager.session
         assert foo2 in session_manager.session
 
-        assert Foobar.query.all() == [foo1, foo2]
+        assert session_manager.query(Foobar).all() == [foo1, foo2]
 
     def test_commit(self, db, session_manager: SessionManager):
         class Foobar(db.Model):
@@ -79,4 +79,4 @@ class TestSessionManager:
         session_manager.save(foo)
         session_manager.commit()
 
-        assert Foobar.query.all() == [foo]
+        assert session_manager.query(Foobar).all() == [foo]
