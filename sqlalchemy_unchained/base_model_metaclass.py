@@ -15,10 +15,7 @@ from .model_meta_options import ModelMetaOptionsFactory
 VALIDATOR_RE = re.compile(r'^validates?_(?P<column>\w+)')
 
 
-# the `should_set_tablename` function, and the `NameMetaMixin` and `BindMetaMixin`
-# classes are copied from the `flask_sqlalchemy.model` module source (3-clause BSD)
-
-
+# copied from flask-sqlalchemy (BSD license)
 def should_set_tablename(cls):
     """
     Determine whether ``__tablename__`` should be automatically generated
@@ -56,6 +53,7 @@ def should_set_tablename(cls):
     return True
 
 
+# copied from flask-sqlalchemy (BSD license)
 class NameMetaMixin:
     def __init__(cls, name, bases, d):
         if should_set_tablename(cls):
@@ -107,6 +105,7 @@ class NameMetaMixin:
             del cls.__tablename__
 
 
+# copied from flask-sqlalchemy (BSD license)
 class BindMetaMixin:
     def __init__(cls, name, bases, d):
         bind_key = (

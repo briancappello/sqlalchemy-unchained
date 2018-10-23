@@ -21,11 +21,13 @@ from .session_manager import SessionManager
 from .validation import BaseValidator, Required, ValidationError, ValidationErrors
 
 
+# copied from flask-sqlalchemy (BSD license)
 def _set_default_query_class(d, query_cls):
     if 'query_class' not in d:
         d['query_class'] = query_cls
 
 
+# copied from flask-sqlalchemy (BSD license)
 def _wrap_with_default_query_class(fn, query_cls):
     @functools.wraps(fn)
     def newfn(*args, **kwargs):
