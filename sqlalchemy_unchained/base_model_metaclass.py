@@ -2,7 +2,7 @@ import re
 import sqlalchemy as sa
 
 from collections import defaultdict
-from py_meta_utils import McsArgs, McsInitArgs, deep_getattr, process_factory_meta_options
+from py_meta_utils import McsArgs, McsInitArgs, process_factory_meta_options
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import (
     DeclarativeMeta as BaseDeclarativeMeta, declared_attr)
@@ -121,6 +121,11 @@ class BindMetaMixin:
 
 
 class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
+    """
+    Base metaclass for models in SQLAlchemy Unchained. Sets up support for using
+    Meta options on models, automatically sets ``__tablename__`` if necessary,
+    and configures validation for concrete models.
+    """
     def __new__(mcs, name, bases, clsdict):
         mcs_args = McsArgs(mcs, name, bases, clsdict)
 
@@ -132,7 +137,7 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
         if Meta.abstract:
             return super().__new__(*mcs_args)
 
-        validators = deep_getattr(clsdict, bases, '__validators__', defaultdict(list))
+        validators = mcs_args.getattr('__validators__', defaultdict(list))
         columns = {col_name: col for col_name, col in clsdict.items()
                    if isinstance(col, Column)}
         for col_name, col in columns.items():
@@ -146,7 +151,7 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
         for attr_name, attr in clsdict.items():
             m = VALIDATOR_RE.match(attr_name)
             column = m.groupdict()['column'] if m else None
-            if m and deep_getattr(clsdict, mcs_args.bases, column, None) is not None:
+            if m and mcs_args.getattr(column, None) is not None:
                 attr.__validates__ = column
                 if attr_name not in validators[column]:
                     validators[column].append(attr_name)
