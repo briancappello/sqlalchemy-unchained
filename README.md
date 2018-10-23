@@ -214,6 +214,33 @@ alembic revision --autogenerate -m 'create models'
 alembic upgrade head
 ```
 
+## Using SessionManager and Model Managers
+
+SQLAlchemy Unchained encourages embracing the design patterns recommended by the Data Mapper Pattern that SQLAlchemy uses. This means we use managers (or services, if you prefer) to handle all of our interactions with the database. SQLAlchemy Unchained includes two classes to facilitate making this as easy as possible: [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) and [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager). 
+
+[SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) is a concrete class that you can and should use directly whenever you need to interact with the database session. [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager) is an abstract class that you should extend for each of the models in your application:
+
+```python
+from your_package import db
+
+
+class YourModel(db.Model):
+    name = db.Column(db.String, nullable=False)
+
+
+class YourModelManager(db.ModelManager):
+    class Meta:
+        model = YourModel
+
+    def create(self, name, commit=False, **kwargs) -> YourModel:
+        return super().create(name=name, commit=commit, **kwargs)
+
+    def find_by_name(self, name) -> Union[YourModel, None]:
+        return self.get_by(name=name)
+```
+
+Both [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) and [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager) are singletons, so whenever you call `SessionManager()` or `YourModelManager()`, you will always get the same manager instance back.
+
 ## Included Meta Options
 
 ### Table
