@@ -103,6 +103,7 @@ from .config import Config
 
 engine = create_engine(Config.DATABASE_URI)
 Session = scoped_session_factory(bind=engine)
+SessionManager.set_session_factory(Session)
 Model = declarative_base(Session, bind=engine)
 relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
 ```

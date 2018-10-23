@@ -13,8 +13,10 @@ from .base_model import BaseModel, _QueryProperty
 from .base_model_metaclass import DeclarativeMeta
 from .base_query import BaseQuery, QueryMixin
 from .foreign_key import foreign_key
+from .model_manager import ModelManager
 from .model_meta_options import ColumnMetaOption, ModelMetaOptionsFactory
 from .model_registry import _ModelRegistry
+from .session_manager import SessionManager
 from .validation import BaseValidator, Required, ValidationError, ValidationErrors
 
 
@@ -91,6 +93,7 @@ def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, **kwargs):
     """
     engine = create_engine(database_uri)
     Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc)
+    SessionManager.set_session_factory(Session)
     Model = declarative_base(Session, bind=engine, **kwargs)
     relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
     return engine, Session, Model, relationship

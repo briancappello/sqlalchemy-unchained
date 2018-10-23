@@ -6,7 +6,7 @@ import sqlalchemy.orm
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
-from sqlalchemy_unchained import init_sqlalchemy_unchained, foreign_key
+from sqlalchemy_unchained import init_sqlalchemy_unchained, foreign_key, SessionManager
 
 
 @pytest.fixture()
@@ -35,4 +35,5 @@ def db():
 
     yield DB()
 
+    SessionManager.set_session_factory(None)
     del os.environ['SQLA_TESTING']
