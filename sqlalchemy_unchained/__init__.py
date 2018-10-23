@@ -116,8 +116,8 @@ def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
         )
         _ModelRegistry().register_base_model_class(model)
 
-    # if user passed in a declarative base and a metaclass for some reason,
-    # make sure the base uses the metaclass
+    # if user passed in a declarative base and a metadata for some reason,
+    # make sure the base uses the metadata
     if metadata is not None and model.metadata is not metadata:
         model.metadata = metadata
 
