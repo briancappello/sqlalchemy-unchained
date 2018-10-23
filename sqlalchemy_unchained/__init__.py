@@ -2,13 +2,13 @@ import functools
 
 from py_meta_utils import META_OPTIONS_FACTORY_CLASS_ATTR_NAME
 from sqlalchemy import *
-from sqlalchemy.orm import *
-from sqlalchemy.ext.declarative import declarative_base as _declarative_base
-from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative import declarative_base as _declarative_base
+from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
-from sqlalchemy.orm import scoped_session, sessionmaker, relationship as _relationship
+from sqlalchemy.orm import *
+from sqlalchemy.orm import relationship as _relationship
 from sqlalchemy.sql.schema import (
     DEFAULT_NAMING_CONVENTION as _SQLA_DEFAULT_NAMING_CONVENTION)
 
