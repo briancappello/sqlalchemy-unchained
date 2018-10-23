@@ -2,12 +2,14 @@
 
 ## v0.6.0 (unreleased)
 
+- documentation improvements
 - rename `DB_URI` to `DATABASE_URI`
 - rename the `db_uri` argument of `init_sqlalchemy_unchained` to `database_uri`
 - remove the `ModelMetaOptionsFactory._model_repr` property
 - remove the `validates` decorator
-- add `SessionManager` and `ModelManager` classes
 - discourage the use of Active Record anti-patterns (remove `query` attribute from `BaseModel`)
+- add `SessionManager` and `ModelManager` to encourage use of Data Mapper patterns
+- add `query_cls` keyword argument to `init_sqlalchemy_unchained` and `scoped_session_factory`
 - bugfix for `declarative_base` if a custom base model is passed in without a constructor
 - configure the `MetaData` naming convention if none is provided
 
