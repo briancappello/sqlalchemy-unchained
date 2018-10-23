@@ -102,10 +102,10 @@ from .config import Config
 
 
 engine = create_engine(Config.DATABASE_URI)
-Session = scoped_session_factory(bind=engine)
+Session = scoped_session_factory(bind=engine, query_cls=BaseQuery)
 SessionManager.set_session_factory(Session)
-Model = declarative_base(Session, bind=engine)
-relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
+Model = declarative_base(bind=engine)
+relationship = _wrap_with_default_query_class(_relationship, BaseQuery)
 ```
 
 ### Create some models

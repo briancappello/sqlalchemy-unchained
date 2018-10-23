@@ -7,6 +7,7 @@
 - remove the `ModelMetaOptionsFactory._model_repr` property
 - remove the `validates` decorator
 - add `SessionManager` and `ModelManager` classes
+- discourage the use of Active Record anti-patterns (remove `query` attribute from `BaseModel`)
 
 ## v0.5.1 (2018/10/20)
 

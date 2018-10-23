@@ -1,25 +1,9 @@
 import inspect
 
 from collections import defaultdict
-from sqlalchemy import orm
-from sqlalchemy.orm.exc import UnmappedClassError
-from typing import *
 
 from .model_meta_options import ModelMetaOptionsFactory
 from .validation import Required, ValidationError, ValidationErrors
-
-
-class _QueryProperty(object):
-    def __init__(self, session_factory):
-        self.session_factory = session_factory
-
-    def __get__(self, obj, type):
-        try:
-            mapper = orm.class_mapper(type)
-            if mapper:
-                return type.query_class(mapper, session=self.session_factory())
-        except UnmappedClassError:
-            return None
 
 
 class GettextDescriptor:
@@ -48,16 +32,7 @@ class BaseModel(object):
 
     _meta_options_factory_class = ModelMetaOptionsFactory
 
-    #: Query class used by :attr:`query`. Defaults to
-    # :class:`SQLAlchemy.Query`, which defaults to :class:`BaseQuery`.
-    query_class = None  # type: Type[orm.Query]
-
     gettext_fn = GettextDescriptor()
-
-    #: Convenience property to query the database for instances of this model
-    # using the current session. Equivalent to ``db.session.query(Model)``
-    # unless :attr:`query_class` has been changed.
-    query = None  # type: orm.Query
 
     def __init__(self, **kwargs):
         super().__init__()

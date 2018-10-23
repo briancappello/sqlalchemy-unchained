@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship as _relationship
 
-from .base_model import BaseModel, _QueryProperty
+from .base_model import BaseModel
 from .base_model_metaclass import DeclarativeMeta
 from .base_query import BaseQuery, QueryMixin
 from .foreign_key import foreign_key
@@ -38,9 +38,57 @@ def _wrap_with_default_query_class(fn, query_cls):
     return newfn
 
 
-def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
-                     model=BaseModel, name='Model', query_class=BaseQuery,
-                     class_registry=None, metaclass=DeclarativeMeta):
+def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
+                     mapper=None, class_registry=None, metaclass=DeclarativeMeta):
+    """
+    Construct a base class for declarative class definitions.
+
+    The new base class will be given a metaclass that produces
+    appropriate :class:`~sqlalchemy.schema.Table` objects and makes
+    the appropriate :func:`~sqlalchemy.orm.mapper` calls based on the
+    information provided declaratively in the class and any subclasses
+    of the class.
+
+    :param bind:
+      An optional :class:`~sqlalchemy.engine.Connectable`, will be assigned
+      the ``bind`` attribute on the :class:`~sqlalchemy.schema.MetaData`
+      instance.
+
+    :param metadata:
+      An optional :class:`~sqlalchemy.schema.MetaData` instance.  All
+      :class:`~sqlalchemy.schema.Table` objects implicitly declared by
+      subclasses of the base will share this MetaData.  A MetaData instance
+      will be created if none is provided.  The
+      :class:`~sqlalchemy.schema.MetaData` instance will be available via the
+      `metadata` attribute of the generated declarative base class.
+
+    :param mapper:
+      An optional callable, defaults to :func:`~sqlalchemy.orm.mapper`. Will
+      be used to map subclasses to their Tables.
+
+    :param model:
+      Defaults to :class:`~sqlalchemy_unchained.BaseModel`. A type to use as
+      the base for the generated declarative base class. May be a class or a
+      tuple of classes.
+
+    :param name:
+      Defaults to ``Model``.  The display name for the generated class.
+      Customizing this is not required, but can improve clarity in
+      tracebacks and debugging.
+
+    :param class_registry:
+      An optional dictionary that will serve as the registry of
+      class names-> mapped classes when string names are used to identify
+      classes inside of :func:`.relationship` and others.  Allows two or
+      more declarative base classes to share the same registry of class
+      names for simplified inter-base relationships.
+
+    :param metaclass:
+      Defaults to :class:`~sqlalchemy_unchained.DeclarativeMeta`. The metaclass
+      to use as the meta type of the generated declarative base class. If you
+      want to customize this, your metaclass must extend
+      :class:`~sqlalchemy_unchained.DeclarativeMeta`.
+    """
     if not isinstance(model, DeclarativeMeta):
         def make_model_metaclass(name, bases, clsdict):
             clsdict['__abstract__'] = True
@@ -69,18 +117,39 @@ def declarative_base(session_factory, bind=None, metadata=None, mapper=None,
     if metadata is not None and model.metadata is not metadata:
         model.metadata = metadata
 
-    if not getattr(model, 'query_class', None):
-        model.query_class = query_class
-    model.query = _QueryProperty(session_factory)
-
     return model
 
 
-def scoped_session_factory(bind=None, scopefunc=None, **kwargs):
-    return scoped_session(sessionmaker(bind=bind, **kwargs), scopefunc=scopefunc)
+def scoped_session_factory(bind=None, scopefunc=None, query_cls=BaseQuery, **kwargs):
+    """
+    Creates a scoped session using :class:`~sqlalchemy.orm.session.sessionmaker`.
+    See the SQLAlchemy documentation on
+    `Contextual Sessions <https://docs.sqlalchemy.org/en/latest/orm/contextual.html>`_
+    to learn more.
+
+    :param bind: An :class:`~sqlalchemy.engine.Engine` or other
+                 :class:`~sqlalchemy.engine.Connectable` with which newly
+                 created :class:`~sqlalchemy.orm.session.Session` objects will
+                 be associated.
+    :param scopefunc: An optional function which defines the current scope. If
+                      not passed, the :class:`~sqlalchemy.orm.scoping.scoped_session`
+                      object assumes “thread-local” scope, and will use a Python
+                      ``threading.local()`` in order to maintain the current
+                      :class:`~sqlalchemy.orm.session.Session`. If passed, the
+                      function should return a hashable token; this token will be
+                      used as the key in a dictionary in order to store and
+                      retrieve the current :class:`~sqlalchemy.orm.session.Session`.
+    :param query_cls: Class which should be used to create new ``Query`` objects, as
+                      returned by :attr:`~sqlalchemy_unchained.ModelManager.query`.
+    :param kwargs: Any extra kwargs to pass along to
+                   :class:`~sqlalchemy.orm.session.sessionmaker`.
+    """
+    return scoped_session(sessionmaker(bind=bind, query_cls=query_cls, **kwargs),
+                          scopefunc=scopefunc)
 
 
-def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, **kwargs):
+def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, query_cls=BaseQuery,
+                              **kwargs):
     """
     Main entry point for connecting to the database.
 
@@ -88,12 +157,15 @@ def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, **kwargs):
     :param session_scopefunc: The function to use for automatically scoping the session.
                               Defaults to ``None``, which means you have full control
                               over the session lifecycle.
+    :param query_cls: Class which should be used to create new ``Query`` objects, as
+                      returned by :attr:`~sqlalchemy_unchained.ModelManager.query`.
     :param kwargs: Any extra keyword arguments to pass to :func:`declarative_base`.
     :return: Tuple[engine, Session, Model, relationship]
     """
     engine = create_engine(database_uri)
-    Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc)
+    Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc,
+                                     query_cls=query_cls)
     SessionManager.set_session_factory(Session)
-    Model = declarative_base(Session, bind=engine, **kwargs)
-    relationship = _wrap_with_default_query_class(_relationship, Model.query_class)
+    Model = declarative_base(bind=engine, **kwargs)
+    relationship = _wrap_with_default_query_class(_relationship, query_cls)
     return engine, Session, Model, relationship
