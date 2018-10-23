@@ -312,6 +312,47 @@ class Bar(Foo):
 
 `polymorphic_on` defaults to `'discriminator'`, and is the name of the column used to store the `polymorphic_identity`, which is the unique identifier used by SQLAlchemy to distinguish which model class a row should use. `polymorphic_identity` defaults to using each model class's name.
 
+## Model Validation
+
+SQLAlchemy Unchained adds support for validating models before persisting them to the database. This is enabled by default, although you can disable it with the [validation](https://sqlalchemy-unchained.readthedocs.io/en/latest/readme.html#validation) ``Meta`` option. When validation is enabled, by default all non-nullable, scalar-value columns will be validated with [Required](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#required).
+
+There are two different ways you can write custom validation for your models.
+
+The first is by extending [BaseValidator](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#basevalidator), implementing `__call__`, and raising [ValidationError](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerror) if their validation fails:
+
+```python
+from your_package import db
+
+
+class ValidateEmail(db.BaseValidator):
+    def __call__(self, value):
+        super().__call__(value)
+        if '@' not in value:
+            raise db.ValidationError(self.msg or 'Invalid email address')
+
+
+class YourModel(db.Model):
+    email = db.Column(db.String, info=dict(validators=[ValidateEmail]))
+```
+
+The second is by defining a validation `classmethod` or `staticmethod` directly on the model class:
+
+```python
+from your_package import db
+
+class YourModel(db.Model):
+    email = db.Column(db.String)
+
+    @staticmethod
+    def validate_email(value):
+        if '@' not in value:
+            raise db.ValidationError('Invalid email address')
+```
+
+Validation methods defined on model classes must follow a specific naming convention: either `validate_<column_name>` or `validates_<column_name>` will be picked up. Just like when implementing `__call__` on [BaseValidator](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#basevalidator), model validation methods should raise [ValidationError](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerror) if their validation fails.
+
+Validation happens automatically whenever your create or update a model instance. If any of the validators fail, [ValidationErrors](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#validationerrors) will be raised.
+
 ## Customizing Meta Options
 
 The meta options available are configurable. Let's take a look at the implementation of the `created_at` meta option:
