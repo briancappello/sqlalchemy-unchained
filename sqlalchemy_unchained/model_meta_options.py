@@ -16,6 +16,22 @@ TRUTHY_VALUES = {'true', 't', 'yes' 'y', '1'}
 
 
 class ColumnMetaOption(MetaOption):
+    """
+    A :class:`~py_meta_utils.MetaOption` subclass that simplifies adding columns
+    to models. For example::
+
+        import sqlalchemy as sa
+
+        from sqlalchemy_unchained import ColumnMetaOption
+
+
+        class NameColumnMetaOption(ColumnMetaOption):
+            def __init__():
+                super().__init__(name='name', default='name', inherit=True)
+
+            def get_column(mcs_args):
+                return sa.Column(sa.String, nullable=False)
+    """
     def check_value(self, value, mcs_args: McsArgs):
         if not (value is None or isinstance(value, str)):
             raise TypeError('{name} Meta option on {cls} must be a str or None'.format(
@@ -277,6 +293,11 @@ class TableMetaOption(MetaOption):
 
 
 class ModelMetaOptionsFactory(MetaOptionsFactory):
+    """
+    The default :class:`~py_meta_utils.MetaOptionsFactory` subclass used by
+    SQLAlchemy Unchained.
+    """
+
     _options = [
         AbstractMetaOption,  # required; must be first
         LazyMappedMetaOption,
