@@ -9,6 +9,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship as _relationship
+from sqlalchemy.sql.schema import (
+    DEFAULT_NAMING_CONVENTION as _SQLA_DEFAULT_NAMING_CONVENTION)
 
 from .base_model import BaseModel
 from .base_model_metaclass import DeclarativeMeta
@@ -19,6 +21,15 @@ from .model_meta_options import ColumnMetaOption, ModelMetaOptionsFactory
 from .model_registry import _ModelRegistry
 from .session_manager import SessionManager
 from .validation import BaseValidator, Required, ValidationError, ValidationErrors
+
+
+METADATA_NAMING_CONVENTION = {
+    'ix': 'ix_%(column_0_label)s',
+    'uq': 'uq_%(table_name)s_%(column_0_name)s',
+    'ck': 'ck_%(table_name)s_%(constraint_name)s',
+    'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
+    'pk': 'pk_%(table_name)s',
+}
 
 
 # copied from flask-sqlalchemy (BSD license)
@@ -103,13 +114,17 @@ def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
                     getattr(model, META_OPTIONS_FACTORY_CLASS_ATTR_NAME)
             return metaclass(name, bases, clsdict)
 
+        if (metadata is not None
+                and metadata.naming_convention is _SQLA_DEFAULT_NAMING_CONVENTION):
+            metadata.naming_convention = METADATA_NAMING_CONVENTION
+
         model = _declarative_base(
             bind=bind,
             cls=model,
             class_registry=class_registry,
             name=name,
             mapper=mapper,
-            metadata=metadata,
+            metadata=metadata or MetaData(naming_convention=METADATA_NAMING_CONVENTION),
             metaclass=make_model_metaclass,
             constructor=(None if '__init__' in model.__dict__
                          else _declarative_constructor),
