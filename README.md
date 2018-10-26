@@ -12,7 +12,7 @@ Enhanced declarative models for SQLAlchemy.
 
 ### Install
 
-Requires Python 3.5+
+Requires Python 3.5+, SQLAlchemy and Alembic (for migrations)
 
 ```bash
 $ pip install sqlalchemy-unchained
