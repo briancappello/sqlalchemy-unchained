@@ -5,7 +5,6 @@ from py_meta_utils import (AbstractMetaOption, McsArgs, MetaOption, MetaOptionsF
 from typing import *
 
 from .base_model import BaseModel
-from .base_query import BaseQuery
 from .session_manager import SessionManager, _SessionMetaclass
 
 
@@ -149,6 +148,9 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         :return: A list of all model instances (may be empty).
         """
         return self.q.all()
+
+    def get(self, id: Union[int, Tuple[int, ...]]):
+        return self.q.get(id)
 
     def get_by(self, **kwargs):
         """

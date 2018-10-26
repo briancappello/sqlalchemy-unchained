@@ -3,6 +3,7 @@
 ## v0.6.2 (unreleased)
 
 - update `BaseQuery.get` so that tuple identifiers get converted to `int` as well
+- add `ModelManager.get` query method
 
 ## v0.6.1 (2018/10/23)
 
