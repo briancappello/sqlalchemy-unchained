@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.2 (unreleased)
+
+- update `BaseQuery.get` so that tuple identifiers get converted to `int` as well
+
 ## v0.6.1 (2018/10/23)
 
 - require py-meta-utils 0.7.0

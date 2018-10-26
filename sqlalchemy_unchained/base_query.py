@@ -60,7 +60,7 @@ class QueryMixin:
         :return: The object instance, or ``None``.
         """
         if isinstance(id, tuple):
-            return super().get(id)
+            return super().get(tuple(int(x) for x in id))
         return super().get(int(id))
 
     def get_by(self, **kwargs):
