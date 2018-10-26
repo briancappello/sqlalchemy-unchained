@@ -4,6 +4,7 @@
 
 - update `BaseQuery.get` so that tuple identifiers get converted to `int` as well
 - add `ModelManager.get` query method
+- add `SessionManager.delete` and `SessionManager.delete_all` methods
 
 ## v0.6.1 (2018/10/23)
 

@@ -49,7 +49,7 @@ class SessionManager(metaclass=_SessionMetaclass):
         """
         self.session.add(instance)
         if commit:
-            self.session.commit()
+            self.commit()
         return instance
 
     def save_all(self, instances, commit=False):
@@ -66,8 +66,19 @@ class SessionManager(metaclass=_SessionMetaclass):
         """
         self.session.add_all(instances)
         if commit:
-            self.session.commit()
+            self.commit()
         return instances
+
+    def delete(self, instance, commit=False):
+        self.session.delete(instance)
+        if commit:
+            self.commit()
+
+    def delete_all(self, instances, commit=False):
+        for instance in instances:
+            self.session.delete(instance)
+        if commit:
+            self.commit()
 
     def commit(self):
         """
