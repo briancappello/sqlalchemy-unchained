@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.6.4 (unreleased)
+## v0.6.4 (2018/10/28)
 
 - removed the factory_boy fix added in v0.6.3 because it really belongs in flask unchained
 
