@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.3 (unreleased)
+
+- fix the `_ModelRegistry.reset` method so it allows using factory_boy from conftest.py
+
 ## v0.6.2 (2018/10/26)
 
 - update `BaseQuery.get` so that tuple identifiers get converted to `int` as well

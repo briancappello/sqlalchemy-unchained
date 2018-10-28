@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+import sys
 
 from collections import defaultdict
 from py_meta_utils import McsArgs, McsInitArgs, Singleton, deep_getattr
@@ -48,10 +49,16 @@ class _ModelRegistry(metaclass=Singleton):
         self._base_model_classes[model.__module__ + '.' + model.__name__] = model
 
     def _reset(self):
+        for model in self._registry:
+            for model_module in self._registry[model]:
+                try:
+                    del sys.modules[model_module]
+                except KeyError:
+                    pass
+
         self._base_model_classes = {}
         self._registry = defaultdict(dict)
         self._models = {}
-        self._relationships = {}
         self._initialized = set()
 
     def register_new(self, mcs_args: McsArgs):
