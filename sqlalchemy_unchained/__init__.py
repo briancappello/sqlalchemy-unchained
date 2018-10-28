@@ -126,7 +126,8 @@ def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
             mapper=mapper,
             metadata=metadata or MetaData(naming_convention=METADATA_NAMING_CONVENTION),
             metaclass=make_model_metaclass,
-            constructor=(None if '__init__' in model.__dict__
+            # use the model's __init__ constructor if it's present
+            constructor=(None if getattr(model, '__init__') != object.__init__
                          else _declarative_constructor),
         )
         _ModelRegistry().register_base_model_class(model)

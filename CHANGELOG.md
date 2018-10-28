@@ -4,6 +4,7 @@
 
 - require py-meta-utils v0.7.3
 - fix automatic required validator to not be applied to foreign key columns
+- fix `declarative_base` so that it correctly determines whether or not to use the passed in model's constructor
 
 ## v0.6.4 (2018/10/28)
 
