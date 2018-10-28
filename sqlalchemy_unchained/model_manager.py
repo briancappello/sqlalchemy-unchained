@@ -5,7 +5,7 @@ from py_meta_utils import (AbstractMetaOption, McsArgs, MetaOption, MetaOptionsF
 from typing import *
 
 from .base_model import BaseModel
-from .session_manager import SessionManager, _SessionMetaclass
+from .session_manager import SessionManager, _SessionManagerMetaclass
 
 
 class _ModelMetaOption(MetaOption):
@@ -25,7 +25,7 @@ class _ModelManagerMetaOptionsFactory(MetaOptionsFactory):
     _options = [AbstractMetaOption, _ModelMetaOption]
 
 
-class _ModelManagerMetaclass(_SessionMetaclass):
+class _ModelManagerMetaclass(_SessionManagerMetaclass):
     def __new__(mcs, name, bases, clsdict):
         mcs_args = McsArgs(mcs, name, bases, clsdict)
         process_factory_meta_options(

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.6 (2018/10/28)
+
+- rename `_SessionMetaclass` to `_SessionManagerMetaclass`
+
 ## v0.6.5 (2018/10/28)
 
 - require py-meta-utils v0.7.3

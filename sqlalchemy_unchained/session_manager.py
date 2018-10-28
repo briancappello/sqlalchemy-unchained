@@ -7,7 +7,7 @@ class _SessionDescriptor:
         return cls._session_factory()
 
 
-class _SessionMetaclass(Singleton):
+class _SessionManagerMetaclass(Singleton):
     def __call__(cls, *args, **kwargs):
         cls = super().__call__(*args, **kwargs)
         if cls._session_factory is None:
@@ -17,7 +17,7 @@ class _SessionMetaclass(Singleton):
         return cls
 
 
-class SessionManager(metaclass=_SessionMetaclass):
+class SessionManager(metaclass=_SessionManagerMetaclass):
     """
     The session manager for SQLAlchemy Unchained.
     """
