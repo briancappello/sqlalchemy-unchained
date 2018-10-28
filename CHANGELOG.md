@@ -3,6 +3,7 @@
 ## v0.6.5 (unreleased)
 
 - require py-meta-utils v0.7.3
+- fix automatic required validator to not be applied to foreign key columns
 
 ## v0.6.4 (2018/10/28)
 
