@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.4 (unreleased)
+
+- removed the factory_boy fix added in v0.6.3 because it really belongs in flask unchained
+
 ## v0.6.3 (2018/10/28)
 
 - fix the `_ModelRegistry.reset` method so it allows using factory_boy from `conftest.py`

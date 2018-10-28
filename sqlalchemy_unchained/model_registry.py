@@ -49,13 +49,6 @@ class _ModelRegistry(metaclass=Singleton):
         self._base_model_classes[model.__module__ + '.' + model.__name__] = model
 
     def _reset(self):
-        for model in self._registry:
-            for model_module in self._registry[model]:
-                try:
-                    del sys.modules[model_module]
-                except KeyError:
-                    pass
-
         self._base_model_classes = {}
         self._registry = defaultdict(dict)
         self._models = {}
