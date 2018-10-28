@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.6.5 (unreleased)
+## v0.6.5 (2018/10/28)
 
 - require py-meta-utils v0.7.3
 - fix automatic required validator to not be applied to foreign key columns
