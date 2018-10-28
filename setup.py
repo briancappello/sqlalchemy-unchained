@@ -20,9 +20,9 @@ setup(
     zip_safe=False,
     python_requires='>=3.5',
     install_requires=[
-        'alembic>=1.0',
-        'py-meta-utils>=0.7.0',
-        'sqlalchemy>=1.2.11',
+        'alembic==1.0.1',
+        'py-meta-utils==0.7.2',
+        'sqlalchemy==1.2.12',
     ],
     extras_require={
         'dev': [

@@ -2,7 +2,8 @@
 
 ## v0.6.3 (unreleased)
 
-- fix the `_ModelRegistry.reset` method so it allows using factory_boy from conftest.py
+- fix the `_ModelRegistry.reset` method so it allows using factory_boy from `conftest.py`
+- require alembic 1.0.1, py-meta-utils 0.7.2, and sqlalchemy 1.2.12
 
 ## v0.6.2 (2018/10/26)
 
