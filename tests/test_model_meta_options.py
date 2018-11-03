@@ -94,8 +94,6 @@ class TestModelMetaOptions:
                        _ModelRegistry().default_primary_key_column) == 'not a column'
 
         class Manual(NotLazy):
-            class Meta:
-                pk = None
             pk = db.Column(db.Integer, primary_key=True)
 
         assert not hasattr(Manual, _ModelRegistry().default_primary_key_column)

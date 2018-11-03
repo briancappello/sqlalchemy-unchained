@@ -38,15 +38,18 @@ class ColumnMetaOption(MetaOption):
                 name=self.name, cls=mcs_args.qualname))
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
+        if self.should_contribute_to_class(mcs_args, col_name):
+            mcs_args.clsdict[col_name] = self.get_column(mcs_args)
+
+    def should_contribute_to_class(self, mcs_args: McsArgs, col_name):
         is_polymorphic = mcs_args.Meta.polymorphic
         is_polymorphic_base = mcs_args.Meta._is_base_polymorphic_model
 
         if (mcs_args.Meta.abstract
                 or (is_polymorphic and not is_polymorphic_base)):
-            return
+            return False
 
-        if col_name and col_name not in mcs_args.clsdict:
-            mcs_args.clsdict[col_name] = self.get_column(mcs_args)
+        return col_name and col_name not in mcs_args.clsdict
 
     def get_column(self, mcs_args: McsArgs):
         raise NotImplementedError
@@ -63,6 +66,16 @@ class PrimaryKeyColumnMetaOption(ColumnMetaOption):
 
         from .model_registry import _ModelRegistry
         return _ModelRegistry().default_primary_key_column
+
+    def should_contribute_to_class(self, mcs_args: McsArgs, col_name):
+        if not super().should_contribute_to_class(mcs_args, col_name):
+            return False
+
+        for col in [x for x in mcs_args.clsdict.values() if isinstance(x, sa.Column)]:
+            if col.primary_key:
+                return False
+
+        return True
 
     def get_column(self, mcs_args: McsArgs):
         return sa.Column(sa.Integer, primary_key=True)

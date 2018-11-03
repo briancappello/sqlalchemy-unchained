@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.7 (unreleased)
+
+- the primary key meta option now checks if the model already has a user-declared primary key column, and if so, it will not add another itself
+
 ## v0.6.6 (2018/10/28)
 
 - rename `_SessionMetaclass` to `_SessionManagerMetaclass`
