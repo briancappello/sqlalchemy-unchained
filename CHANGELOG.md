@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.6.8 (unreleased)
+## v0.6.8 (2018/11/07)
 
 - improve support for non-integer primary keys
 - add support for setting the transaction `isolation_level` of the db engine
