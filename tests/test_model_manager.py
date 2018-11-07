@@ -22,6 +22,26 @@ def foobar_manager(Foobar):
     yield FoobarManager()
 
 
+@pytest.fixture()
+def Varchar(db):
+    class Varchar(db.Model):
+        id = db.Column(db.String, primary_key=True)
+        name = db.Column(db.String, nullable=False)
+
+    db.Model.metadata.create_all()
+
+    yield Varchar
+
+
+@pytest.fixture()
+def varchar_manager(Varchar):
+    class VarcharManager(ModelManager):
+        class Meta:
+            model = Varchar
+
+    yield VarcharManager()
+
+
 class TestModelManager:
     def test_it_requires_a_model(self):
         with pytest.raises(Exception) as e:
@@ -46,6 +66,14 @@ class TestModelManager:
         with pytest.raises(ValidationErrors) as e:
             fail = foobar_manager.create()
         assert 'Name is required.' in str(e)
+
+    def test_get_with_integer_pk(self, foobar_manager):
+        foo = foobar_manager.create(name='foo', commit=True)
+        assert foobar_manager.get(foo.id) == foo
+
+    def test_get_with_string_pk(self, varchar_manager):
+        varchar = varchar_manager.create(id='the-id', name='varchar', commit=True)
+        assert varchar_manager.get(varchar.id) == varchar
 
     def test_get_or_create(self, Foobar, foobar_manager):
         instance, did_create = foobar_manager.get_or_create(name='Foobar!')

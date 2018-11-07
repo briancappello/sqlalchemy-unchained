@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Query as _Query
+from typing import *
 
 
 class QueryMixin:
-    def get(self, id):
+    def get(self, id: Union[int, str, Tuple[int, ...], Tuple[str, ...]]):
         """
         Return an instance based on the given primary key identifier,
         or ``None`` if not found.
@@ -59,9 +60,18 @@ class QueryMixin:
 
         :return: The object instance, or ``None``.
         """
+        # attempt to coerce values to integers, but if that fails, it probably just
+        # means the primary key column is a VARCHAR
         if isinstance(id, tuple):
-            return super().get(tuple(int(x) for x in id))
-        return super().get(int(id))
+            try:
+                return super().get(tuple(int(x) for x in id))
+            except (TypeError, ValueError):
+                pass
+
+        try:
+            return super().get(int(id))
+        except (TypeError, ValueError):
+            return super().get(id)
 
     def get_by(self, **kwargs):
         """

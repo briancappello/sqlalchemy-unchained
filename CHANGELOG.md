@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.8 (unreleased)
+
+- improve support for non-integer primary keys
+
 ## v0.6.7 (2018/11/03)
 
 - the primary key meta option now checks if the model already has a user-declared primary key column, and if so, it will not add another itself
