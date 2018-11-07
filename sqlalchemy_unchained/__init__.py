@@ -169,7 +169,7 @@ def scoped_session_factory(bind=None, scopefunc=None, query_cls=BaseQuery, **kwa
 
 
 def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, query_cls=BaseQuery,
-                              **kwargs):
+                              isolation_level=None, **kwargs):
     """
     Main entry point for connecting to the database.
 
@@ -179,13 +179,21 @@ def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, query_cls=Ba
                               over the session lifecycle.
     :param query_cls: Class which should be used to create new ``Query`` objects, as
                       returned by :attr:`~sqlalchemy_unchained.ModelManager.query`.
+    :param isolation_level: The isolation level to use for the engine connection.
     :param kwargs: Any extra keyword arguments to pass to :func:`declarative_base`.
     :return: Tuple[engine, Session, Model, relationship]
     """
-    engine = create_engine(database_uri)
+    isolation_level = isolation_level or (
+        'REPEATABLE READ' if database_uri.startswith('postgresql') else None)
+    if isolation_level:
+        engine = create_engine(database_uri, isolation_level=isolation_level)
+    else:
+        engine = create_engine(database_uri)
+
     Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc,
                                      query_cls=query_cls)
     SessionManager.set_session_factory(Session)
     Model = declarative_base(bind=engine, **kwargs)
     relationship = _wrap_with_default_query_class(_relationship, query_cls)
+
     return engine, Session, Model, relationship

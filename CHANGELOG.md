@@ -3,6 +3,7 @@
 ## v0.6.8 (unreleased)
 
 - improve support for non-integer primary keys
+- add support for setting the transaction `isolation_level` of the db engine
 
 ## v0.6.7 (2018/11/03)
 
