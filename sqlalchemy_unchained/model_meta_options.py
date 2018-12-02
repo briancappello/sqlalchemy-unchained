@@ -71,9 +71,17 @@ class PrimaryKeyColumnMetaOption(ColumnMetaOption):
         if not super().should_contribute_to_class(mcs_args, col_name):
             return False
 
+        # check if the user defined a primary key column
         for col in [x for x in mcs_args.clsdict.values() if isinstance(x, sa.Column)]:
             if col.primary_key:
                 return False
+
+        # check if the user defined a custom primary key constraint in __table_args__
+        table_args = mcs_args.clsdict.get('__table_args__', None)
+        if table_args and isinstance(table_args, (tuple, list)):
+            for obj in table_args:
+                if isinstance(obj, sa.PrimaryKeyConstraint):
+                    return False
 
         return True
 

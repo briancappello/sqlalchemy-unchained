@@ -3,6 +3,15 @@ import pytest
 from sqlalchemy_unchained import _ModelRegistry, Required, ValidationErrors
 
 
+@pytest.fixture()
+def NotLazy(db):
+    class NotLazy(db.Model):
+        class Meta:
+            abstract = True
+            lazy_mapped = False
+    return NotLazy
+
+
 class TestModelMetaOptions:
     def test_defaults(self, db):
         meta = db.Model.Meta
@@ -79,37 +88,47 @@ class TestModelMetaOptions:
         assert MyMeta.Meta.abstract is True
         assert MyMeta.Meta._mcs_args.clsdict['__abstract__'] is True
 
-    def test_primary_key(self, db):
-        class NotLazy(db.Model):
-            class Meta:
-                abstract = True
-                lazy_mapped = False
-
-        DoesntOverwrite = type('DoesntOverwrite', (NotLazy,), {
-            _ModelRegistry().default_primary_key_column: 'not a column',
-            'a_pk_col_is_still_required': db.Column(db.Integer, primary_key=True),
-        })
-
-        assert getattr(DoesntOverwrite,
-                       _ModelRegistry().default_primary_key_column) == 'not a column'
-
-        class Manual(NotLazy):
-            pk = db.Column(db.Integer, primary_key=True)
-
-        assert not hasattr(Manual, _ModelRegistry().default_primary_key_column)
-
+    def test_primary_key_gets_added_when_needed(self, NotLazy):
         class Auto(NotLazy):
             pass
 
         assert Auto.id.primary_key is True
 
+    def test_primary_key_doesnt_get_added_when_one_exists(self, db, NotLazy):
+        # a primary key column already exists
+        class ManualPkColumn(NotLazy):
+            pk = db.Column(db.Integer, primary_key=True)
+
+        assert not hasattr(ManualPkColumn, _ModelRegistry().default_primary_key_column)
+
+        # a primary key constraint exists
+        class ManualConstraint(NotLazy):
+            __table_args__ = (
+                db.PrimaryKeyConstraint('one_id', 'two_id'),
+            )
+            one_id = db.Column(db.Integer)
+            two_id = db.Column(db.Integer)
+
+        assert not hasattr(ManualConstraint, _ModelRegistry().default_primary_key_column)
+
+    def test_primary_key_doesnt_overwrite_existing_column(self, db, NotLazy):
+        DoesntOverwriteExistingColumn = type('DoesntOverwrite', (NotLazy,), {
+            _ModelRegistry().default_primary_key_column: 'not a column',
+            'a_pk_col_is_still_required': db.Column(db.Integer, primary_key=True),
+        })
+
+        assert getattr(DoesntOverwriteExistingColumn,
+                       _ModelRegistry().default_primary_key_column) == 'not a column'
+
+    def test_primary_key_works_with_custom_column_name(self, db, NotLazy):
+        custom_pk_col_name = 'unique_' + _ModelRegistry().default_primary_key_column
+
         class Renamed(NotLazy):
             class Meta:
-                pk = 'unique_' + _ModelRegistry().default_primary_key_column
+                pk = custom_pk_col_name
 
         assert not hasattr(Renamed, _ModelRegistry().default_primary_key_column)
-        pk_col = getattr(Renamed,
-                         'unique_' + _ModelRegistry().default_primary_key_column)
+        pk_col = getattr(Renamed, custom_pk_col_name)
         assert pk_col.primary_key is True
 
     def test_validation(self, db):
