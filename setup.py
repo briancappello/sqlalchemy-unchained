@@ -7,7 +7,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='SQLAlchemy Unchained',
-    version='0.6.8',
+    version='0.6.9',
     description='Improved declarative SQLAlchemy models',
     long_description=long_description,
     long_description_content_type='text/markdown',

@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.6.9 (unreleased)
+## v0.6.9 (2018/12/01)
 
 - do not add a primary key column if the user defined a custom primary key constraint in `__table_args__`
 - update default naming convention for foreign keys to be more human readable
