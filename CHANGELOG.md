@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.9 (unreleased)
+
+- update default naming convention for foreign keys to be more human readable
+
 ## v0.6.8 (2018/11/07)
 
 - improve support for non-integer primary keys
