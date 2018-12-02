@@ -2,15 +2,15 @@
 
 Enhanced declarative models for SQLAlchemy.
 
-## Links
+## Useful Links
 
-* [Documentation on Read the Docs](https://sqlalchemy-unchained.readthedocs.io)
-* [Source Code on GitHub](https://github.com/briancappello/sqlalchemy-unchained)
+* [Read the Docs](https://sqlalchemy-unchained.readthedocs.io)
+* [GitHub](https://github.com/briancappello/sqlalchemy-unchained)
 * [PyPI](https://pypi.org/project/SQLAlchemy-Unchained/)
 
 ## Usage
 
-### Install
+### Installation
 
 Requires Python 3.5+, SQLAlchemy and Alembic (for migrations)
 
