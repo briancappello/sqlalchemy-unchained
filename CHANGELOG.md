@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.7.0 (unreleased)
+
+- breaking: change signature of `ModelManager.get_or_create` to take a `defaults` parameter
+- add `ModelManager.update_or_create`
+
 ## v0.6.9 (2018/12/01)
 
 - do not add a primary key column if the user defined a custom primary key constraint in `__table_args__`

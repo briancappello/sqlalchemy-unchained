@@ -113,18 +113,20 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         self.save(instance, commit=commit)
         return instance
 
-    def get_or_create(self, commit: bool = False, **kwargs):
+    def get_or_create(self, defaults: dict = None, commit: bool = False, **kwargs):
         """
-        Get or create an instance of ``self.Meta.model`` by ``kwargs``, optionally
-        committing te current session transaction.
+        Get or create an instance of ``self.Meta.model`` by ``kwargs`` and
+        ``defaults``, optionally committing te current session transaction.
 
+        :param dict defaults: Extra values to create the model with, if not found
         :param bool commit: Whether or not to commit the current session transaction.
-        :param kwargs: The data to filter by, or to initialize the model with.
+        :param kwargs: The values to filter by and create the model with
         :return: Tuple[the_model_instance, did_create_bool]
         """
         instance = self.get_by(**kwargs)
         if not instance:
-            return self.create(**kwargs, commit=commit), True
+            defaults = defaults or {}
+            return self.create(**defaults, **kwargs, commit=commit), True
         return instance, False
 
     def update(self, instance, commit=False, **kwargs):
@@ -140,6 +142,23 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         instance.update(**kwargs)
         self.save(instance, commit=commit)
         return instance
+
+    def update_or_create(self, defaults: dict = None, commit: bool = False, **kwargs):
+        """
+        Update or create an instance of ``self.Meta.model`` by ``kwargs`` and
+        ``defaults``, optionally committing te current session transaction.
+
+        :param dict defaults: Extra values to update on the model
+        :param bool commit: Whether or not to commit the current session transaction.
+        :param kwargs: The values to filter by and update on the model
+        :return: Tuple[the_model_instance, did_create_bool]
+        """
+        instance = self.get_by(**kwargs)
+        if not instance:
+            defaults = defaults or {}
+            return self.create(**defaults, **kwargs, commit=commit), True
+        instance.update(**defaults)
+        return instance, False
 
     def all(self):
         """
