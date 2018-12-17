@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.7.0 (unreleased)
+## v0.7.0 (2018/12/16)
 
 - breaking: change signature of `ModelManager.get_or_create` to take a `defaults` parameter
 - add `ModelManager.update_or_create`
