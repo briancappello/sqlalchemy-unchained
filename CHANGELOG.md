@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.7.1 (unreleased)
+## v0.7.1 (2019/02/25)
 
 - disable `autoflush` for `ModelManager.get_or_create` and `ModelManager.update_or_create`
 - fix project name on PyPI having spaces
