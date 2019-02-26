@@ -3,6 +3,7 @@
 ## v0.7.1 (unreleased)
 
 - disable `autoflush` for `ModelManager.get_or_create` and `ModelManager.update_or_create`
+- fix project name on PyPI having spaces
 
 ## v0.7.0 (2018/12/16)
 
