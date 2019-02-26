@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.1 (unreleased)
+
+- disable `autoflush` for `ModelManager.get_or_create` and `ModelManager.update_or_create`
+
 ## v0.7.0 (2018/12/16)
 
 - breaking: change signature of `ModelManager.get_or_create` to take a `defaults` parameter

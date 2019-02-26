@@ -123,10 +123,13 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         :param kwargs: The values to filter by and create the model with
         :return: Tuple[the_model_instance, did_create_bool]
         """
-        instance = self.get_by(**kwargs)
+        with self.no_autoflush:
+            instance = self.get_by(**kwargs)
+
         if not instance:
             defaults = defaults or {}
             return self.create(**defaults, **kwargs, commit=commit), True
+
         return instance, False
 
     def update(self, instance, commit=False, **kwargs):
@@ -153,10 +156,13 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         :param kwargs: The values to filter by and update on the model
         :return: Tuple[the_model_instance, did_create_bool]
         """
-        instance = self.get_by(**kwargs)
+        with self.no_autoflush:
+            instance = self.get_by(**kwargs)
+
         if not instance:
             defaults = defaults or {}
             return self.create(**defaults, **kwargs, commit=commit), True
+
         instance.update(**defaults)
         return instance, False
 
