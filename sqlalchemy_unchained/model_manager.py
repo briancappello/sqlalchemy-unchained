@@ -2,6 +2,7 @@ import inspect
 
 from py_meta_utils import (AbstractMetaOption, McsArgs, MetaOption, MetaOptionsFactory,
                            process_factory_meta_options)
+from sqlalchemy.exc import StatementError as SQLAlchemyStatementError
 from typing import *
 
 from .base_model import BaseModel
@@ -113,6 +114,14 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         self.save(instance, commit=commit)
         return instance
 
+    def _maybe_get_by(self, **kwargs):
+        with self.no_autoflush:
+            try:
+                return self.get_by(**kwargs)
+            except SQLAlchemyStatementError as e:
+                if 'no value has been set for this column' not in str(e):
+                    raise e
+
     def get_or_create(self, defaults: dict = None, commit: bool = False, **kwargs):
         """
         Get or create an instance of ``self.Meta.model`` by ``kwargs`` and
@@ -123,9 +132,7 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         :param kwargs: The values to filter by and create the model with
         :return: Tuple[the_model_instance, did_create_bool]
         """
-        with self.no_autoflush:
-            instance = self.get_by(**kwargs)
-
+        instance = self._maybe_get_by(**kwargs)
         if not instance:
             defaults = defaults or {}
             return self.create(**defaults, **kwargs, commit=commit), True
@@ -156,9 +163,7 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         :param kwargs: The values to filter by and update on the model
         :return: Tuple[the_model_instance, did_create_bool]
         """
-        with self.no_autoflush:
-            instance = self.get_by(**kwargs)
-
+        instance = self._maybe_get_by(**kwargs)
         if not instance:
             defaults = defaults or {}
             return self.create(**defaults, **kwargs, commit=commit), True
