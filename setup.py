@@ -7,7 +7,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='SQLAlchemy-Unchained',
-    version='0.7.2',
+    version='0.7.3',
     description='Improved declarative SQLAlchemy models',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -20,8 +20,8 @@ setup(
     zip_safe=False,
     python_requires='>=3.5',
     install_requires=[
-        'alembic>=1.0.1',
-        'py-meta-utils>=0.7.3',
+        'alembic @ git+https://github.com/sqlalchemy/alembic.git@d46de05b8b3281a85e6b107ef3f3407e232eb9e9#egg=alembic',
+        'py-meta-utils>=0.7.6',
         'sqlalchemy>=1.2.12',
     ],
     extras_require={

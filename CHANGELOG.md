@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.3 (2019/04/11)
+
+- bump required `alembic` and `py-meta-utils` versions
+
 ## v0.7.2 (2019/04/11)
 
 - fix `ModelManager.get_or_create` and `ModelManager.update_or_create`
