@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.7.2 (unreleased)
+## v0.7.2 (2019/04/11)
 
 - fix `ModelManager.get_or_create` and `ModelManager.update_or_create`
 
