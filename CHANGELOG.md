@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.4 (2019/04/21)
+
+- bump required `alembic` version to 1.0.9 (fixes `immutabledict is not defined` error)
+
 ## v0.7.3 (2019/04/11)
 
 - bump required `alembic` and `py-meta-utils` versions

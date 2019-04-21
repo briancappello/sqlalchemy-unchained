@@ -1,3 +1,3 @@
-git+https://github.com/sqlalchemy/alembic.git@d46de05b8b3281a85e6b107ef3f3407e232eb9e9#egg=alembic
+alembic==1.0.9
 py-meta-utils==0.7.6
 sqlalchemy==1.3.2
