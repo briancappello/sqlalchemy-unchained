@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.7.6 (unreleased)
+## v0.7.6 (2019/05/19)
 
 - make `BaseModel.validate` a normal method, default to non-partial validation
 - add `BaseModel.validate_values` as a classmethod

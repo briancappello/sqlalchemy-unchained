@@ -199,7 +199,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'sqlalchemy-unchained==0.7.5',
+        'sqlalchemy-unchained==0.7.6',
     ],
 )
 ```
