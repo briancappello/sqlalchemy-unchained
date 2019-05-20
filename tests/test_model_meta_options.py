@@ -141,7 +141,7 @@ class TestModelMetaOptions:
             ))
 
         with pytest.raises(ValidationErrors):
-            foo = Foo()
+            Foo().validate()
 
     def test_validation_disabled(self, db):
         class Foo(db.Model):

@@ -47,6 +47,7 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
                        yet committed.
         :return: The model instance.
         """
+        instance.validate(partial=False)
         self.session.add(instance)
         if commit:
             self.commit()

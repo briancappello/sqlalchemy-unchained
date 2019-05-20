@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.7.6 (unreleased)
+
+- make `BaseModel.validate` a normal method, default to non-partial validation
+- add `BaseModel.validate_values` as a classmethod
+- fix tests
+
 ## v0.7.5 (2019/05/19)
 
 - fix BaseModel constructor to only perform partial validation

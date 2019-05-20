@@ -48,19 +48,21 @@ class BaseModel(object):
             setattr(self, attr, value)
         return self
 
-    @classmethod
-    def validate(cls, partial=True, **kwargs):
+    def validate(self, partial=False, **kwargs):
         """
         Validate kwargs before setting attributes on the model
         """
         data = kwargs
         if not partial:
-            data = dict(**kwargs, **{col.name: None
-                                     for col in cls.__table__.c.values()
+            data = dict(**kwargs, **{col.name: getattr(self, col.name, None)
+                                     for col in self.__class__.__table__.c.values()
                                      if col.name not in kwargs})
+        self.validate_values(**data)
 
+    @classmethod
+    def validate_values(cls, **kwargs):
         errors = defaultdict(list)
-        for name, value in data.items():
+        for name, value in kwargs.items():
             for validator in cls._get_validators(name):
                 try:
                     validator(value)
