@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.5 (unreleased)
+
+- fix BaseModel constructor to only perform partial validation
+
 ## v0.7.4 (2019/04/21)
 
 - bump required `alembic` version to 1.0.9 (fixes `immutabledict is not defined` error)

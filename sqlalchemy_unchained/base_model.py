@@ -36,7 +36,7 @@ class BaseModel(object):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.update(partial_validation=False, **kwargs)
+        self.update(partial_validation=True, **kwargs)
 
     def update(self, partial_validation=True, **kwargs):
         """
