@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.7.5 (unreleased)
+## v0.7.5 (2019/05/19)
 
 - fix BaseModel constructor to only perform partial validation
 
