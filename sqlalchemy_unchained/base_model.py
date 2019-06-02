@@ -91,9 +91,7 @@ class BaseModel(object):
             # this happens for relationship attrs (and probably association proxies too)
             return rv
 
-        required_msg = (hasattr(col, 'info') and col.info.get('required', None)
-                        or (not col.nullable
-                            and not col.primary_key and not col.foreign_keys))
+        required_msg = hasattr(col, 'info') and col.info.get('required', None)
         if (required_msg
                 and not any(isinstance(x, Required) for x in validators)
                 and col.default is None):

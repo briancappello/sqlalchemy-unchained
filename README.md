@@ -351,7 +351,20 @@ class Bar(Foo):
 
 ## Model Validation
 
-SQLAlchemy Unchained adds support for validating models before persisting them to the database. This is enabled by default, although you can disable it with the [validation](https://sqlalchemy-unchained.readthedocs.io/en/latest/readme.html#validation) Meta option. When validation is enabled, by default all non-nullable, scalar-value columns will be validated with [Required](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#required).
+SQLAlchemy Unchained adds support for validating models before persisting them to the database. This is enabled by default, although you can disable it with the [validation](https://sqlalchemy-unchained.readthedocs.io/en/latest/readme.html#validation) Meta option.
+
+There is one included validator: [Required](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#required). It can be used like so:
+
+ ```python
+from your_package import db
+
+
+class YourModel(db.Model):
+    first_name = db.Column(db.String, info=dict(required=True))
+    middle_name = db.Column(db.String, info=dict(required='a custom message'))
+    last_name = db.Column(db.String, info=dict(validators=[db.Required]))
+    suffix = db.Column(db.String, info=dict(validators=[db.Required('a custom message')]))
+```
 
 There are two different ways you can write custom validation for your models.
 
@@ -376,6 +389,7 @@ The second is by defining a validation `classmethod` or `staticmethod` directly 
 
 ```python
 from your_package import db
+
 
 class YourModel(db.Model):
     email = db.Column(db.String)

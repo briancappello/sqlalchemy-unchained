@@ -6,7 +6,7 @@ from sqlalchemy_unchained import ModelManager, BaseQuery, ValidationErrors
 @pytest.fixture()
 def Foobar(db):
     class Foobar(db.Model):
-        name = db.Column(db.String, nullable=False)
+        name = db.Column(db.String, nullable=False, info=dict(required=True))
 
     db.Model.metadata.create_all()
 
