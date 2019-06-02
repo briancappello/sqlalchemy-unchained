@@ -94,7 +94,7 @@ class CreatedAtColumnMetaOption(ColumnMetaOption):
         super().__init__(name='created_at', default='created_at', inherit=True)
 
     def get_column(self, mcs_args: McsArgs):
-        return sa.Column(sa.DateTime, server_default=sa_func.now())
+        return sa.Column(sa.DateTime, server_default=sa_func.now(), nullable=False)
 
 
 class UpdatedAtColumnMetaOption(ColumnMetaOption):
@@ -103,7 +103,9 @@ class UpdatedAtColumnMetaOption(ColumnMetaOption):
 
     def get_column(self, mcs_args: McsArgs):
         return sa.Column(sa.DateTime,
-                         server_default=sa_func.now(), onupdate=sa_func.now())
+                         server_default=sa_func.now(),
+                         onupdate=sa_func.now(),
+                         nullable=False)
 
 
 class ReprMetaOption(MetaOption):

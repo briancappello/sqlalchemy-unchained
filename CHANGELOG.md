@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.8.0 (unreleased)
+
+- make the default timestamp `created_at` and `updated_at` columns not-nullable
+
 ## v0.7.6 (2019/05/19)
 
 - make `BaseModel.validate` a normal method, default to non-partial validation
