@@ -70,7 +70,7 @@ class _ModelRegistry(metaclass=Singleton):
         # this outer loop is needed to perform initializations in the order the
         # classes were originally discovered at import time
         for name in self._registry:
-            if self.should_initialize(name):
+            if self.should_initialize(self._models[name]):
                 model_cls, name, bases, clsdict = self._models[name]
                 model_cls._pre_mcs_init()
                 super(DeclarativeMeta, model_cls).__init__(name, bases, clsdict)
@@ -78,8 +78,8 @@ class _ModelRegistry(metaclass=Singleton):
                 self._initialized.add(name)
         return {name: self._models[name].cls for name in self._initialized}
 
-    def should_initialize(self, model_name):
-        if model_name in self._initialized:
+    def should_initialize(self, mcs_init_args: McsInitArgs):
+        if mcs_init_args.name in self._initialized:
             return False
         return True
 

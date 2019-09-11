@@ -4,6 +4,7 @@
 
 - make the default timestamp `created_at` and `updated_at` columns not-nullable
 - disable automatically adding the `Required` validator to model fields
+- pass `McsInitArgs` to `ModelRegistry.should_initialize` instead of just the model class name
 
 ## v0.7.6 (2019/05/19)
 

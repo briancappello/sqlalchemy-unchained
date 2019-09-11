@@ -509,13 +509,14 @@ The first step is to customize the model registry:
 ```python
 # your_package/model_registry.py
 
+from py_meta_utils import McsInitArgs
 from sqlalchemy_unchained import _ModelRegistry
 
 
 class LazyModelRegistry(_ModelRegistry):
     enable_lazy_mapping = True
 
-    def should_initialize(self, model_name: str) -> bool:
+    def should_initialize(self, mcs_init_args: McsInitArgs) -> bool:
         pass # implement your custom logic for determining which models to register
         # with SQLAlchemy
 ```
