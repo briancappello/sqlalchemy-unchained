@@ -1,7 +1,7 @@
 -r requirements.txt
 
 m2r
-pytest
+pytest>=5.0
 sphinx
 sphinx-autobuild
 sphinx-rtd-theme

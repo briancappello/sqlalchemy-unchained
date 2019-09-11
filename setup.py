@@ -27,7 +27,7 @@ setup(
     extras_require={
         'dev': [
             'coverage',
-            'pytest',
+            'pytest>=5.0',
             'tox',
         ],
         'docs': [

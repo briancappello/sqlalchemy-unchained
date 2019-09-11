@@ -47,7 +47,7 @@ class TestModelManager:
         with pytest.raises(Exception) as e:
             class ConcreteManager(ModelManager):
                 pass
-        assert 'The class Meta model attribute must be a subclass of BaseModel' in str(e)
+        assert 'The class Meta model attribute must be a subclass of BaseModel' in str(e.value)
 
     def test_query_descriptor(self, foobar_manager):
         assert isinstance(foobar_manager.q, BaseQuery)
@@ -65,7 +65,7 @@ class TestModelManager:
     def test_create_raises_validation_errors(self, foobar_manager):
         with pytest.raises(ValidationErrors) as e:
             fail = foobar_manager.create()
-        assert 'Name is required.' in str(e)
+        assert 'Name is required.' in str(e.value)
 
     def test_get_with_integer_pk(self, foobar_manager):
         foo = foobar_manager.create(name='foo', commit=True)
@@ -111,7 +111,7 @@ class TestModelManager:
 
         with pytest.raises(ValidationErrors) as e:
             foobar_manager.update(foobar, name=None)
-        assert 'Name is required.' in str(e)
+        assert 'Name is required.' in str(e.value)
 
         # make sure the db didn't get updated
         from_db = foobar_manager.all()

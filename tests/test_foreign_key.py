@@ -64,7 +64,7 @@ def test_it_works_with_a_table_name():
 def test_it_requires_a_table_name():
     with pytest.raises(TypeError) as e:
         col = foreign_key()
-    assert 'Could not determine the table name to use.' in str(e)
+    assert 'Could not determine the table name to use.' in str(e.value)
 
 
 def test_it_works_with_all_three(db):
