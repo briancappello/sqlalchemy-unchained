@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.8.0 (unreleased)
+## v0.8.0 (2019/09/10)
 
 - make the default timestamp `created_at` and `updated_at` columns not-nullable
 - disable automatically adding the `Required` validator to model fields
