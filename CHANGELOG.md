@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.9.0 (unreleased)
+## v0.9.0 (2019/09/30)
 
 - drop support for Python 3.5
 - return `BaseQuery` from `ModelManager.filter` and `ModelManager.filter_by`
