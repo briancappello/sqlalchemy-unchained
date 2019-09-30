@@ -142,8 +142,8 @@ class TestModelManager:
         two = foobar_manager.create(name='two')
         foobar_manager.commit()
 
-        assert foobar_manager.filter(Foobar.name == 'one') == [one]
-        assert foobar_manager.filter(Foobar.name.like('%one%')) == [one, one_and_a_half]
+        assert foobar_manager.filter(Foobar.name == 'one').all() == [one]
+        assert foobar_manager.filter(Foobar.name.like('%one%')).all() == [one, one_and_a_half]
 
     def test_filter_by(self, Foobar, foobar_manager):
         one = foobar_manager.create(name='one')
@@ -151,5 +151,5 @@ class TestModelManager:
         two = foobar_manager.create(name='two')
         foobar_manager.commit()
 
-        assert foobar_manager.filter_by(name='one') == [one]
-        assert foobar_manager.filter_by(name='two') == [two]
+        assert foobar_manager.filter_by(name='one').all() == [one]
+        assert foobar_manager.filter_by(name='two').all() == [two]

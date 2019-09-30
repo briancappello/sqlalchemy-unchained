@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.9.1 (2019/09/30)
+
+- fix tests for `ModelManager.filter` and `ModelManager.filter_by`
+
 ## v0.9.0 (2019/09/30)
 
 - drop support for Python 3.5
