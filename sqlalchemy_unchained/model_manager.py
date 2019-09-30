@@ -263,20 +263,20 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         """
         return self.q.filter_by(**kwargs).one_or_none()
 
-    def filter(self, *criterion):
+    def filter(self, *criterion) -> BaseQuery:
         """
         Get all instances of ``self.Meta.model`` matching ``criterion``.
 
         :param criterion: The criterion to filter by.
         :return: A list of model instances (may be empty).
         """
-        return self.q.filter(*criterion).all()
+        return self.q.filter(*criterion)
 
-    def filter_by(self, **kwargs):
+    def filter_by(self, **kwargs) -> BaseQuery:
         """
         Get all instances of ``self.Meta.model`` matching ``kwargs``.
 
         :param kwargs: The data to filter by.
         :return: A list of model instances (may be empty).
         """
-        return self.q.filter_by(**kwargs).all()
+        return self.q.filter_by(**kwargs)
