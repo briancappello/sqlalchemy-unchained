@@ -176,19 +176,18 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
 
         if cls.Meta.abstract:
             super().__init__(name, bases, clsdict)
+            return
 
         if should_set_tablename(cls):
             cls.__tablename__ = snake_case(cls.__name__)
 
         from .model_registry import _ModelRegistry
-        if not _ModelRegistry().enable_lazy_mapping or \
-                (not cls.Meta.abstract and not cls.Meta.lazy_mapped):
+        if not _ModelRegistry().enable_lazy_mapping or not cls.Meta.lazy_mapped:
             cls._pre_mcs_init()
             super().__init__(name, bases, clsdict)
             cls._post_mcs_init()
 
-        if not cls.Meta.abstract:
-            _ModelRegistry().register(McsInitArgs(cls, name, bases, clsdict))
+        _ModelRegistry().register(McsInitArgs(cls, name, bases, clsdict))
 
     def _pre_mcs_init(cls):
         """
