@@ -1,5 +1,9 @@
 from contextlib import contextmanager
 from py_meta_utils import Singleton
+from sqlalchemy.orm import Session
+from typing import *
+
+from .base_model import BaseModel
 
 
 class _SessionDescriptor:
@@ -23,7 +27,7 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
     """
 
     _session_factory = None
-    session = _SessionDescriptor()
+    session: Session = _SessionDescriptor()
 
     @classmethod
     def set_session_factory(cls, session_factory):
@@ -35,7 +39,7 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
         """
         cls._session_factory = session_factory
 
-    def save(self, instance, commit=False):
+    def save(self, instance: BaseModel, commit: bool = False) -> BaseModel:
         """
         Add a model instance to the session, optionally committing the current
         transaction immediately.
@@ -53,7 +57,10 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
             self.commit()
         return instance
 
-    def save_all(self, instances, commit=False):
+    def save_all(self,
+                 instances: List[BaseModel],
+                 commit: bool = False,
+                 ) -> List[BaseModel]:
         """
         Adds a list of model instances to the session, optionally committing the
         current transaction immediately.
@@ -70,18 +77,18 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
             self.commit()
         return instances
 
-    def delete(self, instance, commit=False):
+    def delete(self, instance: BaseModel, commit: bool = False) -> None:
         self.session.delete(instance)
         if commit:
             self.commit()
 
-    def delete_all(self, instances, commit=False):
+    def delete_all(self, instances: List[BaseModel], commit: bool = False) -> None:
         for instance in instances:
             self.session.delete(instance)
         if commit:
             self.commit()
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Commits the current transaction.
         """

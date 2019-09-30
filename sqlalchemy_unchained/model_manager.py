@@ -6,6 +6,7 @@ from sqlalchemy.exc import StatementError as SQLAlchemyStatementError
 from typing import *
 
 from .base_model import BaseModel
+from .base_query import BaseQuery
 from .session_manager import SessionManager, _SessionManagerMetaclass
 
 
@@ -91,17 +92,17 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         abstract = True
         model = None
 
-    query = _QueryDescriptor()
+    query: BaseQuery = _QueryDescriptor()
     """
     The :class:`~sqlalchemy_unchained.BaseQuery` for this manager's model.
     """
 
-    q = _QueryDescriptor()
+    q: BaseQuery = _QueryDescriptor()
     """
     An alias for :attr:`query`.
     """
 
-    def create(self, commit: bool = False, **kwargs):
+    def create(self, commit: bool = False, **kwargs) -> BaseModel:
         """
         Creates an instance of ``self.Meta.model``, optionally committing the
         current session transaction.
@@ -114,7 +115,7 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         self.save(instance, commit=commit)
         return instance
 
-    def _maybe_get_by(self, **kwargs):
+    def _maybe_get_by(self, **kwargs) -> Union[BaseModel, None]:
         with self.no_autoflush:
             try:
                 return self.get_by(**kwargs)
@@ -122,7 +123,11 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
                 if 'no value has been set for this column' not in str(e):
                     raise e
 
-    def get_or_create(self, defaults: dict = None, commit: bool = False, **kwargs):
+    def get_or_create(self,
+                      defaults: dict = None,
+                      commit: bool = False,
+                      **kwargs,
+                      ) -> Tuple[BaseModel, bool]:
         """
         Get or create an instance of ``self.Meta.model`` by ``kwargs`` and
         ``defaults``, optionally committing te current session transaction.
@@ -139,7 +144,11 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
 
         return instance, False
 
-    def update(self, instance, commit=False, **kwargs):
+    def update(self,
+               instance: BaseModel,
+               commit: bool = False,
+               **kwargs,
+               ) -> BaseModel:
         """
         Update ``kwargs`` on an instance, optionally committing the current session
         transaction.
@@ -153,7 +162,11 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         self.save(instance, commit=commit)
         return instance
 
-    def update_or_create(self, defaults: dict = None, commit: bool = False, **kwargs):
+    def update_or_create(self,
+                         defaults: dict = None,
+                         commit: bool = False,
+                         **kwargs,
+                         ) -> Tuple[BaseModel, bool]:
         """
         Update or create an instance of ``self.Meta.model`` by ``kwargs`` and
         ``defaults``, optionally committing te current session transaction.
@@ -171,7 +184,7 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         instance.update(**defaults)
         return instance, False
 
-    def all(self):
+    def all(self) -> List[BaseModel]:
         """
         Query the database for all records of ``self.Meta.model``.
 
@@ -179,7 +192,9 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         """
         return self.q.all()
 
-    def get(self, id: Union[int, str, Tuple[int, ...], Tuple[str, ...]]):
+    def get(self,
+            id: Union[int, str, Tuple[int, ...], Tuple[str, ...]],
+            ) -> Union[BaseModel, None]:
         """
         Return an instance based on the given primary key identifier,
         or ``None`` if not found.
@@ -239,7 +254,7 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         """
         return self.q.get(id)
 
-    def get_by(self, **kwargs):
+    def get_by(self, **kwargs) -> Union[BaseModel, None]:
         """
         Get one or none of ``self.Meta.model`` by ``kwargs``.
 

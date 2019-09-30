@@ -3,7 +3,7 @@ import re
 _missing = type('_missing', (), {'__bool__': lambda self: False})()
 
 
-def de_camel(s, separator="_", _lowercase=True):
+def de_camel(s: str, separator: str = "_", _lowercase: bool = True) -> str:
     """ Returns the string with CamelCase converted to underscores, e.g.,
         de_camel("TomDeSmedt", "-") => "tom-de-smedt"
         de_camel("getHTTPResponse2) => "get_http_response2"
@@ -13,7 +13,7 @@ def de_camel(s, separator="_", _lowercase=True):
     return s.lower() if _lowercase else s
 
 
-def snake_case(string):
+def snake_case(string: str) -> str:
     """
     Converts a string to snake case. For example::
 
@@ -25,7 +25,7 @@ def snake_case(string):
     return de_camel(string)
 
 
-def title_case(string):
+def title_case(string: str) -> str:
     """
     Converts a string to title case. For example::
 

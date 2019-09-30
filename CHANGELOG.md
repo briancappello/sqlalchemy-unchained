@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.9.0 (unreleased)
+
+- drop support for Python 3.5
+
 ## v0.8.0 (2019/09/10)
 
 - make the default timestamp `created_at` and `updated_at` columns not-nullable

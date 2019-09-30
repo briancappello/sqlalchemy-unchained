@@ -13,7 +13,8 @@ def foreign_key(*args,
                 fk_col: Optional[str] = None,
                 primary_key: bool = False,
                 nullable: bool = False,
-                **kwargs) -> sa.Column:
+                **kwargs,
+                ) -> sa.Column:
     """
     Helper method to add a foreign key column to a model.
 

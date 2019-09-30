@@ -7,10 +7,11 @@ from alembic.config import Config as BaseConfig, CommandLine as BaseCommandLine
 
 
 class Config(BaseConfig):
-    def get_template_directory(self):
+    def get_template_directory(self) -> str:
         return os.path.join(
             os.path.abspath(os.path.dirname(os.path.dirname(__file__))),
-            'alembic_templates')
+            'alembic_templates'
+        )
 
 
 class CommandLine(BaseCommandLine):
