@@ -3,6 +3,5 @@
 m2r
 pytest>=5.0
 sphinx
-sphinx-autobuild
-sphinx-rtd-theme
+sphinx-material
 tox

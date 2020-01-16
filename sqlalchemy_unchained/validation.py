@@ -125,8 +125,7 @@ class BaseValidator:
 
 class Required(BaseValidator):
     """
-    A validator to require data (automatically applied to non-nullable
-    scalar-value columns).
+    A validator to require data.
     """
     def __call__(self, value):
         super().__call__(value)

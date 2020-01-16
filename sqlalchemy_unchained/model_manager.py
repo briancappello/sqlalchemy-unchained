@@ -237,8 +237,7 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         foreign-key-to-primary-key criterion, will also use an
         operation equivalent to :meth:`~.Query.get` in order to retrieve
         the target value from the local identity map
-        before querying the database.  See :doc:`/orm/loading_relationships`
-        for further details on relationship loading.
+        before querying the database.
 
         :param id: A scalar or tuple value representing
          the primary key.   For a composite primary key,

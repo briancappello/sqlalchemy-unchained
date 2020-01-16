@@ -15,21 +15,4 @@
 
 .. BEGIN document -------------------------------------------------------------
 
-
-SQLAlchemy Unchained
-====================
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Table of Contents:
-
-   readme
-   api
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. mdinclude:: ../README.md

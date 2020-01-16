@@ -8,6 +8,10 @@ from typing import *
 
 
 class _ModelRegistry(metaclass=Singleton):
+    """
+    The SQLAlchemy Unchained model registry.
+    """
+
     enable_lazy_mapping: bool = False
     default_primary_key_column: str = 'id'
 

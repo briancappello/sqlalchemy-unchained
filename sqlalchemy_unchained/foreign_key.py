@@ -62,6 +62,8 @@ def foreign_key(*args,
                              a primary key.
     :param bool nullable: Whether or not this :class:`~sqlalchemy.Column` should
                           be nullable.
+    :param str ondelete: The cascade operation for `ON DELETE`.
+    :param str onupdate: The cascade operation for `ON UPDATE`.
     :param kwargs: Any other kwargs to pass the :class:`~sqlalchemy.Column`
                    constructor.
     """
@@ -70,7 +72,7 @@ def foreign_key(*args,
 
 
 def _get_fk_col_args(
-        args: List[Any],
+        args: Union[List[Any], Tuple[Any, ...]],
         fk_col: Optional[str] = None,
         ondelete: Optional[str] = None,
         onupdate: Optional[str] = None,

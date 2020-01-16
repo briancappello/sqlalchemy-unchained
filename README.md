@@ -1,4 +1,4 @@
-# SQLAlchemy Unchained
+# Introducing SQLAlchemy Unchained
 
 Enhanced declarative models for SQLAlchemy.
 
@@ -18,7 +18,7 @@ Requires Python 3.6+, SQLAlchemy and Alembic (for migrations)
 $ pip install sqlalchemy-unchained
 ```
 
-And let's create a directory structure to work with:
+First let's create a directory structure to work with:
 
 ```bash
 mkdir your-project && cd your-project && \
