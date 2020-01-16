@@ -72,7 +72,7 @@ Note that you'll probably need to install the relevant driver package, eg:
 
 ```bash
 # for postgresql+psycopg2
-pip install --no-binary psycopg2
+pip install psycopg2-binary
 
 # for mysql+mysqldb
 pip install mysqlclient
@@ -133,9 +133,9 @@ class Child(db.Model):
     parent = db.relationship('Parent', back_populates='children')
 ```
 
-This is the first bit that's really different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically have their `__tablename__` configured, and include a primary key column `id` as well as the automatically-timestamped columns `created_at` and `updated_at`.
+This is the first bit that's really different from using stock SQLAlchemy. By default, models in SQLAlchemy Unchained automatically have their `__tablename__` set to the snake_cased model class name, and include a primary key column `id` as well as the automatically-timestamped columns `created_at` and `updated_at`.
 
-This is customizable. For example, if you wanted to rename the columns on `Parent` and disable timestamping on `Child`:
+This is customizable. For example, if you wanted to rename the columns on `Parent`, and disable timestamping on `Child` and rename its table name to `children`:
 
 ```python
 # your_package/models.py
@@ -156,7 +156,7 @@ class Parent(db.Model):
 
 class Child(db.Model):
     class Meta:
-        table = 'child'  # explicitly set/customize the table name
+        table = 'children'
         created_at = None
         updated_at = None
 
@@ -176,7 +176,7 @@ Initialize Alembic:
 alembic init db/migrations
 ```
 
-Next, we need to configure Alembic to use the same database as we've already configured. This happens towards the top of the `db/migrations/env.py` file, which the `alembic init db/migrations` command generated for us. Modify the following lines:
+Next, we need to configure Alembic to use the same database as we've already configured. This happens towards the top of the `db/migrations/env.py` file, which the `alembic init` command generated for us. Modify the following lines:
 
 ```python
 from your_package.config import Config
@@ -204,13 +204,13 @@ setup(
 )
 ```
 
-And install our package into the virtual environment you're using for development:
+And install the package into the virtual environment you're using for development:
 
 ```bash
 pip install -e .
 ```
 
-That should be all that's required to get migrations working. Let's generate a migration for our models, and run it:
+That should be all that's required to get migrations working. Let's generate a migration for our models and run it:
 
 ```bash
 alembic revision --autogenerate -m 'create models'
