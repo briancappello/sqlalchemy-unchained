@@ -8,6 +8,7 @@ __pycache__/
 build/
 coverage_html_report/
 dist/
+docs/.buildinfo
 docs-src/_build
 docs-src/.doctrees
 venv/
