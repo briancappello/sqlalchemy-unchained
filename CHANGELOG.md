@@ -1,8 +1,12 @@
 # CHANGELOG
 
-## v0.9.2 (unreleased)
+## v0.10.0 (unreleased)
 
 - support passing `ondelete` and `onupdate` keyword arguments to the `foreign_key` helper function
+
+**Breaking Changes**
+
+- removed the `__getattr__` magic method from `SessionManager`
 
 ## v0.9.1 (2019/09/30)
 

@@ -4,11 +4,17 @@ from sqlalchemy.orm import Session
 from typing import *
 
 from .base_model import BaseModel
+from .base_query import BaseQuery
 
 
 class _SessionDescriptor:
     def __get__(self, instance, cls):
         return cls._session_factory()
+
+
+class _QueryDescriptor:
+    def __get__(self, instance, cls):
+        return cls.session.query
 
 
 class _SessionManagerMetaclass(Singleton):
@@ -28,6 +34,7 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
 
     _session_factory = None
     session: Session = _SessionDescriptor()
+    query: BaseQuery = _QueryDescriptor()
 
     @classmethod
     def set_session_factory(cls, session_factory):
@@ -120,6 +127,3 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
             yield self
         finally:
             self.session.autoflush = autoflush
-
-    def __getattr__(self, item):
-        return getattr(self.session, item)
