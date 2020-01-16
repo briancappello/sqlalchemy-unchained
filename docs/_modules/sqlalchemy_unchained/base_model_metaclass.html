@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="lang:clipboard.copy" content="Copy to clipboard">
+  <meta name="lang:clipboard.copied" content="Copied to clipboard">
+  <meta name="lang:search.language" content="en">
+  <meta name="lang:search.pipeline.stopwords" content="True">
+  <meta name="lang:search.pipeline.trimmer" content="True">
+  <meta name="lang:search.result.none" content="No matching documents">
+  <meta name="lang:search.result.one" content="1 matching document">
+  <meta name="lang:search.result.other" content="# matching documents">
+  <meta name="lang:search.tokenizer" content="[\s\-]+">
+
+  
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono:400,500,700&display=fallback">
+
+    <style>
+      body,
+      input {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif
+      }
+
+      code,
+      kbd,
+      pre {
+        font-family: "Roboto Mono", "Courier New", Courier, monospace
+      }
+    </style>
+  
+
+  <link rel="stylesheet" href="../../_static/stylesheets/application.css"/>
+  <link rel="stylesheet" href="../../_static/stylesheets/application-palette.css"/>
+  <link rel="stylesheet" href="../../_static/stylesheets/application-fixes.css"/>
+  
+  <link rel="stylesheet" href="../../_static/fonts/material-icons.css"/>
+  
+  <meta name="theme-color" content="#3f51b5">
+  <script src="../../_static/javascripts/modernizr.js"></script>
+  
+  
+  
+    <title>sqlalchemy_unchained.base_model_metaclass &#8212; SQLAlchemy Unchained v0.9.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/material.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  
+   
+  
+  <script src="../../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../../"versions.json"",
+        target_loc = "../../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+
+
+  </head>
+  <body dir=ltr
+        data-md-color-primary=blue data-md-color-accent=light-blue>
+  
+  <svg class="md-svg">
+    <defs data-children-count="0">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+      
+    </defs>
+  </svg>
+  
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
+  <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+  <a href="#_modules/sqlalchemy_unchained/base_model_metaclass" tabindex="1" class="md-skip"> Skip to content </a>
+  <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex navheader">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="/" title="SQLAlchemy Unchained v0.9.1 documentation" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon">&#8734</i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          <span class="md-header-nav__topic">
+            <a href="/" title="SQLAlchemy Unchained v0.9.1 documentation">SQLAlchemy Unchained</a>
+          </span>
+          <span class="md-header-nav__topic">
+            <a href="" title="sqlalchemy_unchained.base_model_metaclass">
+              sqlalchemy_unchained.base_model_metaclass
+            </a>
+          </span>
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+        
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" action="../../search.html" method="GET" name="search">
+      <input type="text" class="md-search__input" name="q" placeholder="Search"
+             autocapitalize="off" autocomplete="off" spellcheck="false"
+             data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            <a href="https://github.com/briancappello/sqlalchemy-unchained" title="Go to repository" class="md-source" data-md-source="github">
+
+    <div class="md-source__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    SQLAlchemy Unchained
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+
+  
+  <div class="md-container">
+    
+  
+  <div class="md-hero"
+       data-md-component="hero"
+  >
+    <div class="md-hero__inner md-grid">
+      <p>Enhanced declarative models for SQLAlchemy</p>
+    </div>
+  </div>
+
+    
+    
+  <nav class="md-tabs" data-md-component="tabs">
+    <div class="md-tabs__inner md-grid">
+      <ul class="md-tabs__list">
+          <li class="md-tabs__item"><a href="../index.html" class="md-tabs__link">Module code</a></li>
+          <li class="md-tabs__item"><a href="../sqlalchemy_unchained.html" class="md-tabs__link">sqlalchemy_unchained</a></li>
+      </ul>
+    </div>
+  </nav>
+    <main class="md-main">
+      <div class="md-main__inner md-grid" data-md-component="container">
+        
+          <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../table-of-contents.html" title="SQLAlchemy Unchained v0.9.1 documentation" class="md-nav__button md-logo">
+      
+        <i class="md-icon">&#8734</i>
+      
+    </a>
+    <a href="../../table-of-contents.html"
+       title="SQLAlchemy Unchained v0.9.1 documentation">SQLAlchemy Unchained</a>
+  </label>
+    <div class="md-nav__source">
+      <a href="https://github.com/briancappello/sqlalchemy-unchained" title="Go to repository" class="md-source" data-md-source="github">
+
+    <div class="md-source__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    SQLAlchemy Unchained
+  </div>
+</a>
+    </div>
+  
+  
+
+
+  
+
+  
+
+  <ul class="md-nav__list">
+    <li class="md-nav__item">
+      
+
+      <a href="../../index.html"
+         class="md-nav__link"
+      >
+        Introducing SQLAlchemy Unchained
+      </a>
+
+      
+    </li>
+    <li class="md-nav__item">
+      
+
+      <a href="../../api.html"
+         class="md-nav__link"
+      >
+        API Documentation
+      </a>
+
+      
+    </li>
+  </ul>
+  
+
+</nav>
+              </div>
+            </div>
+          </div>
+          <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                
+
+<nav class="md-nav md-nav--secondary">
+  <ul class="md-nav__list" data-md-scrollfix="">
+      
+
+<li id="searchbox" class="md-nav__item"></li>
+
+  </ul>
+</nav>
+              </div>
+            </div>
+          </div>
+        
+        <div class="md-content">
+          <article class="md-content__inner md-typeset" role="main">
+            
+  <h1 id="modules-sqlalchemy-unchained-base-model-metaclass--page-root">Source code for sqlalchemy_unchained.base_model_metaclass</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">py_meta_utils</span> <span class="k">import</span> <span class="n">McsArgs</span><span class="p">,</span> <span class="n">McsInitArgs</span><span class="p">,</span> <span class="n">process_factory_meta_options</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="k">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">DeclarativeMeta</span> <span class="k">as</span> <span class="n">BaseDeclarativeMeta</span><span class="p">,</span> <span class="n">declared_attr</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.schema</span> <span class="k">import</span> <span class="n">_get_table_key</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy_unchained.utils</span> <span class="k">import</span> <span class="n">snake_case</span>
+
+<span class="kn">from</span> <span class="nn">.model_meta_options</span> <span class="k">import</span> <span class="n">ModelMetaOptionsFactory</span>
+
+
+<span class="n">VALIDATOR_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'^validates?_(?P&lt;column&gt;\w+)'</span><span class="p">)</span>
+
+
+<span class="c1"># copied from flask-sqlalchemy (BSD license)</span>
+<span class="k">def</span> <span class="nf">should_set_tablename</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Determine whether ``__tablename__`` should be automatically generated</span>
+<span class="sd">    for a model.</span>
+
+<span class="sd">    * If no class in the MRO sets a name, one should be generated.</span>
+<span class="sd">    * If a declared attr is found, it should be used instead.</span>
+<span class="sd">    * If a name is found, it should be used if the class is a mixin, otherwise</span>
+<span class="sd">      one should be generated.</span>
+<span class="sd">    * Abstract models should not have one generated.</span>
+
+<span class="sd">    Later, :meth:`._BoundDeclarativeMeta.__table_cls__` will determine if the</span>
+<span class="sd">    model looks like single or joined-table inheritance. If no primary key is</span>
+<span class="sd">    found, the name will be unset.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'__abstract__'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">BaseDeclarativeMeta</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'__tablename__'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">'__tablename__'</span><span class="p">],</span> <span class="n">declared_attr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">base</span> <span class="ow">is</span> <span class="bp">cls</span>
+            <span class="ow">or</span> <span class="n">base</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'__abstract__'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">BaseDeclarativeMeta</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="c1"># copied from flask-sqlalchemy (BSD license)</span>
+<span class="k">class</span> <span class="nc">NameMetaMixin</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">should_set_tablename</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__tablename__</span> <span class="o">=</span> <span class="n">snake_case</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">NameMetaMixin</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+        <span class="c1"># __table_cls__ has run at this point</span>
+        <span class="c1"># if no table was created, use the parent table</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s1">'__tablename__'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="ow">and</span> <span class="s1">'__table__'</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">'__table__'</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="k">del</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__table__</span>
+
+    <span class="k">def</span> <span class="nf">__table_cls__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">"""This is called by SQLAlchemy during mapper setup. It determines the</span>
+<span class="sd">        final table object that the model will use.</span>
+
+<span class="sd">        If no primary key is found, that indicates single-table inheritance,</span>
+<span class="sd">        so no table will be created and ``__tablename__`` will be unset.</span>
+<span class="sd">        """</span>
+        <span class="c1"># check if a table with this name already exists</span>
+        <span class="c1"># allows reflected tables to be applied to model by name</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_get_table_key</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'schema'</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># if a primary key or constraint is found, create a table for</span>
+        <span class="c1"># joined-table inheritance</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">is_pk_column</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">)</span> <span class="ow">and</span> <span class="n">arg</span><span class="o">.</span><span class="n">primary_key</span>
+            <span class="n">is_pk_constraint</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">PrimaryKeyConstraint</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_pk_column</span> <span class="ow">or</span> <span class="n">is_pk_constraint</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># if no base classes define a table, return one</span>
+        <span class="c1"># ensures the correct error shows up when missing a primary key</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s1">'__table__'</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># single-table inheritance, use the parent tablename</span>
+        <span class="k">if</span> <span class="s1">'__tablename__'</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__tablename__</span>
+
+
+<span class="c1"># copied from flask-sqlalchemy (BSD license)</span>
+<span class="k">class</span> <span class="nc">BindMetaMixin</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">bind_key</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'__bind_key__'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">'__bind_key__'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">BindMetaMixin</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bind_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">'__table__'</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__table__</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">'bind_key'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bind_key</span>
+
+
+<div class="viewcode-block" id="DeclarativeMeta"><a class="viewcode-back" href="../../api.html#sqlalchemy_unchained.DeclarativeMeta">[docs]</a><span class="k">class</span> <span class="nc">DeclarativeMeta</span><span class="p">(</span><span class="n">NameMetaMixin</span><span class="p">,</span> <span class="n">BindMetaMixin</span><span class="p">,</span> <span class="n">BaseDeclarativeMeta</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Base metaclass for models in SQLAlchemy Unchained. Sets up support for using</span>
+<span class="sd">    Meta options on models, automatically sets ``__tablename__`` if necessary,</span>
+<span class="sd">    and configures validation for concrete models.</span>
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">clsdict</span><span class="p">):</span>
+        <span class="n">mcs_args</span> <span class="o">=</span> <span class="n">McsArgs</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">clsdict</span><span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">.model_registry</span> <span class="k">import</span> <span class="n">_ModelRegistry</span>
+        <span class="n">_ModelRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">_ensure_correct_base_model</span><span class="p">(</span><span class="n">mcs_args</span><span class="p">)</span>
+
+        <span class="n">Meta</span> <span class="o">=</span> <span class="n">process_factory_meta_options</span><span class="p">(</span>
+            <span class="n">mcs_args</span><span class="p">,</span> <span class="n">default_factory_class</span><span class="o">=</span><span class="n">ModelMetaOptionsFactory</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Meta</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="o">*</span><span class="n">mcs_args</span><span class="p">)</span>
+
+        <span class="n">validators</span> <span class="o">=</span> <span class="n">mcs_args</span><span class="o">.</span><span class="n">getattr</span><span class="p">(</span><span class="s1">'__validators__'</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">col_name</span><span class="p">:</span> <span class="n">col</span> <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">clsdict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">Column</span><span class="p">)}</span>
+        <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">col_name</span>
+            <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'validators'</span><span class="p">,</span> <span class="p">[]):</span>
+                    <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">validators</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span>
+                        <span class="n">validators</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">clsdict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">VALIDATOR_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()[</span><span class="s1">'column'</span><span class="p">]</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">m</span> <span class="ow">and</span> <span class="n">mcs_args</span><span class="o">.</span><span class="n">getattr</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">attr</span><span class="o">.</span><span class="n">__validates__</span> <span class="o">=</span> <span class="n">column</span>
+                <span class="k">if</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">validators</span><span class="p">[</span><span class="n">column</span><span class="p">]:</span>
+                    <span class="n">validators</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span>
+        <span class="n">clsdict</span><span class="p">[</span><span class="s1">'__validators__'</span><span class="p">]</span> <span class="o">=</span> <span class="n">validators</span>
+
+        <span class="n">_ModelRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">register_new</span><span class="p">(</span><span class="n">mcs_args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="o">*</span><span class="n">mcs_args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">clsdict</span><span class="p">):</span>
+        <span class="c1"># for some as-yet-not-understood reason, the arguments python passes</span>
+        <span class="c1"># to __init__ do not match those we gave to __new__ (namely, the</span>
+        <span class="c1"># bases parameter passed to __init__ is what the class was declared</span>
+        <span class="c1"># with, instead of the new bases the model_registry determined it</span>
+        <span class="c1"># should have. and in fact, __new__ does the right thing - it uses</span>
+        <span class="c1"># the correct bases, and the generated class has the correct bases,</span>
+        <span class="c1"># yet still, the ones passed to __init__ are wrong. however at this</span>
+        <span class="c1"># point (inside __init__), because the class has already been</span>
+        <span class="c1"># constructed, changing the bases argument doesn't seem to have any</span>
+        <span class="c1"># effect (and that agrees with what conceptually should be the case).</span>
+        <span class="c1"># Sooo, we're passing the correct arguments up the chain, to reduce</span>
+        <span class="c1"># confusion, just in case anybody needs to inspect them)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">clsdict</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">_mcs_args</span>
+
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">abstract</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">clsdict</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">should_set_tablename</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__tablename__</span> <span class="o">=</span> <span class="n">snake_case</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">.model_registry</span> <span class="k">import</span> <span class="n">_ModelRegistry</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_ModelRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">enable_lazy_mapping</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">lazy_mapped</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_pre_mcs_init</span><span class="p">()</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">clsdict</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_post_mcs_init</span><span class="p">()</span>
+
+        <span class="n">_ModelRegistry</span><span class="p">()</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">McsInitArgs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">clsdict</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_pre_mcs_init</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Callback for BaseModelMetaclass subclasses to run code just before a</span>
+<span class="sd">        concrete Model class gets registered with SQLAlchemy.</span>
+
+<span class="sd">        This is intended to be used for advanced meta options implementations.</span>
+<span class="sd">        """</span>
+        <span class="c1"># technically you could also put a @classmethod with the same name on</span>
+        <span class="c1"># the Model class, if you prefer that approach</span>
+
+    <span class="k">def</span> <span class="nf">_post_mcs_init</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Callback for BaseModelMetaclass subclasses to run code just after a</span>
+<span class="sd">        concrete Model class gets registered with SQLAlchemy.</span>
+
+<span class="sd">        This is intended to be used for advanced meta options implementations.</span>
+<span class="sd">        """</span></div>
+</pre></div>
+
+          </article>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="md-footer">
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+          
+          
+        </a>
+        
+      </nav>
+    </div>
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-footer-copyright">
+          <div class="md-footer-copyright__highlight">
+              &#169; Copyright 2018, Brian Cappello.
+              
+          </div>
+            Created using
+            <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+             and
+            <a href="https://github.com/bashtage/sphinx-material/">Material for
+              Sphinx</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../../_static/javascripts/application.js"></script>
+  <script>app.initialize({version: "1.0.4", url: {base: ".."}})</script>
+  </body>
+</html>
