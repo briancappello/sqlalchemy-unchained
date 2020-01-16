@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.9.2 (unreleased)
+
+- support passing `ondelete` and `onupdate` keyword arguments to the `foreign_key` helper function
+
 ## v0.9.1 (2019/09/30)
 
 - fix tests for `ModelManager.filter` and `ModelManager.filter_by`

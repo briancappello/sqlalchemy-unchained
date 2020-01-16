@@ -13,6 +13,8 @@ def foreign_key(*args,
                 fk_col: Optional[str] = None,
                 primary_key: bool = False,
                 nullable: bool = False,
+                ondelete: Optional[str] = None,
+                onupdate: Optional[str] = None,
                 **kwargs,
                 ) -> sa.Column:
     """
@@ -63,11 +65,18 @@ def foreign_key(*args,
     :param kwargs: Any other kwargs to pass the :class:`~sqlalchemy.Column`
                    constructor.
     """
-    return sa.Column(*_get_fk_col_args(args, fk_col),
+    return sa.Column(*_get_fk_col_args(args, fk_col, ondelete, onupdate),
                      primary_key=primary_key, nullable=nullable, **kwargs)
 
 
-def _get_fk_col_args(args, fk_col=None, _default_col_type=sa.Integer):
+def _get_fk_col_args(
+        args: List[Any],
+        fk_col: Optional[str] = None,
+        ondelete: Optional[str] = None,
+        onupdate: Optional[str] = None,
+        *,
+        _default_col_type=sa.Integer,
+):
     fk_col = fk_col or _ModelRegistry().default_primary_key_column
 
     try:
@@ -100,6 +109,8 @@ def _get_fk_col_args(args, fk_col=None, _default_col_type=sa.Integer):
         table_name = snake_case(table_name)
 
     args = [col_name] if col_name else []
-    args += [col_type, sa.ForeignKey(table_name + '.' + fk_col)]
-
+    args += [
+        col_type,
+        sa.ForeignKey(table_name + '.' + fk_col, ondelete=ondelete, onupdate=onupdate),
+    ]
     return args
