@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.10.0 (unreleased)
+## v0.10.0 (2020/01/21)
 
 - support passing `ondelete` and `onupdate` keyword arguments to the `foreign_key` helper function
 
