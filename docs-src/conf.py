@@ -104,7 +104,7 @@ html_theme_options = {
     'repo_url': 'https://github.com/briancappello/sqlalchemy-unchained',
     'repo_name': 'SQLAlchemy Unchained',
 
-    'globaltoc_depth': 3,
+    'globaltoc_depth': 2,
     'globaltoc_collapse': True,
     'globaltoc_includehidden': False,
 

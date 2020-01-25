@@ -8,9 +8,7 @@ Enhanced declarative models for SQLAlchemy.
 * [GitHub](https://github.com/briancappello/sqlalchemy-unchained)
 * [PyPI](https://pypi.org/project/SQLAlchemy-Unchained/)
 
-## Usage
-
-### Installation
+## Installation
 
 Requires Python 3.6+, SQLAlchemy and Alembic (for migrations)
 
@@ -28,9 +26,9 @@ touch setup.py your_package/config.py your_package/db.py your_package/models.py
 
 From now it is assumed that you are working from the `your-project` directory. All file paths at the top of code samples will be relative to this directory, and all commands should be run from this directory (unless otherwise noted).
 
-### Configure
+## Configuration
 
-#### Using SQLite
+### Using SQLite
 
 ```python
 # your_package/config.py
@@ -46,7 +44,7 @@ class Config:
 
 Here we're creating an on-disk SQLite database at `project-root/db/dev.sqlite`.
 
-#### Using PostgreSQL or MariaDB/MySQL
+### Using PostgreSQL or MariaDB/MySQL
 
 If instead you'd like to use PostgreSQL or MariaDB/MySQL, now would be the time to configure it. For example, to use PostgreSQL with the ``psycopg2`` engine:
 
@@ -80,7 +78,7 @@ pip install mysqlclient
 
 See the official documentation on [SQLAlchemy Dialects](https://docs.sqlalchemy.org/en/latest/dialects/) to learn more about connecting to other database engines.
 
-### Connect
+## Connect
 
 ```python
 # your_package/db.py
@@ -112,7 +110,7 @@ Model = declarative_base(bind=engine)
 relationship = _wrap_with_default_query_class(_relationship, BaseQuery)
 ```
 
-### Create some models
+## Models
 
 ```python
 # your_package/models.py
@@ -168,7 +166,7 @@ class Child(db.Model):
 
 The are other `Meta` options that SQLAlchemy Unchained supports, and we'll have a look at those in a bit. We'll also cover how to change the defaults for all models, as well as how to add support for your own custom `Meta` options. But for now, let's get migrations configured before we continue any further.
 
-### Configure database migrations
+## Migrations
 
 Initialize Alembic:
 
@@ -218,7 +216,7 @@ alembic revision --autogenerate -m 'create models'
 alembic upgrade head
 ```
 
-## Using SessionManager and Model Managers
+## Session and Model Managers
 
 SQLAlchemy Unchained encourages embracing the design patterns recommended by the Data Mapper Pattern that SQLAlchemy uses. This means we use managers (or services, if you prefer) to handle all of our interactions with the database. SQLAlchemy Unchained includes two classes to facilitate making this as easy as possible: [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) and [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager). 
 
@@ -248,7 +246,7 @@ instance = YourModelManager().create(name='foobar', commit=True)
 
 Both [SessionManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#sessionmanager) and [ModelManager](https://sqlalchemy-unchained.readthedocs.io/en/latest/api.html#modelmanager) are singletons, so whenever you call `SessionManager()` or `YourModelManager()`, you will always get the same instance.
 
-## Included Meta Options
+## Meta Options
 
 ### table (`__tablename__`)
 
