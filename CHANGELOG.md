@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.11.0 (unreleased)
+## v0.11.0 (2020/05/07)
 
 - make `ModelRegistry` and other protected internal classes public
 
