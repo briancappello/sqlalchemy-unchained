@@ -18,7 +18,7 @@ from .base_query import BaseQuery, QueryMixin
 from .foreign_key import foreign_key
 from .model_manager import ModelManager
 from .model_meta_options import ColumnMetaOption, ModelMetaOptionsFactory
-from .model_registry import _ModelRegistry
+from .model_registry import ModelRegistry
 from .session_manager import SessionManager
 from .validation import BaseValidator, Required, ValidationError, ValidationErrors
 
@@ -130,7 +130,7 @@ def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
             constructor=(None if getattr(model, '__init__') != object.__init__
                          else _declarative_constructor),
         )
-        _ModelRegistry().register_base_model_class(model)
+        ModelRegistry().register_base_model_class(model)
 
     # if user passed in a declarative base and a metadata for some reason,
     # make sure the base uses the metadata

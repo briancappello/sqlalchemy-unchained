@@ -5,7 +5,7 @@ from sqlalchemy.sql.type_api import TypeEngine as SQLAType
 from typing import *
 
 from .base_model import BaseModel as Model
-from .model_registry import _ModelRegistry
+from .model_registry import ModelRegistry
 from .utils import snake_case
 
 
@@ -57,7 +57,7 @@ def foreign_key(*args,
 
     :param str fk_col: The column name of the primary key on the *opposite* side
       of the relationship (defaults to
-      :attr:`sqlalchemy_unchained._ModelRegistry.default_primary_key_column`).
+      :attr:`sqlalchemy_unchained.ModelRegistry.default_primary_key_column`).
     :param bool primary_key: Whether or not this :class:`~sqlalchemy.Column` is
                              a primary key.
     :param bool nullable: Whether or not this :class:`~sqlalchemy.Column` should
@@ -79,7 +79,7 @@ def _get_fk_col_args(
         *,
         _default_col_type=sa.Integer,
 ):
-    fk_col = fk_col or _ModelRegistry().default_primary_key_column
+    fk_col = fk_col or ModelRegistry().default_primary_key_column
 
     try:
         model_class = [x for x in args
@@ -116,3 +116,8 @@ def _get_fk_col_args(
         sa.ForeignKey(table_name + '.' + fk_col, ondelete=ondelete, onupdate=onupdate),
     ]
     return args
+
+
+__all__ = [
+    'foreign_key',
+]

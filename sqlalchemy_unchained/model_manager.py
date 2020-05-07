@@ -7,10 +7,10 @@ from typing import *
 
 from .base_model import BaseModel
 from .base_query import BaseQuery
-from .session_manager import SessionManager, _SessionManagerMetaclass
+from .session_manager import SessionManager, SessionManagerMetaclass
 
 
-class _ModelMetaOption(MetaOption):
+class ModelMetaOption(MetaOption):
     def __init__(self):
         super().__init__(name='model', default=None, inherit=True)
 
@@ -23,15 +23,15 @@ class _ModelMetaOption(MetaOption):
                 'The class Meta model attribute must be a subclass of BaseModel')
 
 
-class _ModelManagerMetaOptionsFactory(MetaOptionsFactory):
-    _options = [AbstractMetaOption, _ModelMetaOption]
+class ModelManagerMetaOptionsFactory(MetaOptionsFactory):
+    _options = [AbstractMetaOption, ModelMetaOption]
 
 
-class _ModelManagerMetaclass(_SessionManagerMetaclass):
+class ModelManagerMetaclass(SessionManagerMetaclass):
     def __new__(mcs, name, bases, clsdict):
         mcs_args = McsArgs(mcs, name, bases, clsdict)
         process_factory_meta_options(
-            mcs_args, default_factory_class=_ModelManagerMetaOptionsFactory)
+            mcs_args, default_factory_class=ModelManagerMetaOptionsFactory)
         return super().__new__(*mcs_args)
 
 
@@ -40,7 +40,7 @@ class _QueryDescriptor:
         return cls.session.query(cls.Meta.model)
 
 
-class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
+class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
     """
     Base class for model managers. This is the **strongly** preferred pattern for
     managing all interactions with the database for models when using an ORM that
@@ -279,3 +279,10 @@ class ModelManager(SessionManager, metaclass=_ModelManagerMetaclass):
         :return: A list of model instances (may be empty).
         """
         return self.q.filter_by(**kwargs)
+
+
+__all__ = [
+    'ModelManager',
+    'ModelManagerMetaclass',
+    'ModelManagerMetaOptionsFactory',
+]

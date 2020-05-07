@@ -142,3 +142,8 @@ class BaseModel(object):
     # Python 3 implicitly sets __hash__ to None if we override __eq__
     # Therefore, we set it back to its default implementation
     __hash__ = object.__hash__
+
+
+__all__ = [
+    'BaseModel',
+]

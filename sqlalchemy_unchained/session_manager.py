@@ -17,7 +17,7 @@ class _QueryDescriptor:
         return cls.session.query
 
 
-class _SessionManagerMetaclass(Singleton):
+class SessionManagerMetaclass(Singleton):
     def __call__(cls, *args, **kwargs):
         cls = super().__call__(*args, **kwargs)
         if cls._session_factory is None:
@@ -27,7 +27,7 @@ class _SessionManagerMetaclass(Singleton):
         return cls
 
 
-class SessionManager(metaclass=_SessionManagerMetaclass):
+class SessionManager(metaclass=SessionManagerMetaclass):
     """
     The session manager for SQLAlchemy Unchained.
     """
@@ -127,3 +127,9 @@ class SessionManager(metaclass=_SessionManagerMetaclass):
             yield self
         finally:
             self.session.autoflush = autoflush
+
+
+__all__ = [
+    'SessionManager',
+    'SessionManagerMetaclass',
+]

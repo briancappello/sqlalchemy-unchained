@@ -1,3 +1,4 @@
+import sys
 import sqlalchemy as sa
 
 from collections import defaultdict
@@ -7,7 +8,7 @@ from sqlalchemy.orm.interfaces import MapperProperty
 from typing import *
 
 
-class _ModelRegistry(metaclass=Singleton):
+class ModelRegistry(metaclass=Singleton):
     """
     The SQLAlchemy Unchained model registry.
     """
@@ -129,7 +130,7 @@ class _ModelRegistry(metaclass=Singleton):
 
     def _convert_bases_to_mixins(self, mcs_args: McsArgs) -> None:
         """
-        For each base class in bases that the _ModelRegistry knows about, create
+        For each base class in bases that the ModelRegistry knows about, create
         a replacement class containing the methods and attributes from the base
         class:
          - the mixin should only extend object (not db.Model)
@@ -183,3 +184,8 @@ def {attr}(self):
             new_base_names.add(mixin_name)
 
         mcs_args.bases = tuple(reversed(new_bases))
+
+
+__all__ = [
+    'ModelRegistry',
+]

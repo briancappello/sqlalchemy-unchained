@@ -475,7 +475,7 @@ The primary key column is special in that knowledge of its setting is required f
 ```python
 # your_package/model_registry.py
 
-from sqlalchemy_unchained import _ModelRegistry as BaseModelRegistry
+from sqlalchemy_unchained import ModelRegistry as BaseModelRegistry
 
 
 class CustomModelRegistry(BaseModelRegistry):
@@ -488,13 +488,13 @@ And then, in order to inform SQLAlchemy Unchained about your customized model re
 # your_package/db.py
 
 from sqlalchemy_unchained import *
-from sqlalchemy_unchained import _ModelRegistry
+from sqlalchemy_unchained import ModelRegistry
 
 from .config import Config
 from .model_registry import CustomModelRegistry
 
 
-_ModelRegistry.set_singleton_class(CustomModelRegistry)
+ModelRegistry.set_singleton_class(CustomModelRegistry)
 engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DATABASE_URI)
 ```
 
@@ -508,10 +508,10 @@ The first step is to customize the model registry:
 # your_package/model_registry.py
 
 from py_meta_utils import McsInitArgs
-from sqlalchemy_unchained import _ModelRegistry
+from sqlalchemy_unchained import ModelRegistry
 
 
-class LazyModelRegistry(_ModelRegistry):
+class LazyModelRegistry(ModelRegistry):
     enable_lazy_mapping = True
 
     def should_initialize(self, mcs_init_args: McsInitArgs) -> bool:
@@ -525,13 +525,13 @@ And just like for customizing the primary key column, we need to inform `_ModelR
 # your_package/db.py
 
 from sqlalchemy_unchained import *
-from sqlalchemy_unchained import _ModelRegistry
+from sqlalchemy_unchained import ModelRegistry
 
 from .config import Config
 from .model_registry import LazyModelRegistry
 
 
-_ModelRegistry.set_singleton_class(LazyModelRegistry)
+ModelRegistry.set_singleton_class(LazyModelRegistry)
 engine, Session, Model, relationship = init_sqlalchemy_unchained(Config.DATABASE_URI)
 ```
 

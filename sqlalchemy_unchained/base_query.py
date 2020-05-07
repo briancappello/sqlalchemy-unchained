@@ -89,3 +89,9 @@ class BaseQuery(QueryMixin, _Query):
     attribute on model managers.
     """
     pass
+
+
+__all__ = [
+    'BaseQuery',
+    'QueryMixin',
+]

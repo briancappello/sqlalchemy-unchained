@@ -9,7 +9,7 @@ from sqlalchemy.orm import column_property, ColumnProperty
 from sqlalchemy_unchained.utils import snake_case, _missing
 from typing import *
 
-from .model_registry import _ModelRegistry
+from .model_registry import ModelRegistry
 
 
 TRUTHY_VALUES = {'true', 't', 'yes' 'y', '1'}
@@ -64,8 +64,9 @@ class PrimaryKeyColumnMetaOption(ColumnMetaOption):
         if value is not _missing:
             return value
 
-        from .model_registry import _ModelRegistry
-        return _ModelRegistry().default_primary_key_column
+        from .model_registry import ModelRegistry
+
+        return ModelRegistry().default_primary_key_column
 
     def should_contribute_to_class(self, mcs_args: McsArgs, col_name):
         if not super().should_contribute_to_class(mcs_args, col_name):
@@ -110,7 +111,7 @@ class UpdatedAtColumnMetaOption(ColumnMetaOption):
 
 class ReprMetaOption(MetaOption):
     def __init__(self):
-        default = (_ModelRegistry().default_primary_key_column,)
+        default = (ModelRegistry().default_primary_key_column,)
         super().__init__(name='repr', default=default, inherit=True)
 
 
@@ -213,13 +214,14 @@ class PolymorphicJoinedPkColumnMetaOption(ColumnMetaOption):
             raise Exception('Could not find a joined primary key column on ' +
                             mcs_args.name)
 
-        pk = getattr(meta, 'pk', None) or _ModelRegistry().default_primary_key_column
+        pk = getattr(meta, 'pk', None) or ModelRegistry().default_primary_key_column
         if pk not in mcs_args.clsdict:
             mcs_args.clsdict[pk] = self.get_column(mcs_args, pk)
 
     def get_column(self, mcs_args: McsArgs, pk):
         def _get_fk_col():
             from .foreign_key import foreign_key
+
             return foreign_key(mcs_args.Meta._base_tablename,
                                fk_col=mcs_args.Meta._base_pk_name, primary_key=True)
 
@@ -371,3 +373,9 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
 
 def _is_testing():
     return os.getenv('SQLA_TESTING', 'f').lower() in TRUTHY_VALUES
+
+
+__all__ = [
+    'ColumnMetaOption',
+    'ModelMetaOptionsFactory',
+]

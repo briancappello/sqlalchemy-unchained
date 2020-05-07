@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.11.0 (unreleased)
+
+- make `ModelRegistry` and other protected internal classes public
+
 ## v0.10.0 (2020/01/21)
 
 - support passing `ondelete` and `onupdate` keyword arguments to the `foreign_key` helper function

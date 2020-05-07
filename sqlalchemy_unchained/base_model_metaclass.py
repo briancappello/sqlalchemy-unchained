@@ -128,8 +128,9 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
     def __new__(mcs, name, bases, clsdict):
         mcs_args = McsArgs(mcs, name, bases, clsdict)
 
-        from .model_registry import _ModelRegistry
-        _ModelRegistry()._ensure_correct_base_model(mcs_args)
+        from .model_registry import ModelRegistry
+
+        ModelRegistry()._ensure_correct_base_model(mcs_args)
 
         Meta = process_factory_meta_options(
             mcs_args, default_factory_class=ModelMetaOptionsFactory)
@@ -156,7 +157,7 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
                     validators[column].append(attr_name)
         clsdict['__validators__'] = validators
 
-        _ModelRegistry().register_new(mcs_args)
+        ModelRegistry().register_new(mcs_args)
         return super().__new__(*mcs_args)
 
     def __init__(cls, name, bases, clsdict):
@@ -181,13 +182,14 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
         if should_set_tablename(cls):
             cls.__tablename__ = snake_case(cls.__name__)
 
-        from .model_registry import _ModelRegistry
-        if not _ModelRegistry().enable_lazy_mapping or not cls.Meta.lazy_mapped:
+        from .model_registry import ModelRegistry
+
+        if not ModelRegistry().enable_lazy_mapping or not cls.Meta.lazy_mapped:
             cls._pre_mcs_init()
             super().__init__(name, bases, clsdict)
             cls._post_mcs_init()
 
-        _ModelRegistry().register(McsInitArgs(cls, name, bases, clsdict))
+        ModelRegistry().register(McsInitArgs(cls, name, bases, clsdict))
 
     def _pre_mcs_init(cls):
         """
@@ -206,3 +208,10 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
 
         This is intended to be used for advanced meta options implementations.
         """
+
+
+__all__ = [
+    'BindMetaMixin',
+    'DeclarativeMeta',
+    'NameMetaMixin',
+]
