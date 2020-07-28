@@ -59,7 +59,7 @@ API Documentation
 .. autosummary::
     :nosignatures:
 
-    ~sqlalchemy_unchained._ModelRegistry
+    ~sqlalchemy_unchained.ModelRegistry
 
 **sqlalchemy_unchained.validation**
 
@@ -135,10 +135,10 @@ ModelMetaOptionsFactory
 .. autoclass:: sqlalchemy_unchained.ModelMetaOptionsFactory
    :members:
 
-_ModelRegistry
+ModelRegistry
 --------------
 
-.. autoclass:: sqlalchemy_unchained._ModelRegistry
+.. autoclass:: sqlalchemy_unchained.ModelRegistry
    :members:
 
 BaseValidator

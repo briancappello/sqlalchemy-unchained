@@ -89,7 +89,7 @@
 
 ## v0.6.3 (2018/10/28)
 
-- fix the `_ModelRegistry.reset` method so it allows using factory_boy from `conftest.py`
+- fix the `ModelRegistry.reset` method so it allows using factory_boy from `conftest.py`
 - require alembic 1.0.1, py-meta-utils 0.7.2, and sqlalchemy 1.2.12
 
 ## v0.6.2 (2018/10/26)
@@ -124,7 +124,7 @@
 
 - configure tox & travis
 - make compatible with Python 3.5
-- fix `ReprMetaOption` to pull default primary key name from `_ModelRegistry()`
+- fix `ReprMetaOption` to pull default primary key name from `ModelRegistry()`
 - `ColumnMetaOption` values should only be `str` or `None`
 - bump required `py-meta-utils` to v0.6.1
 - `ColumnMetaOption.check_value` should raise `TypeError` or `ValueError`, not `AssertionError`
