@@ -3,9 +3,16 @@ import functools
 from py_meta_utils import META_OPTIONS_FACTORY_CLASS_ATTR_NAME
 from sqlalchemy import *
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.declarative import declarative_base as _declarative_base
-from sqlalchemy.ext.declarative.base import _declarative_constructor
+try:
+    from sqlalchemy.orm import registry
+    from sqlalchemy.orm import declared_attr
+    from sqlalchemy.orm import declarative_base as _declarative_base
+    from sqlalchemy.orm.decl_base import _declarative_constructor
+except ImportError:
+    # SQLAlchemy 1.3
+    from sqlalchemy.ext.declarative import declared_attr
+    from sqlalchemy.ext.declarative import declarative_base as _declarative_base
+    from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import *
 from sqlalchemy.orm import relationship as _relationship

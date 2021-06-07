@@ -22,7 +22,7 @@ setup(
     install_requires=[
         'alembic>=1.0.9',
         'py-meta-utils>=0.7.6',
-        'sqlalchemy>=1.2.12',
+        'sqlalchemy>=1.2.12,<2',
     ],
     extras_require={
         'dev': [
@@ -46,6 +46,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     entry_points={
         'console_scripts': ['alembic = sqlalchemy_unchained.cli:main'],
