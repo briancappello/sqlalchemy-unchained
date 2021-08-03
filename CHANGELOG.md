@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.12.0 (unreleased)
+
+- update from m2r to m2rr for docs
+
 ## v0.11.1 (2021/06/07)
 
 - fix compatability with SQLAlchemy 1.4

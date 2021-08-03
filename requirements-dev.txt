@@ -1,6 +1,6 @@
 -r requirements.txt
 
-m2r
+m2rr
 pytest>=5.0
 sphinx
 sphinx-material

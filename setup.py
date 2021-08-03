@@ -31,7 +31,7 @@ setup(
             'tox',
         ],
         'docs': [
-            'm2r',
+            'm2rr',
             'sphinx',
             'sphinx-material',
         ],
