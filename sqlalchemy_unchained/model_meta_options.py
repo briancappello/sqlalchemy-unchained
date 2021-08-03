@@ -317,6 +317,65 @@ class TableMetaOption(MetaOption):
             mcs_args.clsdict['__tablename__'] = value
 
 
+class IndexTogetherMetaOption(MetaOption):
+    """
+    class SomeModel(Base):
+        class Meta:
+            index_together = ('one', 'two')
+            index_together = ('one', 'two', dict(unique=True))
+            index_together = ('one', 'two', dict(name='ix_some_model_one_two'))
+
+        one = sa.Column(sa.String)
+        two = sa.Column(sa.String)
+    """
+    def __init__(self):
+        super().__init__(name='index_together', default=_missing, inherit=False)
+
+    def check_value(self, value: Any, mcs_args: McsArgs):
+        if not value:
+            return
+
+        if not isinstance(value, (list, tuple)):
+            raise ValueError('The `index_together` Meta option must be a tuple of '
+                             'column names (optionally with a dict of kwargs as the '
+                             'last value in the tuple)')
+        elif (isinstance(value[-1], dict) and len(value) < 3) or len(value) < 2:
+            raise ValueError('The `index_together` Meta option must contain at '
+                             'least two column names')
+
+        valid_col_names = {col.name or attr_name
+                           for attr_name, col in mcs_args.clsdict.items()
+                           if isinstance(col, sa.Column)}
+        col_names = value[:-1] if isinstance(value[-1], dict) else value
+        for col_name in col_names:
+            if col_name not in valid_col_names:
+                raise ValueError(f'{col_name} is not a valid column name for '
+                                 f'{mcs_args.qualname}')
+
+    def contribute_to_class(self, mcs_args: McsArgs, value: Any):
+        if not value:
+            return
+
+        name = None
+        cols = value
+        kwargs = {}
+        if isinstance(value[-1], dict):
+            cols = value[:-1]
+            kwargs = value[-1]
+            name = kwargs.pop('name', None)
+        if name is None:
+            name = f'ix_{mcs_args.__tablename__}_{"_".join(cols)}'
+        index = sa.Index(name, *cols, **kwargs)
+
+        table_args = mcs_args.clsdict.get('__table_args__', ())
+        if isinstance(table_args, dict):
+            table_args = (table_args,)
+
+        if table_args and isinstance(table_args[-1], dict):
+            new_table_args = *table_args[:-1], index, table_args[-1]
+        else:
+            new_table_args = *table_args, index
+        mcs_args.clsdict['__table_args__'] = new_table_args
 
 
 class UniqueTogetherMetaOption(MetaOption):
@@ -399,6 +458,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
         CreatedAtColumnMetaOption,
         UpdatedAtColumnMetaOption,
 
+        IndexTogetherMetaOption,
         UniqueTogetherMetaOption,
     ]
 

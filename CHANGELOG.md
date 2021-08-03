@@ -4,6 +4,7 @@
 
 - update from m2r to m2rr for docs
 - add `unique_together` Meta option for models
+- add `index_together` Meta option for models
 
 ## v0.11.1 (2021/06/07)
 
