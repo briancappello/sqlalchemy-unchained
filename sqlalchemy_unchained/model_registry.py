@@ -1,8 +1,9 @@
-import sys
 import sqlalchemy as sa
+import warnings
 
 from collections import defaultdict
 from py_meta_utils import McsArgs, McsInitArgs, Singleton, deep_getattr
+from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm.interfaces import MapperProperty
 from typing import *
@@ -46,6 +47,14 @@ class ModelRegistry(metaclass=Singleton):
         # bundles' models modules (essentially, by the RegisterModelsHook))
         self._models: Dict[str, McsInitArgs] = {}
 
+        # like self._models, except its values are the relationships each model
+        # class name expects on the other side
+        # - keyed by model class name
+        # - values are a dict:
+        #   - keyed by the model name on the other side
+        #   - value is the attribute expected to exist
+        self._relationships: Dict[str, Dict[str, str]] = {}
+
         # which keys in self._models have already been initialized
         self._initialized: Set[str] = set()
 
@@ -60,6 +69,7 @@ class ModelRegistry(metaclass=Singleton):
         self._registry = defaultdict(dict)
         self._models = {}
         self._initialized = set()
+        self._relationships = {}
 
     def register_new(self, mcs_args: McsArgs) -> None:
         if self._should_convert_bases_to_mixins(mcs_args):
@@ -70,6 +80,10 @@ class ModelRegistry(metaclass=Singleton):
         self._models[mcs_init_args.name] = mcs_init_args
         if not self.enable_lazy_mapping or not mcs_init_args.cls.Meta.lazy_mapped:
             self._initialized.add(mcs_init_args.name)
+
+        relationships = mcs_init_args.cls.Meta.relationships
+        if relationships:
+            self._relationships[mcs_init_args.name] = relationships
 
     def finalize_mappings(self) -> Dict[str, object]:
         """
@@ -94,9 +108,41 @@ class ModelRegistry(metaclass=Singleton):
         """
         Whether or not the model represented by ``mcs_init_args`` should be initialized.
         """
-        if mcs_init_args.name in self._initialized:
+        model_name = mcs_init_args.name
+
+        if model_name in self._initialized:
             return False
-        return True
+
+        if model_name not in self._relationships:
+            return True
+
+        with warnings.catch_warnings():
+            # not all related classes will have been initialized yet, ie they
+            # might still be non-mapped from SQLAlchemy's perspective, which is
+            # safe to ignore here
+            filter_re = r'Unmanaged access of declarative attribute \w+ from ' \
+                        r'non-mapped class \w+'
+            warnings.filterwarnings('ignore', filter_re, SAWarning)
+
+            for related_model_name in self._relationships[model_name]:
+                related_model = self._models[related_model_name].cls
+
+                try:
+                    other_side_relationships = \
+                        self._relationships[related_model_name]
+                except KeyError:
+                    related_model_module = \
+                        self._models[related_model_name].cls.__module__
+                    raise KeyError(
+                        'Incomplete `relationships` Meta declaration for '
+                        f'{related_model_module}.{related_model_name} '
+                        f'(missing {model_name})')
+
+                if model_name not in other_side_relationships:
+                    continue
+                related_attr = other_side_relationships[model_name]
+                if hasattr(related_model, related_attr):
+                    return True
 
     def _ensure_correct_base_model(self, mcs_args: McsArgs) -> None:
         """

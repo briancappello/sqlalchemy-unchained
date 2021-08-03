@@ -5,7 +5,7 @@ from py_meta_utils import (AbstractMetaOption, McsArgs, MetaOption,
                            MetaOptionsFactory, deep_getattr)
 from sqlalchemy import func as sa_func
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import column_property, ColumnProperty
+from sqlalchemy.orm import column_property, ColumnProperty, RelationshipProperty
 from sqlalchemy_unchained.utils import snake_case, _missing
 from typing import *
 
@@ -295,6 +295,42 @@ class PolymorphicMetaOption(MetaOption):
                     choices=', '.join('%r' % v for v in valid_values)))
 
 
+class RelationshipsMetaOption(MetaOption):
+    def __init__(self):
+        super().__init__('relationships', inherit=True)
+
+    def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
+        """overridden to merge with inherited value"""
+        if mcs_args.Meta.abstract:
+            return None
+        value = getattr(base_model_meta, self.name, {}) or {}
+        value.update(getattr(meta, self.name, {}))
+        return value
+
+    def contribute_to_class(self, mcs_args: McsArgs, relationships):
+        if mcs_args.Meta.abstract:
+            return
+
+        discovered_relationships = {}
+
+        def discover_relationships(d):
+            for k, v in d.items():
+                if isinstance(v, RelationshipProperty):
+                    discovered_relationships[v.argument] = k
+                    if v.backref and mcs_args.Meta.lazy_mapped:
+                        raise NotImplementedError(
+                            f'Discovered a lazy-mapped backref `{k}` on '
+                            f'`{mcs_args.qualname}`. Currently this '
+                            'is unsupported; please use `db.relationship` with '
+                            'the `back_populates` kwarg on both sides instead.')
+
+        for base in mcs_args.bases:
+            discover_relationships(vars(base))
+        discover_relationships(mcs_args.clsdict)
+
+        relationships.update(discovered_relationships)
+
+
 class TableMetaOption(MetaOption):
     def __init__(self):
         super().__init__(name='table', default=_missing, inherit=False)
@@ -460,6 +496,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
 
         IndexTogetherMetaOption,
         UniqueTogetherMetaOption,
+        RelationshipsMetaOption,
     ]
 
     def _get_meta_options(self) -> List[MetaOption]:
