@@ -317,6 +317,62 @@ class TableMetaOption(MetaOption):
             mcs_args.clsdict['__tablename__'] = value
 
 
+
+
+class UniqueTogetherMetaOption(MetaOption):
+    """
+    class SomeModel(Base):
+        class Meta:
+            unique_together = ('one', 'two')
+            unique_together = ('one', 'two', dict(name='uq_some_model_one_two'))
+
+        one = sa.Column(sa.String)
+        two = sa.Column(sa.String)
+    """
+    def __init__(self):
+        super().__init__(name='unique_together', default=_missing, inherit=False)
+
+    def check_value(self, value: Any, mcs_args: McsArgs):
+        if not value:
+            return
+
+        if not isinstance(value, (list, tuple)):
+            raise ValueError('The `unique_together` Meta option must be a tuple of '
+                             'column names (optionally with a dict of kwargs as the '
+                             'last value in the tuple)')
+        elif (isinstance(value[-1], dict) and len(value) < 3) or len(value) < 2:
+            raise ValueError('The `unique_together` Meta option must contain at '
+                             'least two column names')
+
+        valid_col_names = {col.name or attr_name
+                           for attr_name, col in mcs_args.clsdict.items()
+                           if isinstance(col, sa.Column)}
+        col_names = value[:-1] if isinstance(value[-1], dict) else value
+        for col_name in col_names:
+            if col_name not in valid_col_names:
+                raise ValueError(f'{col_name} is not a valid column name for '
+                                 f'{mcs_args.qualname}')
+
+    def contribute_to_class(self, mcs_args: McsArgs, value: Any):
+        if not value:
+            return
+
+        if isinstance(value[-1], dict):
+            unique_constraint = sa.UniqueConstraint(*value[:-1], **value[-1])
+        else:
+            unique_constraint = sa.UniqueConstraint(*value)
+
+        table_args = mcs_args.clsdict.get('__table_args__', ())
+        if isinstance(table_args, dict):
+            table_args = (table_args,)
+
+        if table_args and isinstance(table_args[-1], dict):
+            new_table_args = *table_args[:-1], unique_constraint, table_args[-1]
+        else:
+            new_table_args = *table_args, unique_constraint
+        mcs_args.clsdict['__table_args__'] = new_table_args
+
+
 class ModelMetaOptionsFactory(MetaOptionsFactory):
     """
     The default :class:`~py_meta_utils.MetaOptionsFactory` subclass used by
@@ -342,6 +398,8 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
         PrimaryKeyColumnMetaOption,
         CreatedAtColumnMetaOption,
         UpdatedAtColumnMetaOption,
+
+        UniqueTogetherMetaOption,
     ]
 
     def _get_meta_options(self) -> List[MetaOption]:
