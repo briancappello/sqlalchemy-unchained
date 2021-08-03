@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.12.1 (unreleased)
+
+- fix bug with automatic index name for `index_together`
+
 ## v0.12.0 (2021/08/03)
 
 - update from m2r to m2rr for docs

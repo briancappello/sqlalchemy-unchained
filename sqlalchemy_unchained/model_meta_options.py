@@ -392,26 +392,20 @@ class IndexTogetherMetaOption(MetaOption):
         if not value:
             return
 
-        name = None
-        cols = value
-        kwargs = {}
+        index_name = None
+        index_cols = value
+        index_kwargs = {}
         if isinstance(value[-1], dict):
-            cols = value[:-1]
-            kwargs = value[-1]
-            name = kwargs.pop('name', None)
-        if name is None:
-            name = f'ix_{mcs_args.__tablename__}_{"_".join(cols)}'
-        index = sa.Index(name, *cols, **kwargs)
+            index_cols = value[:-1]
+            index_kwargs = value[-1]
+            index_name = index_kwargs.pop('name', None)
 
-        table_args = mcs_args.clsdict.get('__table_args__', ())
-        if isinstance(table_args, dict):
-            table_args = (table_args,)
+        if index_name is None:
+            table = mcs_args.clsdict.get('__tablename__', snake_case(mcs_args.name))
+            index_name = f'ix_{table}_{"_".join(index_cols)}'
 
-        if table_args and isinstance(table_args[-1], dict):
-            new_table_args = *table_args[:-1], index, table_args[-1]
-        else:
-            new_table_args = *table_args, index
-        mcs_args.clsdict['__table_args__'] = new_table_args
+        index = sa.Index(index_name, *index_cols, **index_kwargs)
+        _add_arg_to_table_args(mcs_args, index)
 
 
 class UniqueTogetherMetaOption(MetaOption):
@@ -456,16 +450,21 @@ class UniqueTogetherMetaOption(MetaOption):
             unique_constraint = sa.UniqueConstraint(*value[:-1], **value[-1])
         else:
             unique_constraint = sa.UniqueConstraint(*value)
+        _add_arg_to_table_args(mcs_args, unique_constraint)
 
-        table_args = mcs_args.clsdict.get('__table_args__', ())
-        if isinstance(table_args, dict):
-            table_args = (table_args,)
 
-        if table_args and isinstance(table_args[-1], dict):
-            new_table_args = *table_args[:-1], unique_constraint, table_args[-1]
-        else:
-            new_table_args = *table_args, unique_constraint
-        mcs_args.clsdict['__table_args__'] = new_table_args
+def _add_arg_to_table_args(mcs_args: McsArgs, new_arg: Any):
+    table_args = mcs_args.clsdict.get('__table_args__', ())
+    if isinstance(table_args, dict):
+        table_args = (table_args,)
+
+    if table_args and isinstance(table_args[-1], dict):
+        new_table_args = *table_args[:-1], new_arg, table_args[-1]
+    else:
+        new_table_args = *table_args, new_arg
+    mcs_args.clsdict['__table_args__'] = new_table_args
+
+    return new_table_args
 
 
 class ModelMetaOptionsFactory(MetaOptionsFactory):
