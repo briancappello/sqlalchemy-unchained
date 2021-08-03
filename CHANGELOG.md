@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.12.0 (unreleased)
+## v0.12.0 (2021/08/03)
 
 - update from m2r to m2rr for docs
 - add `unique_together` Meta option for models
