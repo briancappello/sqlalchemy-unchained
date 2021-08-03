@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.12.1 (unreleased)
+## v0.12.1 (2021/08/03)
 
 - fix bug with automatic index name for `index_together`
 
