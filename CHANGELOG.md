@@ -4,6 +4,7 @@
 
 - add `rec_getattr` and `rec_hasattr` functions for recursive attribute access
 - add support for recursive getattr in automatic `Model.__repr__`
+- add `str` Meta option for automatic `Model.__str__`
 
 ## v0.12.1 (2021/08/03)
 

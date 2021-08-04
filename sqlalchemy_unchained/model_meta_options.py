@@ -10,6 +10,7 @@ from sqlalchemy_unchained.utils import snake_case, _missing
 from typing import *
 
 from .model_registry import ModelRegistry
+from .utils import _add_arg_to_table_args, _get_column_names
 
 
 TRUTHY_VALUES = {'true', 't', 'yes' 'y', '1'}
@@ -113,6 +114,25 @@ class ReprMetaOption(MetaOption):
     def __init__(self):
         default = (ModelRegistry().default_primary_key_column,)
         super().__init__(name='repr', default=default, inherit=True)
+
+    def check_value(self, value: Any, mcs_args: McsArgs):
+        if not value:
+            return
+        elif not isinstance(value, (list, tuple)):
+            raise ValueError(f'The `repr` Meta option on {mcs_args.qualname} '
+                             f'must be a list or tuple of column names.')
+
+
+class StrMetaOption(MetaOption):
+    def __init__(self):
+        super().__init__(name='str', default=None, inherit=True)
+
+    def check_value(self, value: Any, mcs_args: McsArgs):
+        if not value:
+            return
+        elif not isinstance(value, str) or value not in _get_column_names(mcs_args):
+            raise ValueError(f'The `str` Meta option on {mcs_args.qualname} '
+                             f'must be a single column name.')
 
 
 class LazyMappedMetaOption(MetaOption):
@@ -379,14 +399,14 @@ class IndexTogetherMetaOption(MetaOption):
             raise ValueError('The `index_together` Meta option must contain at '
                              'least two column names')
 
-        valid_col_names = {col.name or attr_name
-                           for attr_name, col in mcs_args.clsdict.items()
-                           if isinstance(col, sa.Column)}
+        valid_col_names = _get_column_names(mcs_args)
         col_names = value[:-1] if isinstance(value[-1], dict) else value
-        for col_name in col_names:
-            if col_name not in valid_col_names:
-                raise ValueError(f'{col_name} is not a valid column name for '
-                                 f'{mcs_args.qualname}')
+        invalid_col_names = [x for x in col_names if x not in valid_col_names]
+        if invalid_col_names:
+            phrase = ('is not a valid column name' if len(invalid_col_names) == 1
+                      else 'are not valid column names')
+            raise ValueError(f'{", ".join(invalid_col_names)} {phrase} for '
+                             f'{mcs_args.qualname}')
 
     def contribute_to_class(self, mcs_args: McsArgs, value: Any):
         if not value:
@@ -453,20 +473,6 @@ class UniqueTogetherMetaOption(MetaOption):
         _add_arg_to_table_args(mcs_args, unique_constraint)
 
 
-def _add_arg_to_table_args(mcs_args: McsArgs, new_arg: Any):
-    table_args = mcs_args.clsdict.get('__table_args__', ())
-    if isinstance(table_args, dict):
-        table_args = (table_args,)
-
-    if table_args and isinstance(table_args[-1], dict):
-        new_table_args = *table_args[:-1], new_arg, table_args[-1]
-    else:
-        new_table_args = *table_args, new_arg
-    mcs_args.clsdict['__table_args__'] = new_table_args
-
-    return new_table_args
-
-
 class ModelMetaOptionsFactory(MetaOptionsFactory):
     """
     The default :class:`~py_meta_utils.MetaOptionsFactory` subclass used by
@@ -478,6 +484,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
         LazyMappedMetaOption,
         TableMetaOption,
         ReprMetaOption,
+        StrMetaOption,
         ValidationMetaOption,
 
         PolymorphicMetaOption,  # must be first of all polymorphic options

@@ -26,6 +26,7 @@ class BaseModel(object):
         created_at = 'created_at'
         updated_at = 'updated_at'
         repr = ('id', 'created_at', 'updated_at')
+        str = None
 
         # FIXME would be nice not to need to have this here...
         # this is strictly for testing meta class stuffs
@@ -127,6 +128,11 @@ class BaseModel(object):
         pairs = [f'{attr}={format_value(rec_getattr(self, attr))}'
                  for attr in self.Meta.repr if rec_hasattr(self, attr)]
         return f'{self.__class__.__name__}({", ".join(pairs)})'
+
+    def __str__(self):
+        if not self.Meta.str:
+            return repr(self)
+        return str(getattr(self, self.Meta.str))
 
     def __eq__(self, other):
         """
