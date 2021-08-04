@@ -1,5 +1,8 @@
 import re
 
+from functools import reduce
+
+
 _missing = type('_missing', (), {'__bool__': lambda self: False})()
 
 
@@ -39,8 +42,52 @@ def title_case(string: str) -> str:
                      for part in parts])
 
 
+def rec_getattr(obj, attr, default=None):
+    """
+        Recursive getattr.
+
+        :param obj:
+            The top-level object to get attributes off of
+        :param attr:
+            Dot delimited attribute name
+        :param default:
+            Default value
+
+        Example::
+
+            rec_getattr(obj, 'a.b.c')
+    """
+    try:
+        return reduce(getattr, attr.split('.'), obj)
+    except AttributeError:
+        return default
+
+
+def rec_hasattr(obj, attr):
+    """
+        Recursive hasattr.
+
+        :param obj:
+            The top-level object to check for attributes on
+        :param attr:
+            Dot delimited attribute name
+
+        Example::
+
+            rec_hasattr(obj, 'a.b.c')
+    """
+    try:
+        reduce(getattr, attr.split('.'), obj)
+    except AttributeError:
+        return False
+    else:
+        return True
+
+
 __all__ = [
     'de_camel',
+    'rec_getattr',
+    'rec_hasattr',
     'snake_case',
     'title_case',
 ]

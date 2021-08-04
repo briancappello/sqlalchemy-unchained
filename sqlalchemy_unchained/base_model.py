@@ -1,8 +1,10 @@
 import inspect
 
 from collections import defaultdict
+from sqlalchemy.ext.associationproxy import _AssociationList
 
 from .model_meta_options import ModelMetaOptionsFactory
+from .utils import rec_getattr, rec_hasattr
 from .validation import Required, ValidationError, ValidationErrors
 
 
@@ -117,9 +119,14 @@ class BaseModel(object):
         super().__setattr__(key, value)
 
     def __repr__(self):
-        pairs = ['{k}={v!r}'.format(k=attr, v=getattr(self, attr))
-                 for attr in self.Meta.repr if hasattr(self, attr)]
-        return self.__class__.__name__ + '(' + ', '.join(pairs) + ')'
+        def format_value(v):
+            if isinstance(v, (list, _AssociationList)):
+                return f'[{", ".join(repr(str(el)) for el in v)}]'
+            return repr(v)
+
+        pairs = [f'{attr}={format_value(rec_getattr(self, attr))}'
+                 for attr in self.Meta.repr if rec_hasattr(self, attr)]
+        return f'{self.__class__.__name__}({", ".join(pairs)})'
 
     def __eq__(self, other):
         """

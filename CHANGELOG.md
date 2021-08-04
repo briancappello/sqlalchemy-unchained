@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.12.2 (unreleased)
+
+- add `rec_getattr` and `rec_hasattr` functions for recursive attribute access
+- add support for recursive getattr in automatic `Model.__repr__`
+
 ## v0.12.1 (2021/08/03)
 
 - fix bug with automatic index name for `index_together`
