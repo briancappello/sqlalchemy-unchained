@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.12.2 (unreleased)
+## v0.12.2 (2021/08/04)
 
 - add `rec_getattr` and `rec_hasattr` functions for recursive attribute access
 - add support for recursive getattr in automatic `Model.__repr__`
