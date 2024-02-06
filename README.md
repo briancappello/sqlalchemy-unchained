@@ -10,7 +10,7 @@ Enhanced declarative models for SQLAlchemy.
 
 ## Installation
 
-Requires Python 3.6+, SQLAlchemy and Alembic (for migrations)
+Requires Python 3.10+, SQLAlchemy and Alembic (for migrations)
 
 ```bash
 $ pip install sqlalchemy-unchained
@@ -70,7 +70,7 @@ Note that you'll probably need to install the relevant driver package, eg:
 
 ```bash
 # for postgresql+psycopg2
-pip install psycopg2-binary
+pip install psycopg2
 
 # for mysql+mysqldb
 pip install mysqlclient

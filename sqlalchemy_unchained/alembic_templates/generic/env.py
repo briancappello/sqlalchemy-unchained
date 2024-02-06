@@ -38,9 +38,11 @@ def run_migrations_offline():
     script output.
 
     """
-    context.configure(url=Config.DATABASE_URI,
-                      target_metadata=target_metadata,
-                      literal_binds=True)
+    context.configure(
+        url=Config.DATABASE_URI,
+        target_metadata=target_metadata,
+        literal_binds=True,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -52,6 +54,7 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
+
     # do not auto-generate an empty migration when there's nothing to do
     def process_revision_directives(context, revision, directives):
         if config.cmd_opts.autogenerate:
@@ -62,8 +65,9 @@ def run_migrations_online():
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         url=Config.DATABASE_URI,
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool)
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
 
     with connectable.connect() as connection:
         context.configure(
