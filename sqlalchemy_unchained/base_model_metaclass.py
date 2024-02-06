@@ -5,14 +5,16 @@ from collections import defaultdict
 from py_meta_utils import McsArgs, McsInitArgs, process_factory_meta_options
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import (
-    DeclarativeMeta as BaseDeclarativeMeta, declared_attr)
+    DeclarativeMeta as BaseDeclarativeMeta,
+    declared_attr,
+)
 from sqlalchemy.schema import _get_table_key
 from sqlalchemy_unchained.utils import snake_case
 
 from .model_meta_options import ModelMetaOptionsFactory
 
 
-VALIDATOR_RE = re.compile(r'^validates?_(?P<column>\w+)')
+VALIDATOR_RE = re.compile(r"^validates?_(?P<column>\w+)")
 
 
 # copied from flask-sqlalchemy (BSD license)
@@ -31,22 +33,21 @@ def should_set_tablename(cls):
     model looks like single or joined-table inheritance. If no primary key is
     found, the name will be unset.
     """
-    if (
-        cls.__dict__.get('__abstract__', False)
-        or not any(isinstance(b, BaseDeclarativeMeta) for b in cls.__mro__[1:])
+    if cls.__dict__.get("__abstract__", False) or not any(
+        isinstance(b, BaseDeclarativeMeta) for b in cls.__mro__[1:]
     ):
         return False
 
     for base in cls.__mro__:
-        if '__tablename__' not in base.__dict__:
+        if "__tablename__" not in base.__dict__:
             continue
 
-        if isinstance(base.__dict__['__tablename__'], declared_attr):
+        if isinstance(base.__dict__["__tablename__"], declared_attr):
             return False
 
         return not (
             base is cls
-            or base.__dict__.get('__abstract__', False)
+            or base.__dict__.get("__abstract__", False)
             or not isinstance(base, BaseDeclarativeMeta)
         )
 
@@ -64,9 +65,9 @@ class NameMetaMixin:
         # __table_cls__ has run at this point
         # if no table was created, use the parent table
         if (
-            '__tablename__' not in cls.__dict__
-            and '__table__' in cls.__dict__
-            and cls.__dict__['__table__'] is None
+            "__tablename__" not in cls.__dict__
+            and "__table__" in cls.__dict__
+            and cls.__dict__["__table__"] is None
         ):
             del cls.__table__
 
@@ -79,7 +80,7 @@ class NameMetaMixin:
         """
         # check if a table with this name already exists
         # allows reflected tables to be applied to model by name
-        key = _get_table_key(args[0], kwargs.get('schema'))
+        key = _get_table_key(args[0], kwargs.get("schema"))
 
         if key in cls.metadata.tables:
             return sa.Table(*args, **kwargs)
@@ -95,28 +96,25 @@ class NameMetaMixin:
         # if no base classes define a table, return one
         # ensures the correct error shows up when missing a primary key
         for base in cls.__mro__[1:-1]:
-            if '__table__' in base.__dict__:
+            if "__table__" in base.__dict__:
                 break
         else:
             return sa.Table(*args, **kwargs)
 
         # single-table inheritance, use the parent tablename
-        if '__tablename__' in cls.__dict__:
+        if "__tablename__" in cls.__dict__:
             del cls.__tablename__
 
 
 # copied from flask-sqlalchemy (BSD license)
 class BindMetaMixin:
     def __init__(cls, name, bases, d):
-        bind_key = (
-            d.pop('__bind_key__', None)
-            or getattr(cls, '__bind_key__', None)
-        )
+        bind_key = d.pop("__bind_key__", None) or getattr(cls, "__bind_key__", None)
 
         super(BindMetaMixin, cls).__init__(name, bases, d)
 
-        if bind_key is not None and hasattr(cls, '__table__'):
-            cls.__table__.info['bind_key'] = bind_key
+        if bind_key is not None and hasattr(cls, "__table__"):
+            cls.__table__.info["bind_key"] = bind_key
 
 
 class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
@@ -125,6 +123,7 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
     Meta options on models, automatically sets ``__tablename__`` if necessary,
     and configures validation for concrete models.
     """
+
     def __new__(mcs, name, bases, clsdict):
         mcs_args = McsArgs(mcs, name, bases, clsdict)
 
@@ -133,29 +132,33 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
         ModelRegistry()._ensure_correct_base_model(mcs_args)
 
         Meta = process_factory_meta_options(
-            mcs_args, default_factory_class=ModelMetaOptionsFactory)
+            mcs_args, default_factory_class=ModelMetaOptionsFactory
+        )
         if Meta.abstract:
             return super().__new__(*mcs_args)
 
-        validators = mcs_args.getattr('__validators__', defaultdict(list))
-        columns = {col_name: col for col_name, col in clsdict.items()
-                   if isinstance(col, Column)}
+        validators = mcs_args.getattr("__validators__", defaultdict(list))
+        columns = {
+            col_name: col
+            for col_name, col in clsdict.items()
+            if isinstance(col, Column)
+        }
         for col_name, col in columns.items():
             if not col.name:
                 col.name = col_name
             if col.info:
-                for v in col.info.get('validators', []):
+                for v in col.info.get("validators", []):
                     if v not in validators[col_name]:
                         validators[col_name].append(v)
 
         for attr_name, attr in clsdict.items():
             m = VALIDATOR_RE.match(attr_name)
-            column = m.groupdict()['column'] if m else None
+            column = m.groupdict()["column"] if m else None
             if m and mcs_args.getattr(column, None) is not None:
                 attr.__validates__ = column
                 if attr_name not in validators[column]:
                     validators[column].append(attr_name)
-        clsdict['__validators__'] = validators
+        clsdict["__validators__"] = validators
 
         ModelRegistry().register_new(mcs_args)
         return super().__new__(*mcs_args)
@@ -211,7 +214,7 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
 
 
 __all__ = [
-    'BindMetaMixin',
-    'DeclarativeMeta',
-    'NameMetaMixin',
+    "BindMetaMixin",
+    "DeclarativeMeta",
+    "NameMetaMixin",
 ]

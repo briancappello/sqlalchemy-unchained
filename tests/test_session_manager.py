@@ -13,7 +13,7 @@ class TestSessionManager:
         SessionManager.set_session_factory(None)
         with pytest.raises(Exception) as e:
             fail = SessionManager()
-        assert 'SessionManager was not properly initialized.' in str(e.value)
+        assert "SessionManager was not properly initialized." in str(e.value)
 
     def test_save_without_commit(self, db, session_manager: SessionManager):
         class Foobar(db.Model):

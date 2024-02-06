@@ -11,9 +11,9 @@ from sqlalchemy_unchained import init_sqlalchemy_unchained, foreign_key, Session
 
 @pytest.fixture()
 def db():
-    os.environ['SQLA_TESTING'] = 'True'
+    os.environ["SQLA_TESTING"] = "True"
 
-    engine, Session, Model, relationship = init_sqlalchemy_unchained('sqlite://')
+    engine, Session, Model, relationship = init_sqlalchemy_unchained("sqlite://")
 
     class DB:
         def __init__(self):
@@ -36,4 +36,4 @@ def db():
     yield DB()
 
     SessionManager.set_session_factory(None)
-    del os.environ['SQLA_TESTING']
+    del os.environ["SQLA_TESTING"]

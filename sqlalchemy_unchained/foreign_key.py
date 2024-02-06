@@ -1,4 +1,3 @@
-import inspect
 import sqlalchemy as sa
 
 from sqlalchemy.sql.type_api import TypeEngine as SQLAType
@@ -9,14 +8,15 @@ from .model_registry import ModelRegistry
 from .utils import snake_case
 
 
-def foreign_key(*args,
-                fk_col: Optional[str] = None,
-                primary_key: bool = False,
-                nullable: bool = False,
-                ondelete: Optional[str] = None,
-                onupdate: Optional[str] = None,
-                **kwargs,
-                ) -> sa.Column:
+def foreign_key(
+    *args,
+    fk_col: Optional[str] = None,
+    primary_key: bool = False,
+    nullable: bool = False,
+    ondelete: Optional[str] = None,
+    onupdate: Optional[str] = None,
+    **kwargs,
+) -> sa.Column:
     """
     Helper method to add a foreign key column to a model.
 
@@ -67,36 +67,43 @@ def foreign_key(*args,
     :param kwargs: Any other kwargs to pass the :class:`~sqlalchemy.Column`
                    constructor.
     """
-    return sa.Column(*_get_fk_col_args(args, fk_col, ondelete, onupdate),
-                     primary_key=primary_key, nullable=nullable, **kwargs)
+    return sa.Column(
+        *_get_fk_col_args(args, fk_col, ondelete, onupdate),
+        primary_key=primary_key,
+        nullable=nullable,
+        **kwargs,
+    )
 
 
 def _get_fk_col_args(
-        args: Union[List[Any], Tuple[Any, ...]],
-        fk_col: Optional[str] = None,
-        ondelete: Optional[str] = None,
-        onupdate: Optional[str] = None,
-        *,
-        _default_col_type=sa.Integer,
+    args: Union[List[Any], Tuple[Any, ...]],
+    fk_col: Optional[str] = None,
+    ondelete: Optional[str] = None,
+    onupdate: Optional[str] = None,
+    *,
+    _default_col_type=sa.Integer,
 ):
     fk_col = fk_col or ModelRegistry().default_primary_key_column
 
     try:
-        model_class = [x for x in args
-                       if inspect.isclass(x) and issubclass(x, Model)][0]
+        model_class = [x for x in args if isinstance(x, type) and issubclass(x, Model)][
+            0
+        ]
     except IndexError:
         model_class = None
 
     try:
-        col_type = [x for x in args
-                    if isinstance(x, SQLAType)
-                    or (inspect.isclass(x) and issubclass(x, SQLAType))][0]
+        col_type = [
+            x
+            for x in args
+            if isinstance(x, SQLAType)
+            or (isinstance(x, type) and issubclass(x, SQLAType))
+        ][0]
     except IndexError:
         col_type = _default_col_type
 
     str_args = [x for x in args if isinstance(x, str)]
-    col_name = (str_args[0] if str_args and (len(str_args) == 2 or model_class)
-                else None)
+    col_name = str_args[0] if str_args and (len(str_args) == 2 or model_class) else None
     table_name = str_args[0] if str_args else None
     if model_class:
         table_name = model_class.__tablename__
@@ -104,8 +111,10 @@ def _get_fk_col_args(
         table_name = str_args[1]
 
     if not table_name:
-        raise TypeError('Could not determine the table name to use. Please provide '
-                        'one as a positional argument.')
+        raise TypeError(
+            "Could not determine the table name to use. Please provide "
+            "one as a positional argument."
+        )
 
     if table_name != table_name.lower():
         table_name = snake_case(table_name)
@@ -113,11 +122,11 @@ def _get_fk_col_args(
     args = [col_name] if col_name else []
     args += [
         col_type,
-        sa.ForeignKey(table_name + '.' + fk_col, ondelete=ondelete, onupdate=onupdate),
+        sa.ForeignKey(table_name + "." + fk_col, ondelete=ondelete, onupdate=onupdate),
     ]
     return args
 
 
 __all__ = [
-    'foreign_key',
+    "foreign_key",
 ]

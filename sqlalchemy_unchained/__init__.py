@@ -1,10 +1,11 @@
 import functools
 
 from py_meta_utils import META_OPTIONS_FACTORY_CLASS_ATTR_NAME
+
 from sqlalchemy import *
 from sqlalchemy.ext.associationproxy import association_proxy
+
 try:
-    from sqlalchemy.orm import registry
     from sqlalchemy.orm import declared_attr
     from sqlalchemy.orm import declarative_base as _declarative_base
     from sqlalchemy.orm.decl_base import _declarative_constructor
@@ -17,7 +18,8 @@ from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import *
 from sqlalchemy.orm import relationship as _relationship
 from sqlalchemy.sql.schema import (
-    DEFAULT_NAMING_CONVENTION as _SQLA_DEFAULT_NAMING_CONVENTION)
+    DEFAULT_NAMING_CONVENTION as _SQLA_DEFAULT_NAMING_CONVENTION,
+)
 
 from .base_model import BaseModel
 from .base_model_metaclass import DeclarativeMeta
@@ -31,18 +33,18 @@ from .validation import BaseValidator, Required, ValidationError, ValidationErro
 
 
 METADATA_NAMING_CONVENTION = {
-    'ix': 'ix_%(column_0_label)s',
-    'uq': 'uq_%(table_name)s_%(column_0_name)s',
-    'ck': 'ck_%(table_name)s_%(constraint_name)s',
-    'fk': 'fk_%(table_name)s_to_%(column_0_name)s_on_%(referred_table_name)s',
-    'pk': 'pk_%(table_name)s',
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_to_%(column_0_name)s_on_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
 }
 
 
 # copied from flask-sqlalchemy (BSD license)
 def _set_default_query_class(d, query_cls):
-    if 'query_class' not in d:
-        d['query_class'] = query_cls
+    if "query_class" not in d:
+        d["query_class"] = query_cls
 
 
 # copied from flask-sqlalchemy (BSD license)
@@ -51,16 +53,24 @@ def _wrap_with_default_query_class(fn, query_cls):
     def newfn(*args, **kwargs):
         _set_default_query_class(kwargs, query_cls)
         if "backref" in kwargs:
-            backref = kwargs['backref']
+            backref = kwargs["backref"]
             if isinstance(backref, str):
                 backref = (backref, {})
             _set_default_query_class(backref[1], query_cls)
         return fn(*args, **kwargs)
+
     return newfn
 
 
-def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
-                     mapper=None, class_registry=None, metaclass=DeclarativeMeta):
+def declarative_base(
+    model=BaseModel,
+    name="Model",
+    bind=None,
+    metadata=None,
+    mapper=None,
+    class_registry=None,
+    metaclass=DeclarativeMeta,
+):
     """
     Construct a base class for declarative class definitions.
 
@@ -111,18 +121,22 @@ def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
       :class:`~sqlalchemy_unchained.DeclarativeMeta`.
     """
     if not isinstance(model, DeclarativeMeta):
+
         def make_model_metaclass(name, bases, clsdict):
-            clsdict['__abstract__'] = True
-            clsdict['__module__'] = model.__module__
-            if hasattr(model, 'Meta'):
-                clsdict['Meta'] = model.Meta
+            clsdict["__abstract__"] = True
+            clsdict["__module__"] = model.__module__
+            if hasattr(model, "Meta"):
+                clsdict["Meta"] = model.Meta
             if hasattr(model, META_OPTIONS_FACTORY_CLASS_ATTR_NAME):
-                clsdict[META_OPTIONS_FACTORY_CLASS_ATTR_NAME] = \
-                    getattr(model, META_OPTIONS_FACTORY_CLASS_ATTR_NAME)
+                clsdict[META_OPTIONS_FACTORY_CLASS_ATTR_NAME] = getattr(
+                    model, META_OPTIONS_FACTORY_CLASS_ATTR_NAME
+                )
             return metaclass(name, bases, clsdict)
 
-        if (metadata is not None
-                and metadata.naming_convention is _SQLA_DEFAULT_NAMING_CONVENTION):
+        if (
+            metadata is not None
+            and metadata.naming_convention is _SQLA_DEFAULT_NAMING_CONVENTION
+        ):
             metadata.naming_convention = METADATA_NAMING_CONVENTION
 
         model = _declarative_base(
@@ -134,8 +148,11 @@ def declarative_base(model=BaseModel, name='Model', bind=None, metadata=None,
             metadata=metadata or MetaData(naming_convention=METADATA_NAMING_CONVENTION),
             metaclass=make_model_metaclass,
             # use the model's __init__ constructor if it's present
-            constructor=(None if getattr(model, '__init__') != object.__init__
-                         else _declarative_constructor),
+            constructor=(
+                None
+                if getattr(model, "__init__") != object.__init__
+                else _declarative_constructor
+            ),
         )
         ModelRegistry().register_base_model_class(model)
 
@@ -171,12 +188,19 @@ def scoped_session_factory(bind=None, scopefunc=None, query_cls=BaseQuery, **kwa
     :param kwargs: Any extra kwargs to pass along to
                    :class:`~sqlalchemy.orm.session.sessionmaker`.
     """
-    return scoped_session(sessionmaker(bind=bind, query_cls=query_cls, **kwargs),
-                          scopefunc=scopefunc)
+    return scoped_session(
+        sessionmaker(bind=bind, query_cls=query_cls, **kwargs),
+        scopefunc=scopefunc,
+    )
 
 
-def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, query_cls=BaseQuery,
-                              isolation_level=None, **kwargs):
+def init_sqlalchemy_unchained(
+    database_uri,
+    session_scopefunc=None,
+    query_cls=BaseQuery,
+    isolation_level=None,
+    **kwargs,
+):
     """
     Main entry point for connecting to the database.
 
@@ -191,14 +215,18 @@ def init_sqlalchemy_unchained(database_uri, session_scopefunc=None, query_cls=Ba
     :return: Tuple[engine, Session, Model, relationship]
     """
     isolation_level = isolation_level or (
-        'REPEATABLE READ' if database_uri.startswith('postgresql') else None)
+        "REPEATABLE READ" if database_uri.startswith("postgresql") else None
+    )
     if isolation_level:
         engine = create_engine(database_uri, isolation_level=isolation_level)
     else:
         engine = create_engine(database_uri)
 
-    Session = scoped_session_factory(bind=engine, scopefunc=session_scopefunc,
-                                     query_cls=query_cls)
+    Session = scoped_session_factory(
+        bind=engine,
+        scopefunc=session_scopefunc,
+        query_cls=query_cls,
+    )
     SessionManager.set_session_factory(Session)
     Model = declarative_base(bind=engine, **kwargs)
     relationship = _wrap_with_default_query_class(_relationship, query_cls)

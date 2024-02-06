@@ -15,7 +15,7 @@ class ModelRegistry(metaclass=Singleton):
     """
 
     enable_lazy_mapping: bool = False
-    default_primary_key_column: str = 'id'
+    default_primary_key_column: str = "id"
 
     def __init__(self):
         from .base_model import BaseModel as Model
@@ -59,7 +59,7 @@ class ModelRegistry(metaclass=Singleton):
         self._initialized: Set[str] = set()
 
     def register_base_model_class(self, model):
-        self._base_model_classes[model.__module__ + '.' + model.__name__] = model
+        self._base_model_classes[model.__module__ + "." + model.__name__] = model
 
     def _reset(self):
         """
@@ -120,23 +120,26 @@ class ModelRegistry(metaclass=Singleton):
             # not all related classes will have been initialized yet, ie they
             # might still be non-mapped from SQLAlchemy's perspective, which is
             # safe to ignore here
-            filter_re = r'Unmanaged access of declarative attribute \w+ from ' \
-                        r'non-mapped class \w+'
-            warnings.filterwarnings('ignore', filter_re, SAWarning)
+            filter_re = (
+                r"Unmanaged access of declarative attribute \w+ from "
+                r"non-mapped class \w+"
+            )
+            warnings.filterwarnings("ignore", filter_re, SAWarning)
 
             for related_model_name in self._relationships[model_name]:
                 related_model = self._models[related_model_name].cls
 
                 try:
-                    other_side_relationships = \
-                        self._relationships[related_model_name]
+                    other_side_relationships = self._relationships[related_model_name]
                 except KeyError:
-                    related_model_module = \
-                        self._models[related_model_name].cls.__module__
+                    related_model_module = self._models[
+                        related_model_name
+                    ].cls.__module__
                     raise KeyError(
-                        'Incomplete `relationships` Meta declaration for '
-                        f'{related_model_module}.{related_model_name} '
-                        f'(missing {model_name})')
+                        "Incomplete `relationships` Meta declaration for "
+                        f"{related_model_module}.{related_model_name} "
+                        f"(missing {model_name})"
+                    )
 
                 if model_name not in other_side_relationships:
                     continue
@@ -156,8 +159,7 @@ class ModelRegistry(metaclass=Singleton):
             if issubclass(b, correct_base):
                 return
 
-        mcs_args.clsdict['Meta'] = \
-            deep_getattr({}, mcs_args.bases, 'Meta', None)
+        mcs_args.clsdict["Meta"] = deep_getattr({}, mcs_args.bases, "Meta", None)
         mcs_args.bases = tuple([correct_base] + list(mcs_args.bases))
 
     def _should_convert_bases_to_mixins(self, mcs_args: McsArgs) -> bool:
@@ -183,8 +185,9 @@ class ModelRegistry(metaclass=Singleton):
          - if any of the attributes are MapperProperty instances (relationship,
            association_proxy, etc), then turn them into @declared_attr props
         """
+
         def _mixin_name(name):
-            return name + '_FSQLAConvertedMixin'
+            return name + "_FSQLAConvertedMixin"
 
         new_base_names = set()
         new_bases = []
@@ -194,34 +197,41 @@ class ModelRegistry(metaclass=Singleton):
                     new_bases.append(b)
                 continue
 
-            _, base_name, base_bases, base_clsdict = \
-                self._registry[b.__name__][b.__module__]
+            _, base_name, base_bases, base_clsdict = self._registry[b.__name__][
+                b.__module__
+            ]
 
             for bb in reversed(base_bases):
-                if bb.__module__ + '.' + bb.__name__ in self._base_model_classes:
+                if bb.__module__ + "." + bb.__name__ in self._base_model_classes:
                     if bb not in new_bases:
                         new_bases.append(bb)
-                elif (bb.__name__ not in new_base_names
-                        and _mixin_name(bb.__name__) not in new_base_names):
+                elif (
+                    bb.__name__ not in new_base_names
+                    and _mixin_name(bb.__name__) not in new_base_names
+                ):
                     new_base_names.add(bb.__name__)
                     new_bases.append(bb)
 
             clsdict = {}
             for attr, value in base_clsdict.items():
-                if attr in {'__name__', '__qualname__'}:
+                if attr in {"__name__", "__qualname__"}:
                     continue
 
                 has_fk = isinstance(value, sa.Column) and value.foreign_keys
                 if has_fk or isinstance(value, MapperProperty):
                     # programmatically add a method wrapped with declared_attr
                     # to the new mixin class
-                    exec("""\
+                    exec(
+                        """\
 @declared_attr
 def {attr}(self):
     return value
-""".format(attr=attr),
-                         {'value': value, 'declared_attr': declared_attr},
-                         clsdict)
+""".format(
+                            attr=attr
+                        ),
+                        {"value": value, "declared_attr": declared_attr},
+                        clsdict,
+                    )
                 else:
                     clsdict[attr] = value
 
@@ -233,5 +243,5 @@ def {attr}(self):
 
 
 __all__ = [
-    'ModelRegistry',
+    "ModelRegistry",
 ]

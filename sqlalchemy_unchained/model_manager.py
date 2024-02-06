@@ -1,7 +1,10 @@
-import inspect
-
-from py_meta_utils import (AbstractMetaOption, McsArgs, MetaOption, MetaOptionsFactory,
-                           process_factory_meta_options)
+from py_meta_utils import (
+    AbstractMetaOption,
+    McsArgs,
+    MetaOption,
+    MetaOptionsFactory,
+    process_factory_meta_options,
+)
 from sqlalchemy.exc import StatementError as SQLAlchemyStatementError
 from typing import *
 
@@ -12,15 +15,16 @@ from .session_manager import SessionManager, SessionManagerMetaclass
 
 class ModelMetaOption(MetaOption):
     def __init__(self):
-        super().__init__(name='model', default=None, inherit=True)
+        super().__init__(name="model", default=None, inherit=True)
 
     def check_value(self, value: Any, mcs_args: McsArgs):
         if mcs_args.is_abstract:
             return
 
-        if not inspect.isclass(value) or not issubclass(value, BaseModel):
+        if not isinstance(value, type) or not issubclass(value, BaseModel):
             raise Exception(
-                'The class Meta model attribute must be a subclass of BaseModel')
+                "The class Meta model attribute must be a subclass of BaseModel"
+            )
 
 
 class ModelManagerMetaOptionsFactory(MetaOptionsFactory):
@@ -31,7 +35,8 @@ class ModelManagerMetaclass(SessionManagerMetaclass):
     def __new__(mcs, name, bases, clsdict):
         mcs_args = McsArgs(mcs, name, bases, clsdict)
         process_factory_meta_options(
-            mcs_args, default_factory_class=ModelManagerMetaOptionsFactory)
+            mcs_args, default_factory_class=ModelManagerMetaOptionsFactory
+        )
         return super().__new__(*mcs_args)
 
 
@@ -120,14 +125,15 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
             try:
                 return self.get_by(**kwargs)
             except SQLAlchemyStatementError as e:
-                if 'no value has been set for this column' not in str(e):
+                if "no value has been set for this column" not in str(e):
                     raise e
 
-    def get_or_create(self,
-                      defaults: dict = None,
-                      commit: bool = False,
-                      **kwargs,
-                      ) -> Tuple[BaseModel, bool]:
+    def get_or_create(
+        self,
+        defaults: dict = None,
+        commit: bool = False,
+        **kwargs,
+    ) -> Tuple[BaseModel, bool]:
         """
         Get or create an instance of ``self.Meta.model`` by ``kwargs`` and
         ``defaults``, optionally committing te current session transaction.
@@ -144,11 +150,12 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
 
         return instance, False
 
-    def update(self,
-               instance: BaseModel,
-               commit: bool = False,
-               **kwargs,
-               ) -> BaseModel:
+    def update(
+        self,
+        instance: BaseModel,
+        commit: bool = False,
+        **kwargs,
+    ) -> BaseModel:
         """
         Update ``kwargs`` on an instance, optionally committing the current session
         transaction.
@@ -162,11 +169,12 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         self.save(instance, commit=commit)
         return instance
 
-    def update_or_create(self,
-                         defaults: dict = None,
-                         commit: bool = False,
-                         **kwargs,
-                         ) -> Tuple[BaseModel, bool]:
+    def update_or_create(
+        self,
+        defaults: dict = None,
+        commit: bool = False,
+        **kwargs,
+    ) -> Tuple[BaseModel, bool]:
         """
         Update or create an instance of ``self.Meta.model`` by ``kwargs`` and
         ``defaults``, optionally committing te current session transaction.
@@ -192,9 +200,10 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         """
         return self.q.all()
 
-    def get(self,
-            id: Union[int, str, Tuple[int, ...], Tuple[str, ...]],
-            ) -> Union[BaseModel, None]:
+    def get(
+        self,
+        id: Union[int, str, Tuple[int, ...], Tuple[str, ...]],
+    ) -> Union[BaseModel, None]:
         """
         Return an instance based on the given primary key identifier,
         or ``None`` if not found.
@@ -282,7 +291,7 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
 
 
 __all__ = [
-    'ModelManager',
-    'ModelManagerMetaclass',
-    'ModelManagerMetaOptionsFactory',
+    "ModelManager",
+    "ModelManagerMetaclass",
+    "ModelManagerMetaOptionsFactory",
 ]

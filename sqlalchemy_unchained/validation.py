@@ -51,7 +51,7 @@ class ValidationError(BaseValidationError):
         """
 
     def __str__(self):
-        if self.validator and hasattr(self.validator, 'get_message'):
+        if self.validator and hasattr(self.validator, "get_message"):
             return self.validator.get_message(self)
         return super().__str__()
 
@@ -71,7 +71,7 @@ class ValidationErrors(BaseValidationError):
         """
 
     def __str__(self):
-        return '\n'.join([k + ': ' + str(e) for k, e in self.errors.items()])
+        return "\n".join([k + ": " + str(e) for k, e in self.errors.items()])
 
 
 class BaseValidator:
@@ -98,6 +98,7 @@ class BaseValidator:
             name = db.Column(db.String, nullable=False, info=dict(
                 validators=[NameRequired]))
     """
+
     def __init__(self, msg=None):
         super().__init__()
         self.msg = msg
@@ -127,6 +128,7 @@ class Required(BaseValidator):
     """
     A validator to require data.
     """
+
     def __call__(self, value):
         super().__call__(value)
         if value is None or isinstance(value, str) and not value:
@@ -138,13 +140,13 @@ class Required(BaseValidator):
                 return self.msg
             elif isinstance(self.msg, _LazyString):
                 return str(self.msg)
-        return title_case(e.column) + ' is required.'
+        return title_case(e.column) + " is required."
 
 
 __all__ = [
-    'BaseValidationError',
-    'BaseValidator',
-    'Required',
-    'ValidationError',
-    'ValidationErrors',
+    "BaseValidationError",
+    "BaseValidator",
+    "Required",
+    "ValidationError",
+    "ValidationErrors",
 ]

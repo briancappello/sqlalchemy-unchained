@@ -21,9 +21,11 @@ class SessionManagerMetaclass(Singleton):
     def __call__(cls, *args, **kwargs):
         cls = super().__call__(*args, **kwargs)
         if cls._session_factory is None:
-            raise Exception('SessionManager was not properly initialized. '
-                            'Please set the session factory via '
-                            '`SessionManager.set_session_factory')
+            raise Exception(
+                "SessionManager was not properly initialized. "
+                "Please set the session factory via "
+                "`SessionManager.set_session_factory`"
+            )
         return cls
 
 
@@ -64,10 +66,11 @@ class SessionManager(metaclass=SessionManagerMetaclass):
             self.commit()
         return instance
 
-    def save_all(self,
-                 instances: List[BaseModel],
-                 commit: bool = False,
-                 ) -> List[BaseModel]:
+    def save_all(
+        self,
+        instances: List[BaseModel],
+        commit: bool = False,
+    ) -> List[BaseModel]:
         """
         Adds a list of model instances to the session, optionally committing the
         current transaction immediately.
@@ -130,6 +133,6 @@ class SessionManager(metaclass=SessionManagerMetaclass):
 
 
 __all__ = [
-    'SessionManager',
-    'SessionManagerMetaclass',
+    "SessionManager",
+    "SessionManagerMetaclass",
 ]

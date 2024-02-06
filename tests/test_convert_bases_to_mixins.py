@@ -22,8 +22,10 @@ class TestConvertBases:
 
         result = ModelRegistry()._registry[B3.__name__][B3.__module__].bases
         assert _names(result) == [
-            'B1_FSQLAConvertedMixin', 'B2_FSQLAConvertedMixin', 'Model',
-        ], 'it should be able to extend multiple base models'
+            "B1_FSQLAConvertedMixin",
+            "B2_FSQLAConvertedMixin",
+            "Model",
+        ], "it should be able to extend multiple base models"
 
         class B4(db.Model):
             pass
@@ -33,9 +35,12 @@ class TestConvertBases:
 
         result = ModelRegistry()._registry[B5.__name__][B5.__module__].bases
         assert _names(result) == [
-            'B4_FSQLAConvertedMixin', 'B3_FSQLAConvertedMixin',
-            'B1_FSQLAConvertedMixin', 'B2_FSQLAConvertedMixin', 'Model',
-        ], 'it should preserve order of multiple inheritance'
+            "B4_FSQLAConvertedMixin",
+            "B3_FSQLAConvertedMixin",
+            "B1_FSQLAConvertedMixin",
+            "B2_FSQLAConvertedMixin",
+            "Model",
+        ], "it should preserve order of multiple inheritance"
 
         class B6(db.Model):
             pass
@@ -48,8 +53,12 @@ class TestConvertBases:
 
         result = ModelRegistry()._registry[B7.__name__][B7.__module__].bases
         assert _names(result) == [
-            'B5_FSQLAConvertedMixin', 'B4_FSQLAConvertedMixin',
-            'B3_FSQLAConvertedMixin', 'B1_FSQLAConvertedMixin',
-            'B2_FSQLAConvertedMixin', 'B6_FSQLAConvertedMixin',
-            'Model', 'GenericMixin',
-        ], 'it should work with deeply nested multiple inheritance'
+            "B5_FSQLAConvertedMixin",
+            "B4_FSQLAConvertedMixin",
+            "B3_FSQLAConvertedMixin",
+            "B1_FSQLAConvertedMixin",
+            "B2_FSQLAConvertedMixin",
+            "B6_FSQLAConvertedMixin",
+            "Model",
+            "GenericMixin",
+        ], "it should work with deeply nested multiple inheritance"

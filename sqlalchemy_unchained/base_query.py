@@ -88,10 +88,11 @@ class BaseQuery(QueryMixin, _Query):
     Base class to use for the :attr:`~sqlalchemy_unchained.ModelManager.query`
     attribute on model managers.
     """
+
     pass
 
 
 __all__ = [
-    'BaseQuery',
-    'QueryMixin',
+    "BaseQuery",
+    "QueryMixin",
 ]

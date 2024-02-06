@@ -1,6 +1,7 @@
 """
 Override the alembic command to customize the templates directory
 """
+
 import os
 
 from alembic.config import Config as BaseConfig, CommandLine as BaseCommandLine
@@ -9,8 +10,8 @@ from alembic.config import Config as BaseConfig, CommandLine as BaseCommandLine
 class Config(BaseConfig):
     def get_template_directory(self) -> str:
         return os.path.join(
-            os.path.abspath(os.path.dirname(os.path.dirname(__file__))),
-            'alembic_templates'
+            os.path.abspath(os.path.dirname(__file__)),
+            "alembic_templates",
         )
 
 
@@ -22,8 +23,11 @@ class CommandLine(BaseCommandLine):
             # behavior changed incompatibly in py3.3
             self.parser.error("too few arguments")
         else:
-            cfg = Config(file_=options.config,
-                         ini_section=options.name, cmd_opts=options)
+            cfg = Config(
+                file_=options.config,
+                ini_section=options.name,
+                cmd_opts=options,
+            )
             self.run_cmd(cfg, options)
 
 
@@ -31,5 +35,5 @@ def main(argv=None, prog=None, **kwargs):
     CommandLine(prog=prog).main(argv=argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

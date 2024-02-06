@@ -10,7 +10,7 @@ from .validation import Required, ValidationError, ValidationErrors
 
 class GettextDescriptor:
     def __get__(self, instance, cls):
-        return getattr(instance, '_gettext_fn', lambda x: x)
+        return getattr(instance, "_gettext_fn", lambda x: x)
 
     def __set__(self, instance, value):
         instance._gettext_fn = value
@@ -20,18 +20,20 @@ class BaseModel(object):
     """
     Base model class for SQLAlchemy declarative base model.
     """
+
     class Meta:
         abstract = True
-        pk = 'id'
-        created_at = 'created_at'
-        updated_at = 'updated_at'
-        repr = ('id', 'created_at', 'updated_at')
+        pk = "id"
+        created_at = "created_at"
+        updated_at = "updated_at"
+        repr = ("id", "created_at", "updated_at")
         str = None
 
         # FIXME would be nice not to need to have this here...
         # this is strictly for testing meta class stuffs
-        _testing_ = 'this setting is only available when ' \
-                    'os.getenv("SQLA_TESTING") == "True"'
+        _testing_ = (
+            "this setting is only available when " 'os.getenv("SQLA_TESTING") == "True"'
+        )
 
     _meta_options_factory_class = ModelMetaOptionsFactory
 
@@ -57,9 +59,14 @@ class BaseModel(object):
         """
         data = kwargs
         if not partial:
-            data = dict(**kwargs, **{col.name: getattr(self, col.name, None)
-                                     for col in self.__class__.__table__.c.values()
-                                     if col.name not in kwargs})
+            data = dict(
+                **kwargs,
+                **{
+                    col.name: getattr(self, col.name, None)
+                    for col in self.__class__.__table__.c.values()
+                    if col.name not in kwargs
+                },
+            )
         self.validate_values(**data)
 
     @classmethod
@@ -85,7 +92,7 @@ class BaseModel(object):
             if isinstance(validator, str) and hasattr(cls, validator):
                 rv.append(getattr(cls, validator))
             else:
-                if inspect.isclass(validator):
+                if isinstance(validator, type):
                     validator = validator()
                 rv.append(validator)
 
@@ -94,10 +101,12 @@ class BaseModel(object):
             # this happens for relationship attrs (and probably association proxies too)
             return rv
 
-        required_msg = hasattr(col, 'info') and col.info.get('required', None)
-        if (required_msg
-                and not any(isinstance(x, Required) for x in validators)
-                and col.default is None):
+        required_msg = hasattr(col, "info") and col.info.get("required", None)
+        if (
+            required_msg
+            and not any(isinstance(x, Required) for x in validators)
+            and col.default is None
+        ):
             if isinstance(required_msg, bool):
                 required_msg = None
             elif isinstance(required_msg, str):
@@ -107,9 +116,11 @@ class BaseModel(object):
 
     def __setattr__(self, key, value):
         col = self.__mapper__.columns.get(key)
-        if (self.Meta.validation
-                and col is not None
-                and ((col.name is None and hasattr(self, key)) or key == col.name)):
+        if (
+            self.Meta.validation
+            and col is not None
+            and ((col.name is None and hasattr(self, key)) or key == col.name)
+        ):
             for validator in self._get_validators(key):
                 try:
                     validator(value)
@@ -125,8 +136,11 @@ class BaseModel(object):
                 return f'[{", ".join(repr(str(el)) for el in v)}]'
             return repr(v)
 
-        pairs = [f'{attr}={format_value(rec_getattr(self, attr))}'
-                 for attr in self.Meta.repr if rec_hasattr(self, attr)]
+        pairs = [
+            f"{attr}={format_value(rec_getattr(self, attr))}"
+            for attr in self.Meta.repr
+            if rec_hasattr(self, attr)
+        ]
         return f'{self.__class__.__name__}({", ".join(pairs)})'
 
     def __str__(self):
@@ -138,7 +152,7 @@ class BaseModel(object):
         """
         Checks the equality of two :class:`BaseModel` objects.
         """
-        if not issubclass(getattr(other, '__class__', object), self.__class__):
+        if not issubclass(getattr(other, "__class__", object), self.__class__):
             return False
 
         if not (self.Meta.pk and other.Meta.pk):
@@ -158,5 +172,5 @@ class BaseModel(object):
 
 
 __all__ = [
-    'BaseModel',
+    "BaseModel",
 ]
