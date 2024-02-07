@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import typing as t
+
 from py_meta_utils import (
     AbstractMetaOption,
     McsArgs,
@@ -6,10 +10,10 @@ from py_meta_utils import (
     process_factory_meta_options,
 )
 from sqlalchemy.exc import StatementError as SQLAlchemyStatementError
-from typing import *
+from sqlalchemy.orm import Query
 
 from .base_model import BaseModel
-from .base_query import BaseQuery
+from .base_model_metaclass import DeclarativeMeta
 from .session_manager import SessionManager, SessionManagerMetaclass
 
 
@@ -17,7 +21,7 @@ class ModelMetaOption(MetaOption):
     def __init__(self):
         super().__init__(name="model", default=None, inherit=True)
 
-    def check_value(self, value: Any, mcs_args: McsArgs):
+    def check_value(self, value: t.Any, mcs_args: McsArgs):
         if mcs_args.is_abstract:
             return
 
@@ -97,12 +101,12 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         abstract = True
         model = None
 
-    query: BaseQuery = _QueryDescriptor()
+    query: Query = _QueryDescriptor()  # type: ignore[assignment]
     """
-    The :class:`~sqlalchemy_unchained.BaseQuery` for this manager's model.
+    The :class:`~sqlalchemy.orm.Query` for this manager's model.
     """
 
-    q: BaseQuery = _QueryDescriptor()
+    q: Query = _QueryDescriptor()  # type: ignore[assignment]
     """
     An alias for :attr:`query`.
     """
@@ -116,24 +120,25 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         :param kwargs: The data to initialize the model with.
         :return: The created model instance.
         """
-        instance = self.Meta.model(**kwargs)
+        instance = self.Meta.model(**kwargs)  # type: ignore
         self.save(instance, commit=commit)
         return instance
 
-    def _maybe_get_by(self, **kwargs) -> Union[BaseModel, None]:
+    def _maybe_get_by(self, **kwargs) -> BaseModel | None:
         with self.no_autoflush:
             try:
                 return self.get_by(**kwargs)
             except SQLAlchemyStatementError as e:
                 if "no value has been set for this column" not in str(e):
                     raise e
+        return None
 
     def get_or_create(
         self,
-        defaults: dict = None,
+        defaults: dict | None = None,
         commit: bool = False,
         **kwargs,
-    ) -> Tuple[BaseModel, bool]:
+    ) -> tuple[BaseModel, bool]:
         """
         Get or create an instance of ``self.Meta.model`` by ``kwargs`` and
         ``defaults``, optionally committing te current session transaction.
@@ -141,7 +146,7 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         :param dict defaults: Extra values to create the model with, if not found
         :param bool commit: Whether or not to commit the current session transaction.
         :param kwargs: The values to filter by and create the model with
-        :return: Tuple[the_model_instance, did_create_bool]
+        :return: tuple[the_model_instance, did_create_bool]
         """
         instance = self._maybe_get_by(**kwargs)
         if not instance:
@@ -171,10 +176,10 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
 
     def update_or_create(
         self,
-        defaults: dict = None,
+        defaults: dict | None = None,
         commit: bool = False,
         **kwargs,
-    ) -> Tuple[BaseModel, bool]:
+    ) -> tuple[BaseModel, bool]:
         """
         Update or create an instance of ``self.Meta.model`` by ``kwargs`` and
         ``defaults``, optionally committing te current session transaction.
@@ -182,17 +187,17 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         :param dict defaults: Extra values to update on the model
         :param bool commit: Whether or not to commit the current session transaction.
         :param kwargs: The values to filter by and update on the model
-        :return: Tuple[the_model_instance, did_create_bool]
+        :return: tuple[the_model_instance, did_create_bool]
         """
+        defaults = defaults or {}
         instance = self._maybe_get_by(**kwargs)
         if not instance:
-            defaults = defaults or {}
             return self.create(**defaults, **kwargs, commit=commit), True
 
         instance.update(**defaults)
         return instance, False
 
-    def all(self) -> List[BaseModel]:
+    def all(self) -> list[BaseModel]:
         """
         Query the database for all records of ``self.Meta.model``.
 
@@ -202,8 +207,8 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
 
     def get(
         self,
-        id: Union[int, str, Tuple[int, ...], Tuple[str, ...]],
-    ) -> Union[BaseModel, None]:
+        id: int | tuple[int, ...] | str | tuple[str, ...],
+    ) -> BaseModel | None:
         """
         Return an instance based on the given primary key identifier,
         or ``None`` if not found.
@@ -260,9 +265,13 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         :return: The object instance, or ``None``.
 
         """
-        return self.q.get(id)
+        try:
+            return self.session.get(self.Meta.model, id)  # type: ignore
+        except AttributeError:
+            # sqlalchemy <=1.3
+            return self.q.get(id)
 
-    def get_by(self, **kwargs) -> Union[BaseModel, None]:
+    def get_by(self, **kwargs) -> BaseModel | None:
         """
         Get one or none of ``self.Meta.model`` by ``kwargs``.
 
@@ -271,7 +280,7 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         """
         return self.q.filter_by(**kwargs).one_or_none()
 
-    def filter(self, *criterion) -> BaseQuery:
+    def filter(self, *criterion) -> Query:
         """
         Get all instances of ``self.Meta.model`` matching ``criterion``.
 
@@ -280,7 +289,7 @@ class ModelManager(SessionManager, metaclass=ModelManagerMetaclass):
         """
         return self.q.filter(*criterion)
 
-    def filter_by(self, **kwargs) -> BaseQuery:
+    def filter_by(self, **kwargs) -> Query:
         """
         Get all instances of ``self.Meta.model`` matching ``kwargs``.
 

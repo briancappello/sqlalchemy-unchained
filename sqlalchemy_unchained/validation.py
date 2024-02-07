@@ -1,9 +1,9 @@
+from __future__ import annotations
+
 try:
     from speaklater import _LazyString
 except ImportError:
     _LazyString = object
-
-from typing import *
 
 from .utils import title_case
 
@@ -17,7 +17,7 @@ class ValidationError(BaseValidationError):
     Holds a validation error for a single column of a model.
     """
 
-    def __init__(self, msg: str = None, model=None, column=None, validator=None):
+    def __init__(self, msg: str | None = None, model=None, column=None, validator=None):
         """
         The constructor for validation errors.
 
@@ -61,7 +61,7 @@ class ValidationErrors(BaseValidationError):
     Holds validation errors for an entire model.
     """
 
-    def __init__(self, errors: Dict[str, List[str]]):
+    def __init__(self, errors: dict[str, list[str]]):
         super().__init__()
 
         self.errors = errors

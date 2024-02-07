@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import functools
+import typing as t
 
 from py_meta_utils import META_OPTIONS_FACTORY_CLASS_ATTR_NAME
 
@@ -8,12 +11,14 @@ from sqlalchemy.ext.associationproxy import association_proxy
 try:
     from sqlalchemy.orm import declared_attr
     from sqlalchemy.orm import declarative_base as _declarative_base
-    from sqlalchemy.orm.decl_base import _declarative_constructor
+    from sqlalchemy.orm.decl_base import _declarative_constructor  # type: ignore[attr-defined]
 except ImportError:
     # SQLAlchemy 1.3
     from sqlalchemy.ext.declarative import declared_attr
     from sqlalchemy.ext.declarative import declarative_base as _declarative_base
     from sqlalchemy.ext.declarative.base import _declarative_constructor
+
+from sqlalchemy.engine import Engine
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import *
 from sqlalchemy.orm import relationship as _relationship
@@ -22,8 +27,7 @@ from sqlalchemy.sql.schema import (
 )
 
 from .base_model import BaseModel
-from .base_model_metaclass import DeclarativeMeta
-from .base_query import BaseQuery, QueryMixin
+from .base_model_metaclass import DeclarativeMeta  # type: ignore[assignment]
 from .foreign_key import foreign_key
 from .model_manager import ModelManager
 from .model_meta_options import ColumnMetaOption, ModelMetaOptionsFactory
@@ -62,7 +66,7 @@ def _wrap_with_default_query_class(fn, query_cls):
     return newfn
 
 
-def declarative_base(
+def declarative_base(  # type: ignore[no-redef]
     model=BaseModel,
     name="Model",
     bind=None,
@@ -164,7 +168,7 @@ def declarative_base(
     return model
 
 
-def scoped_session_factory(bind=None, scopefunc=None, query_cls=BaseQuery, **kwargs):
+def scoped_session_factory(bind=None, scopefunc=None, query_cls=Query, **kwargs):
     """
     Creates a scoped session using :class:`~sqlalchemy.orm.session.sessionmaker`.
     See the SQLAlchemy documentation on
@@ -197,10 +201,10 @@ def scoped_session_factory(bind=None, scopefunc=None, query_cls=BaseQuery, **kwa
 def init_sqlalchemy_unchained(
     database_uri,
     session_scopefunc=None,
-    query_cls=BaseQuery,
+    query_cls=Query,
     isolation_level=None,
     **kwargs,
-):
+) -> tuple[Engine, scoped_session, t.Type[DeclarativeMeta], relationship]:
     """
     Main entry point for connecting to the database.
 

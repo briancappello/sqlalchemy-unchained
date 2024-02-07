@@ -1,12 +1,14 @@
-import sqlalchemy as sa
+import typing as t
 import warnings
 
 from collections import defaultdict
+
+import sqlalchemy as sa
+
 from py_meta_utils import McsArgs, McsInitArgs, Singleton, deep_getattr
 from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm.interfaces import MapperProperty
-from typing import *
 
 
 class ModelRegistry(metaclass=Singleton):
@@ -17,14 +19,14 @@ class ModelRegistry(metaclass=Singleton):
     enable_lazy_mapping: bool = False
     default_primary_key_column: str = "id"
 
-    def __init__(self):
+    def __init__(self) -> None:
         from .base_model import BaseModel as Model
 
         # keyed by: full.base.model.module.name.BaseModelClassName
         # values are the base classes themselves
         # ordered by registration/discovery order, so the last class to be
         # inserted into this lookup is the correct base class to use
-        self._base_model_classes: Dict[str, Type[Model]] = {}
+        self._base_model_classes: dict[str, t.Type[Model]] = {}
 
         # all discovered models "classes", before type.__new__ has been called:
         # - keyed by model class name
@@ -34,7 +36,7 @@ class ModelRegistry(metaclass=Singleton):
         #   - values: McsArgs(model_mcs, name, bases, clsdict)
         # this dict is used for inspecting base classes when __new__ is
         # called on a model class that extends another of the same name
-        self._registry: Dict[str, Dict[str, McsArgs]] = defaultdict(dict)
+        self._registry: dict[str, dict[str, McsArgs]] = defaultdict(dict)
 
         # actual model classes awaiting initialization (after type.__new__ but
         # before type.__init__):
@@ -45,7 +47,7 @@ class ModelRegistry(metaclass=Singleton):
         # via the register method - insertion order of the correct version of a
         # model class by name is therefore determined by the import order of
         # bundles' models modules (essentially, by the RegisterModelsHook))
-        self._models: Dict[str, McsInitArgs] = {}
+        self._models: dict[str, McsInitArgs] = {}
 
         # like self._models, except its values are the relationships each model
         # class name expects on the other side
@@ -53,15 +55,15 @@ class ModelRegistry(metaclass=Singleton):
         # - values are a dict:
         #   - keyed by the model name on the other side
         #   - value is the attribute expected to exist
-        self._relationships: Dict[str, Dict[str, str]] = {}
+        self._relationships: dict[str, dict[str, str]] = {}
 
         # which keys in self._models have already been initialized
-        self._initialized: Set[str] = set()
+        self._initialized: set[str] = set()
 
-    def register_base_model_class(self, model):
+    def register_base_model_class(self, model) -> None:
         self._base_model_classes[model.__module__ + "." + model.__name__] = model
 
-    def _reset(self):
+    def _reset(self) -> None:
         """
         This method is for use by tests only!
         """
@@ -74,7 +76,7 @@ class ModelRegistry(metaclass=Singleton):
     def register_new(self, mcs_args: McsArgs) -> None:
         if self._should_convert_bases_to_mixins(mcs_args):
             self._convert_bases_to_mixins(mcs_args)
-        self._registry[mcs_args.name][mcs_args.module] = mcs_args
+        self._registry[mcs_args.name][mcs_args.module or ""] = mcs_args
 
     def register(self, mcs_init_args: McsInitArgs) -> None:
         self._models[mcs_init_args.name] = mcs_init_args
@@ -85,7 +87,7 @@ class ModelRegistry(metaclass=Singleton):
         if relationships:
             self._relationships[mcs_init_args.name] = relationships
 
-    def finalize_mappings(self) -> Dict[str, object]:
+    def finalize_mappings(self) -> dict[str, object]:
         """
         Returns a dictionary of the model classes that were finalized.
 
@@ -99,7 +101,7 @@ class ModelRegistry(metaclass=Singleton):
             if self.should_initialize(self._models[name]):
                 model_cls, name, bases, clsdict = self._models[name]
                 model_cls._pre_mcs_init()
-                super(DeclarativeMeta, model_cls).__init__(name, bases, clsdict)
+                super(DeclarativeMeta, model_cls).__init__(name, bases, clsdict)  # type: ignore
                 model_cls._post_mcs_init()
                 self._initialized.add(name)
         return {name: self._models[name].cls for name in self._initialized}
@@ -147,6 +149,8 @@ class ModelRegistry(metaclass=Singleton):
                 if hasattr(related_model, related_attr):
                     return True
 
+        return False
+
     def _ensure_correct_base_model(self, mcs_args: McsArgs) -> None:
         """
         Makes sure the given ``mcs_args`` uses the correct BaseModel class.
@@ -167,7 +171,7 @@ class ModelRegistry(metaclass=Singleton):
         Figures out whether the base classes for the given ``mcs_args`` should be
         converted to mixins (as opposed to extending BaseModel)
         """
-        if mcs_args.Meta.polymorphic:
+        if mcs_args.Meta.polymorphic:  # type: ignore
             return False
 
         for b in mcs_args.bases:
@@ -212,7 +216,7 @@ class ModelRegistry(metaclass=Singleton):
                     new_base_names.add(bb.__name__)
                     new_bases.append(bb)
 
-            clsdict = {}
+            clsdict: dict[str, t.Any] = {}
             for attr, value in base_clsdict.items():
                 if attr in {"__name__", "__qualname__"}:
                     continue

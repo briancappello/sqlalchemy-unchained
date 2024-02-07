@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.14.0 (2024/02/07)
+
+- Add `py.typed` for typing support
+- Improve type hints
+- Drop `BaseQuery` in favor of directly using upstream `sqlalchemy.orm.Query`
+- format code with `black`
+
+## v0.13.0 (2024/02/06)
+
+- bump minimum required Python version to 3.10+
+- compatible with SQLAlchemy versions 1.3.x and 1.4.x
+- convert to `pyproject.toml`
+
 ## v0.12.2 (2021/08/04)
 
 - add `rec_getattr` and `rec_hasattr` functions for recursive attribute access

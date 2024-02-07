@@ -1,6 +1,8 @@
 import pytest
 
-from sqlalchemy_unchained import ModelManager, BaseQuery, ValidationErrors
+from sqlalchemy.orm import Query
+
+from sqlalchemy_unchained import ModelManager, ValidationErrors
 
 
 @pytest.fixture()
@@ -54,7 +56,7 @@ class TestModelManager:
         )
 
     def test_query_descriptor(self, foobar_manager):
-        assert isinstance(foobar_manager.q, BaseQuery)
+        assert isinstance(foobar_manager.q, Query)
 
     def test_create(self, foobar_manager):
         foobar = foobar_manager.create(name="Foobar!")

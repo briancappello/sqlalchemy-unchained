@@ -1,10 +1,12 @@
+from __future__ import annotations
+
+import typing as t
 from contextlib import contextmanager
+
 from py_meta_utils import Singleton
-from sqlalchemy.orm import Session
-from typing import *
+from sqlalchemy.orm import Session, Query
 
 from .base_model import BaseModel
-from .base_query import BaseQuery
 
 
 class _SessionDescriptor:
@@ -35,8 +37,8 @@ class SessionManager(metaclass=SessionManagerMetaclass):
     """
 
     _session_factory = None
-    session: Session = _SessionDescriptor()
-    query: BaseQuery = _QueryDescriptor()
+    session: Session = _SessionDescriptor()  # type: ignore[assignment]
+    query: t.Callable[[t.Type[BaseModel]], Query] = _QueryDescriptor()  # type: ignore[assignment]
 
     @classmethod
     def set_session_factory(cls, session_factory):
@@ -68,9 +70,9 @@ class SessionManager(metaclass=SessionManagerMetaclass):
 
     def save_all(
         self,
-        instances: List[BaseModel],
+        instances: list[BaseModel],
         commit: bool = False,
-    ) -> List[BaseModel]:
+    ) -> list[BaseModel]:
         """
         Adds a list of model instances to the session, optionally committing the
         current transaction immediately.
@@ -92,7 +94,7 @@ class SessionManager(metaclass=SessionManagerMetaclass):
         if commit:
             self.commit()
 
-    def delete_all(self, instances: List[BaseModel], commit: bool = False) -> None:
+    def delete_all(self, instances: list[BaseModel], commit: bool = False) -> None:
         for instance in instances:
             self.session.delete(instance)
         if commit:
@@ -106,7 +108,7 @@ class SessionManager(metaclass=SessionManagerMetaclass):
 
     @property
     @contextmanager
-    def no_autoflush(self):
+    def no_autoflush(self) -> t.Generator["SessionManager", None, None]:
         """
         Return a context manager that disables autoflush.
 

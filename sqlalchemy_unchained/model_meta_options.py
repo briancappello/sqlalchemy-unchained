@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import os
+import typing as t
+
 import sqlalchemy as sa
 
 from py_meta_utils import (
@@ -12,7 +16,6 @@ from sqlalchemy import func as sa_func
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import column_property, ColumnProperty, RelationshipProperty
 from sqlalchemy_unchained.utils import snake_case, _missing
-from typing import *
 
 from .model_registry import ModelRegistry
 from .utils import _add_arg_to_table_args, _get_column_names
@@ -39,7 +42,7 @@ class ColumnMetaOption(MetaOption):
                 return sa.Column(sa.String, nullable=False)
     """
 
-    def check_value(self, value, mcs_args: McsArgs):
+    def check_value(self, value: t.Any, mcs_args: McsArgs):
         if not (value is None or isinstance(value, str)):
             raise TypeError(
                 "{name} Meta option on {cls} must be a str or None".format(
@@ -48,20 +51,22 @@ class ColumnMetaOption(MetaOption):
                 )
             )
 
-    def contribute_to_class(self, mcs_args: McsArgs, col_name):
+    def contribute_to_class(self, mcs_args: McsArgs, col_name: str) -> None:
         if self.should_contribute_to_class(mcs_args, col_name):
             mcs_args.clsdict[col_name] = self.get_column(mcs_args)
 
-    def should_contribute_to_class(self, mcs_args: McsArgs, col_name):
-        is_polymorphic = mcs_args.Meta.polymorphic
-        is_polymorphic_base = mcs_args.Meta._is_base_polymorphic_model
+    def should_contribute_to_class(self, mcs_args: McsArgs, col_name: str) -> bool:
+        is_polymorphic = mcs_args.Meta.polymorphic  # type: ignore
+        is_polymorphic_base = mcs_args.Meta._is_base_polymorphic_model  # type: ignore
 
-        if mcs_args.Meta.abstract or (is_polymorphic and not is_polymorphic_base):
+        if mcs_args.Meta.abstract or (  # type: ignore
+            is_polymorphic and not is_polymorphic_base
+        ):
             return False
 
-        return col_name and col_name not in mcs_args.clsdict
+        return bool(col_name and col_name not in mcs_args.clsdict)
 
-    def get_column(self, mcs_args: McsArgs):
+    def get_column(self, mcs_args: McsArgs) -> sa.Column:
         raise NotImplementedError
 
 
@@ -96,7 +101,7 @@ class PrimaryKeyColumnMetaOption(ColumnMetaOption):
 
         return True
 
-    def get_column(self, mcs_args: McsArgs):
+    def get_column(self, mcs_args: McsArgs) -> sa.Column:
         return sa.Column(sa.Integer, primary_key=True)
 
 
@@ -104,7 +109,7 @@ class CreatedAtColumnMetaOption(ColumnMetaOption):
     def __init__(self):
         super().__init__(name="created_at", default="created_at", inherit=True)
 
-    def get_column(self, mcs_args: McsArgs):
+    def get_column(self, mcs_args: McsArgs) -> sa.Column:
         return sa.Column(sa.DateTime, server_default=sa_func.now(), nullable=False)
 
 
@@ -112,7 +117,7 @@ class UpdatedAtColumnMetaOption(ColumnMetaOption):
     def __init__(self):
         super().__init__(name="updated_at", default="updated_at", inherit=True)
 
-    def get_column(self, mcs_args: McsArgs):
+    def get_column(self, mcs_args: McsArgs) -> sa.Column:
         return sa.Column(
             sa.DateTime,
             server_default=sa_func.now(),
@@ -126,7 +131,7 @@ class ReprMetaOption(MetaOption):
         default = (ModelRegistry().default_primary_key_column,)
         super().__init__(name="repr", default=default, inherit=True)
 
-    def check_value(self, value: Any, mcs_args: McsArgs):
+    def check_value(self, value: t.Any, mcs_args: McsArgs):
         if not value:
             return
         elif not isinstance(value, (list, tuple)):
@@ -140,7 +145,7 @@ class StrMetaOption(MetaOption):
     def __init__(self):
         super().__init__(name="str", default=None, inherit=True)
 
-    def check_value(self, value: Any, mcs_args: McsArgs):
+    def check_value(self, value: t.Any, mcs_args: McsArgs):
         if not value:
             return
         elif not isinstance(value, str) or value not in _get_column_names(mcs_args):
@@ -211,12 +216,12 @@ class PolymorphicOnColumnMetaOption(ColumnMetaOption):
         super().__init__(name=name, default=default, inherit=False)
 
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
-        if mcs_args.Meta.polymorphic not in {"single", "joined"}:
+        if mcs_args.Meta.polymorphic not in {"single", "joined"}:  # type: ignore
             return None
         return super().get_value(meta, base_model_meta, mcs_args)
 
     def contribute_to_class(self, mcs_args: McsArgs, col_name):
-        if mcs_args.Meta.polymorphic not in {"single", "joined"}:
+        if mcs_args.Meta.polymorphic not in {"single", "joined"}:  # type: ignore
             return
 
         # maybe add the polymorphic_on discriminator column
@@ -224,13 +229,13 @@ class PolymorphicOnColumnMetaOption(ColumnMetaOption):
 
         mapper_args = mcs_args.clsdict.get("__mapper_args__", {})
         if (
-            mcs_args.Meta._is_base_polymorphic_model
+            mcs_args.Meta._is_base_polymorphic_model  # type: ignore
             and "polymorphic_on" not in mapper_args
         ):
             mapper_args["polymorphic_on"] = mcs_args.clsdict[col_name]
             mcs_args.clsdict["__mapper_args__"] = mapper_args
 
-    def get_column(self, model_meta_options):
+    def get_column(self, mcs_args: McsArgs) -> sa.Column:
         return sa.Column(sa.String)
 
 
@@ -239,13 +244,13 @@ class PolymorphicJoinedPkColumnMetaOption(ColumnMetaOption):
         # name, default, and inherited are all ignored for this option
         super().__init__(name="_", default="_")
 
-    def contribute_to_class(self, mcs_args: McsArgs, value):
+    def contribute_to_class(self, mcs_args: McsArgs, value: t.Any):
         meta = mcs_args.Meta
         if (
-            meta.abstract
-            or meta.polymorphic != "joined"
-            or meta._is_base_polymorphic_model
-            or not meta._base_tablename
+            meta.abstract  # type: ignore
+            or meta.polymorphic != "joined"  # type: ignore
+            or meta._is_base_polymorphic_model  # type: ignore
+            or not meta._base_tablename  # type: ignore
         ):
             return
 
@@ -267,24 +272,31 @@ class PolymorphicJoinedPkColumnMetaOption(ColumnMetaOption):
         if pk not in mcs_args.clsdict:
             mcs_args.clsdict[pk] = self.get_column(mcs_args, pk)
 
-    def get_column(self, mcs_args: McsArgs, pk):
+    def get_column(  # type: ignore
+        self,
+        mcs_args: McsArgs,
+        pk,
+    ) -> sa.Column:
         def _get_fk_col():
             from .foreign_key import foreign_key
 
             return foreign_key(
-                mcs_args.Meta._base_tablename,
-                fk_col=mcs_args.Meta._base_pk_name,
+                mcs_args.Meta._base_tablename,  # type: ignore
+                fk_col=mcs_args.Meta._base_pk_name,  # type: ignore
                 primary_key=True,
             )
 
-        if mcs_args.bases and pk not in mcs_args.bases[0].Meta._mcs_args.clsdict:
+        if (
+            mcs_args.bases
+            and pk not in mcs_args.bases[0].Meta._mcs_args.clsdict  # type: ignore
+        ):
             for b in mcs_args.bases:
                 for c in b.__mro__:
                     if (
                         isinstance(getattr(c, "Meta", None), MetaOptionsFactory)
-                        and pk in c.Meta._mcs_args.clsdict
+                        and pk in c.Meta._mcs_args.clsdict  # type: ignore
                     ):
-                        return column_property(_get_fk_col(), getattr(c, pk))
+                        return column_property(_get_fk_col(), getattr(c, pk))  # type: ignore
         return _get_fk_col()
 
 
@@ -295,8 +307,8 @@ class PolymorphicTableArgsMetaOption(MetaOption):
 
     def contribute_to_class(self, mcs_args: McsArgs, value):
         if (
-            mcs_args.Meta.polymorphic == "single"
-            and mcs_args.Meta._is_base_polymorphic_model
+            mcs_args.Meta.polymorphic == "single"  # type: ignore
+            and mcs_args.Meta._is_base_polymorphic_model  # type: ignore
         ):
             mcs_args.clsdict["__table_args__"] = None
 
@@ -306,7 +318,7 @@ class PolymorphicIdentityMetaOption(MetaOption):
         super().__init__(name=name, default=default, inherit=False)
 
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
-        if mcs_args.Meta.polymorphic in {False, "_fully_manual_"}:
+        if mcs_args.Meta.polymorphic in {False, "_fully_manual_"}:  # type: ignore
             return None
 
         identifier = super().get_value(meta, base_model_meta, mcs_args)
@@ -314,7 +326,7 @@ class PolymorphicIdentityMetaOption(MetaOption):
         return mapper_args.get("polymorphic_identity", identifier or mcs_args.name)
 
     def contribute_to_class(self, mcs_args: McsArgs, identifier):
-        if mcs_args.Meta.polymorphic in {False, "_fully_manual_"}:
+        if mcs_args.Meta.polymorphic in {False, "_fully_manual_"}:  # type: ignore
             return
 
         mapper_args = mcs_args.clsdict.get("__mapper_args__", {})
@@ -358,14 +370,14 @@ class RelationshipsMetaOption(MetaOption):
 
     def get_value(self, meta, base_model_meta, mcs_args: McsArgs):
         """overridden to merge with inherited value"""
-        if mcs_args.Meta.abstract:
+        if mcs_args.Meta.abstract:  # type: ignore
             return None
         value = getattr(base_model_meta, self.name, {}) or {}
         value.update(getattr(meta, self.name, {}))
         return value
 
     def contribute_to_class(self, mcs_args: McsArgs, relationships):
-        if mcs_args.Meta.abstract:
+        if mcs_args.Meta.abstract:  # type: ignore
             return
 
         discovered_relationships = {}
@@ -374,7 +386,7 @@ class RelationshipsMetaOption(MetaOption):
             for k, v in d.items():
                 if isinstance(v, RelationshipProperty):
                     discovered_relationships[v.argument] = k
-                    if v.backref and mcs_args.Meta.lazy_mapped:
+                    if v.backref and mcs_args.Meta.lazy_mapped:  # type: ignore
                         raise NotImplementedError(
                             f"Discovered a lazy-mapped backref `{k}` on "
                             f"`{mcs_args.qualname}`. Currently this "
@@ -426,7 +438,7 @@ class IndexTogetherMetaOption(MetaOption):
     def __init__(self):
         super().__init__(name="index_together", default=_missing, inherit=False)
 
-    def check_value(self, value: Any, mcs_args: McsArgs):
+    def check_value(self, value: t.Any, mcs_args: McsArgs):
         if not value:
             return
 
@@ -455,7 +467,7 @@ class IndexTogetherMetaOption(MetaOption):
                 f'{", ".join(invalid_col_names)} {phrase} for ' f"{mcs_args.qualname}"
             )
 
-    def contribute_to_class(self, mcs_args: McsArgs, value: Any):
+    def contribute_to_class(self, mcs_args: McsArgs, value: t.Any):
         if not value:
             return
 
@@ -489,7 +501,7 @@ class UniqueTogetherMetaOption(MetaOption):
     def __init__(self):
         super().__init__(name="unique_together", default=_missing, inherit=False)
 
-    def check_value(self, value: Any, mcs_args: McsArgs):
+    def check_value(self, value: t.Any, mcs_args: McsArgs):
         if not value:
             return
 
@@ -517,7 +529,7 @@ class UniqueTogetherMetaOption(MetaOption):
                     f"{col_name} is not a valid column name for " f"{mcs_args.qualname}"
                 )
 
-    def contribute_to_class(self, mcs_args: McsArgs, value: Any):
+    def contribute_to_class(self, mcs_args: McsArgs, value: t.Any):
         if not value:
             return
 
@@ -557,7 +569,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
         RelationshipsMetaOption,
     ]
 
-    def _get_meta_options(self) -> List[MetaOption]:
+    def _get_meta_options(self) -> list[MetaOption]:
         testing_options = [_TestingMetaOption()] if _is_testing() else []
         return testing_options + super()._get_meta_options()
 
@@ -573,7 +585,7 @@ class ModelMetaOptionsFactory(MetaOptionsFactory):
 
     @property
     def _is_base_polymorphic_model(self):
-        if not self.polymorphic:
+        if not self.polymorphic:  # type: ignore
             return False
         base_meta = deep_getattr({}, self._mcs_args.bases, "Meta")
         return base_meta.abstract

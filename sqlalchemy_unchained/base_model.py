@@ -21,6 +21,8 @@ class BaseModel(object):
     Base model class for SQLAlchemy declarative base model.
     """
 
+    __tablename__: str
+
     class Meta:
         abstract = True
         pk = "id"
