@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import typing as t
+
 from contextlib import contextmanager
 
 from py_meta_utils import Singleton
-from sqlalchemy.orm import Session, Query
+
+from sqlalchemy.orm import Query, Session
 
 from .base_model import BaseModel
 

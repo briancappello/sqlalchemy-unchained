@@ -1,12 +1,15 @@
 import os
+
 import pytest
+
 import sqlalchemy
 import sqlalchemy.orm
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
-from sqlalchemy_unchained import init_sqlalchemy_unchained, foreign_key, SessionManager
+
+from sqlalchemy_unchained import SessionManager, foreign_key, init_sqlalchemy_unchained
 
 
 @pytest.fixture()

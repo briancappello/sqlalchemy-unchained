@@ -1,4 +1,5 @@
 import pytest
+
 import sqlalchemy as sa
 
 from sqlalchemy_unchained import foreign_key

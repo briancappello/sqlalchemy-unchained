@@ -24,6 +24,7 @@ tox = "^4.6.3"
 black = "^24.1.1"
 mypy = "^1.8.0"
 sqlalchemy2-stubs = "^0.0.2a38"
+isort = "^5.13.2"
 
 [tool.poetry.group.docs.dependencies]
 m2rr = "^0.2.3"
@@ -46,3 +47,19 @@ module = [
     "sqlalchemy.ext.declarative.base",
 ]
 ignore_missing_imports = true
+
+[tool.black]
+line-length = 90
+target-version = ['py310']
+preview = true
+
+[tool.isort]
+profile = "black"
+include_trailing_comma = true
+lines_between_types = 1
+lines_after_imports = 2
+multi_line_output = 3
+sections = "FUTURE,STDLIB,THIRDPARTY,SQLALCHEMY,FIRSTPARTY,LOCALFOLDER"
+known_sqlalchemy = [
+    "sqlalchemy",
+]

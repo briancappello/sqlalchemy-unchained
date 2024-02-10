@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 try:
     from speaklater import _LazyString
 except ImportError:

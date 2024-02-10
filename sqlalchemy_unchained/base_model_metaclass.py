@@ -1,17 +1,18 @@
 import re
-import sqlalchemy as sa
 
 from collections import defaultdict
+
 from py_meta_utils import McsArgs, McsInitArgs, process_factory_meta_options
+
+import sqlalchemy as sa
+
 from sqlalchemy import Column
-from sqlalchemy.ext.declarative import (
-    DeclarativeMeta as BaseDeclarativeMeta,
-    declared_attr,
-)
+from sqlalchemy.ext.declarative import DeclarativeMeta as BaseDeclarativeMeta
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.schema import _get_table_key
-from sqlalchemy_unchained.utils import snake_case
 
 from .model_meta_options import ModelMetaOptionsFactory
+from .utils import snake_case
 
 
 VALIDATOR_RE = re.compile(r"^validates?_(?P<column>\w+)")
@@ -139,9 +140,7 @@ class DeclarativeMeta(NameMetaMixin, BindMetaMixin, BaseDeclarativeMeta):
 
         validators = mcs_args.getattr("__validators__", defaultdict(list))
         columns = {
-            col_name: col
-            for col_name, col in clsdict.items()
-            if isinstance(col, Column)
+            col_name: col for col_name, col in clsdict.items() if isinstance(col, Column)
         }
         for col_name, col in columns.items():
             if not col.name:

@@ -3,9 +3,10 @@ import warnings
 
 from collections import defaultdict
 
+from py_meta_utils import McsArgs, McsInitArgs, Singleton, deep_getattr
+
 import sqlalchemy as sa
 
-from py_meta_utils import McsArgs, McsInitArgs, Singleton, deep_getattr
 from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm.interfaces import MapperProperty
@@ -134,9 +135,7 @@ class ModelRegistry(metaclass=Singleton):
                 try:
                     other_side_relationships = self._relationships[related_model_name]
                 except KeyError:
-                    related_model_module = self._models[
-                        related_model_name
-                    ].cls.__module__
+                    related_model_module = self._models[related_model_name].cls.__module__
                     raise KeyError(
                         "Incomplete `relationships` Meta declaration for "
                         f"{related_model_module}.{related_model_name} "

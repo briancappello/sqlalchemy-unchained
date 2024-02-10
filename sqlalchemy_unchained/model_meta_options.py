@@ -3,8 +3,6 @@ from __future__ import annotations
 import os
 import typing as t
 
-import sqlalchemy as sa
-
 from py_meta_utils import (
     AbstractMetaOption,
     McsArgs,
@@ -12,13 +10,15 @@ from py_meta_utils import (
     MetaOptionsFactory,
     deep_getattr,
 )
+
+import sqlalchemy as sa
+
 from sqlalchemy import func as sa_func
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import column_property, ColumnProperty, RelationshipProperty
-from sqlalchemy_unchained.utils import snake_case, _missing
+from sqlalchemy.orm import ColumnProperty, RelationshipProperty, column_property
 
 from .model_registry import ModelRegistry
-from .utils import _add_arg_to_table_args, _get_column_names
+from .utils import _add_arg_to_table_args, _get_column_names, _missing, snake_case
 
 
 TRUTHY_VALUES = {"true", "t", "yes" "y", "1"}
@@ -526,7 +526,7 @@ class UniqueTogetherMetaOption(MetaOption):
         for col_name in col_names:
             if col_name not in valid_col_names:
                 raise ValueError(
-                    f"{col_name} is not a valid column name for " f"{mcs_args.qualname}"
+                    f"{col_name} is not a valid column name for {mcs_args.qualname}"
                 )
 
     def contribute_to_class(self, mcs_args: McsArgs, value: t.Any):

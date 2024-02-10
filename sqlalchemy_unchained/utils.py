@@ -1,9 +1,11 @@
 import re
-import sqlalchemy as sa
 
 from functools import reduce
-from py_meta_utils import McsArgs
 from typing import *
+
+from py_meta_utils import McsArgs
+
+import sqlalchemy as sa
 
 
 _missing = type("_missing", (), {"__bool__": lambda self: False})()

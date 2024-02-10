@@ -4,7 +4,8 @@ Override the alembic command to customize the templates directory
 
 import os
 
-from alembic.config import Config as BaseConfig, CommandLine as BaseCommandLine
+from alembic.config import CommandLine as BaseCommandLine
+from alembic.config import Config as BaseConfig
 
 
 class Config(BaseConfig):

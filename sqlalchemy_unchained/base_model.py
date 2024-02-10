@@ -1,6 +1,7 @@
 import inspect
 
 from collections import defaultdict
+
 from sqlalchemy.ext.associationproxy import _AssociationList
 
 from .model_meta_options import ModelMetaOptionsFactory

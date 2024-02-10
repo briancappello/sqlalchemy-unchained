@@ -8,10 +8,13 @@ from py_meta_utils import META_OPTIONS_FACTORY_CLASS_ATTR_NAME
 from sqlalchemy import *
 from sqlalchemy.ext.associationproxy import association_proxy
 
+
 try:
-    from sqlalchemy.orm import declared_attr
     from sqlalchemy.orm import declarative_base as _declarative_base
-    from sqlalchemy.orm.decl_base import _declarative_constructor  # type: ignore[attr-defined]
+    from sqlalchemy.orm import declared_attr
+    from sqlalchemy.orm.decl_base import (  # type: ignore[attr-defined]
+        _declarative_constructor,
+    )
 except ImportError:
     # SQLAlchemy 1.3
     from sqlalchemy.ext.declarative import declared_attr

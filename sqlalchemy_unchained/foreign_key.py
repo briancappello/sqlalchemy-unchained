@@ -1,7 +1,8 @@
+from typing import *
+
 import sqlalchemy as sa
 
 from sqlalchemy.sql.type_api import TypeEngine as SQLAType
-from typing import *
 
 from .base_model import BaseModel as Model
 from .model_registry import ModelRegistry
@@ -86,9 +87,7 @@ def _get_fk_col_args(
     fk_col = fk_col or ModelRegistry().default_primary_key_column
 
     try:
-        model_class = [x for x in args if isinstance(x, type) and issubclass(x, Model)][
-            0
-        ]
+        model_class = [x for x in args if isinstance(x, type) and issubclass(x, Model)][0]
     except IndexError:
         model_class = None
 
